@@ -380,7 +380,7 @@ bool NetworkServer::processReceivedData(MemReaderInterface* mr_intf)
 				SetDlgItemText(h_MySEQServer, IDC_TEXT_NAME, _T(""));
 				break;
 			}
-			if (!mr_intf->openNextProcess("eqgame"), false)
+			if (!mr_intf->openNextProcess("eqgame", false))
 				break;
 		}
 		if (mr_intf->getCurrentPID() != (DWORD)clientRequest)

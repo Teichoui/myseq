@@ -2287,6 +2287,27 @@ namespace myseq
 
 		private void cmdCommand_Click(object sender, System.EventArgs e) {
 
+			int port;
+			if (!int.TryParse(this.txtPortNo.Text, out port) || port < 1 || port > 65535)
+			{
+				MessageBox.Show("Port must be a number between 1 and 65535.", "Invalid Port", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+				// Show the tab holding the port box so the user can see what to fix.
+				Control parent = this.txtPortNo.Parent;
+				while (parent != null && !(parent is TabPage))
+					parent = parent.Parent;
+				TabPage portTab = parent as TabPage;
+				if (portTab != null && portTab.Parent is TabControl)
+					((TabControl)portTab.Parent).SelectedTab = portTab;
+
+				this.txtPortNo.Focus();
+				this.txtPortNo.SelectAll();
+
+				// The Save button's DialogResult.OK would otherwise close the dialog.
+				this.DialogResult = DialogResult.None;
+				return;
+			}
+
             UpdateDiscordSettings();
 
             UpdateSMTPSettings();

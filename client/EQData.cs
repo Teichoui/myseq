@@ -55,7 +55,7 @@ namespace myseq
 
         [DllImport("winmm.dll")]
 
-        public static extern long PlaySound(string lpszName, long hModule, long dwFlags);
+        public static extern bool PlaySound(string lpszName, IntPtr hModule, uint dwFlags);
 
 
 
@@ -226,7 +226,7 @@ namespace myseq
         private static void PlaySnd()
         {
 
-            PlaySound(sndFile, 0, 0);
+            PlaySound(sndFile, IntPtr.Zero, 0);
 
         }
 
@@ -4033,67 +4033,75 @@ namespace myseq
                             if (EmailOnMatch)
                             {
                                 // this is where we do an email alert
-                                MailMessage mailMessage = new MailMessage();
-                                mailMessage.From = new MailAddress(SMTPSettings.Instance.FromEmail);
-
-                                // To Email Address could contain multiple addresses
-                                string presplit = SMTPSettings.Instance.ToEmail.ToString();
-                                string delim = ",;";
-                                char[] delimarray = delim.ToCharArray();
-                                string[] split = null;
-                                split = presplit.Split(delimarray);
-                                foreach (string s in split)
-                                {
-                                    if (s.Trim().Length > 0)
-                                        mailMessage.To.Add(new MailAddress(s.Trim()));
-                                }
-
-                                // CC email addresses
-                                split = null;
-                                presplit = SMTPSettings.Instance.CCEmail.ToString();
-                                split = presplit.Split(delimarray);
-                                foreach (string s in split)
-                                {
-                                    if (s.Trim().Length > 0)
-                                        mailMessage.CC.Add(new MailAddress(s.Trim()));
-                                }
-
-                                mailMessage.Subject = "MySEQ Spawn Alert";
-                                mailMessage.Body = FixMobNameToSpeak(t) + " Spawned at " + DateTime.Now.ToShortTimeString() + " " + DateTime.Now.ToShortDateString();
-                                //MessageBox.Show(mailMessage.Subject + "\r\n" + mailMessage.Body);
-                                SmtpClient smtpClient = new SmtpClient(SMTPSettings.Instance.SmtpServer, SMTPSettings.Instance.SmtpPort);
-                                smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
-
-                                if (SMTPSettings.Instance.UseNetworkCredentials)
-                                {
-                                    smtpClient.UseDefaultCredentials = true;
-                                }
-                                else
-                                {
-                                    smtpClient.UseDefaultCredentials = false;
-
-                                    if (SMTPSettings.Instance.SmtpDomain.ToString() != string.Empty)
-                                        smtpClient.Credentials = new System.Net.NetworkCredential(SMTPSettings.Instance.SmtpUsername, SMTPSettings.Instance.SmtpPassword.ToString(), SMTPSettings.Instance.SmtpDomain.ToString());
-                                    else
-                                        smtpClient.Credentials = new System.Net.NetworkCredential(SMTPSettings.Instance.SmtpUsername.ToString(), SMTPSettings.Instance.SmtpPassword.ToString());
-
-                                }
-                                // using SSL to authenticate?
-                                if (SMTPSettings.Instance.UseSSL)
-                                    smtpClient.EnableSsl = true;
-                                else
-                                    smtpClient.EnableSsl = false;
-                                smtpClient.SendCompleted += new SendCompletedEventHandler(SmtpClient_OnCompleted);
-
-                                object UserState = mailMessage;
-                                // Send away ....
+                                // Addresses come from user settings, so a bad value must not break alert processing.
                                 try
                                 {
-                                    smtpClient.SendAsync(mailMessage, UserState);
+                                    MailMessage mailMessage = new MailMessage();
+                                    mailMessage.From = new MailAddress(SMTPSettings.Instance.FromEmail);
+
+                                    // To Email Address could contain multiple addresses
+                                    string presplit = SMTPSettings.Instance.ToEmail.ToString();
+                                    string delim = ",;";
+                                    char[] delimarray = delim.ToCharArray();
+                                    string[] split = null;
+                                    split = presplit.Split(delimarray);
+                                    foreach (string s in split)
+                                    {
+                                        if (s.Trim().Length > 0)
+                                            mailMessage.To.Add(new MailAddress(s.Trim()));
+                                    }
+
+                                    // CC email addresses
+                                    split = null;
+                                    presplit = SMTPSettings.Instance.CCEmail.ToString();
+                                    split = presplit.Split(delimarray);
+                                    foreach (string s in split)
+                                    {
+                                        if (s.Trim().Length > 0)
+                                            mailMessage.CC.Add(new MailAddress(s.Trim()));
+                                    }
+
+                                    mailMessage.Subject = "MySEQ Spawn Alert";
+                                    mailMessage.Body = FixMobNameToSpeak(t) + " Spawned at " + DateTime.Now.ToShortTimeString() + " " + DateTime.Now.ToShortDateString();
+                                    //MessageBox.Show(mailMessage.Subject + "\r\n" + mailMessage.Body);
+                                    SmtpClient smtpClient = new SmtpClient(SMTPSettings.Instance.SmtpServer, SMTPSettings.Instance.SmtpPort);
+                                    smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
+
+                                    if (SMTPSettings.Instance.UseNetworkCredentials)
+                                    {
+                                        smtpClient.UseDefaultCredentials = true;
+                                    }
+                                    else
+                                    {
+                                        smtpClient.UseDefaultCredentials = false;
+
+                                        if (SMTPSettings.Instance.SmtpDomain.ToString() != string.Empty)
+                                            smtpClient.Credentials = new System.Net.NetworkCredential(SMTPSettings.Instance.SmtpUsername, SMTPSettings.Instance.SmtpPassword.ToString(), SMTPSettings.Instance.SmtpDomain.ToString());
+                                        else
+                                            smtpClient.Credentials = new System.Net.NetworkCredential(SMTPSettings.Instance.SmtpUsername.ToString(), SMTPSettings.Instance.SmtpPassword.ToString());
+
+                                    }
+                                    // using SSL to authenticate?
+                                    if (SMTPSettings.Instance.UseSSL)
+                                        smtpClient.EnableSsl = true;
+                                    else
+                                        smtpClient.EnableSsl = false;
+                                    smtpClient.SendCompleted += new SendCompletedEventHandler(SmtpClient_OnCompleted);
+
+                                    object UserState = mailMessage;
+                                    // Send away ....
+                                    try
+                                    {
+                                        smtpClient.SendAsync(mailMessage, UserState);
+                                    }
+                                    catch (Exception Ex)
+                                    {
+                                        LogLib.WriteLine("Send Mail Error: " + Ex.Message, LogLevel.Error);
+                                    }
                                 }
-                                catch (Exception Ex)
+                                catch (Exception mailEx)
                                 {
-                                    LogLib.WriteLine("Send Mail Error: " + Ex.Message, LogLevel.Error);
+                                    LogLib.WriteLine("Error preparing alert email: " + mailEx.Message, LogLevel.Error);
                                 }
                             }
                         }
@@ -4134,6 +4142,11 @@ namespace myseq
             {
                 LogLib.WriteLine("SendAsync() Completed [" + subject + "]", LogLevel.Info);
             }
+
+            mail.Dispose();
+            SmtpClient client = sender as SmtpClient;
+            if (client != null)
+                client.Dispose();
         }
 
         public bool CheckMyCorpse(string mobname)
@@ -5714,11 +5727,17 @@ namespace myseq
         public string messageContent;
         public void Discord_Message()
         {
-            using (var client = new DiscordWebhookClient(DiscordSettings.Instance.DiscordWebhookUrl))
+            // Runs on its own thread; an unhandled exception here would terminate the whole app.
+            try
             {
-
-                var result = client.SendMessageAsync(text: messageContent).Result;
-
+                using (var client = new DiscordWebhookClient(DiscordSettings.Instance.DiscordWebhookUrl))
+                {
+                    var result = client.SendMessageAsync(text: messageContent).Result;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogLib.WriteLine("Error in Discord_Message(): ", ex);
             }
         }
     }

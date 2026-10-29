@@ -173,7 +173,7 @@ namespace myseq
 
                 // Establish a connection to the server
                 mbGetProcessInfo = true;
-                pSocketClient.Connect(ServerAddress,(short) ServerPort);
+                pSocketClient.Connect(ServerAddress, ServerPort);
 
 
                 return true;

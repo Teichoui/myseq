@@ -5491,8 +5491,9 @@ namespace myseq
             if (Settings.Instance.IPAddress5 != f3.txtIPAddress5.Text)
                 Settings.Instance.IPAddress5 = f3.txtIPAddress5.Text;
 
-            if (Settings.Instance.Port != int.Parse(f3.txtPortNo.Text))
-                Settings.Instance.Port = int.Parse(f3.txtPortNo.Text);
+            int newPort;
+            if (int.TryParse(f3.txtPortNo.Text, out newPort) && newPort > 0 && newPort <= 65535 && Settings.Instance.Port != newPort)
+                Settings.Instance.Port = newPort;
 
             if (Settings.Instance.LevelOverride != (int)f3.spnOverrideLevel.Value)
                 Settings.Instance.LevelOverride = (int)f3.spnOverrideLevel.Value;
