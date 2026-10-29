@@ -273,6 +273,9 @@
     <Compile Include="EQCommunications.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="LauncherCopies.cs" />
+    <Compile Include="PacketFramer.cs" />
+    <Compile Include="SyncHashtable.cs" />
     <Compile Include="EQData.cs">
       <SubType>Code</SubType>
     </Compile>

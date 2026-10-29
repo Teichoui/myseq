@@ -3491,11 +3491,8 @@ namespace myseq
             AppDomain root = AppDomain.CurrentDomain;
             if (root.FriendlyName.Substring(root.FriendlyName.Length - 4) != ".bin")
             {
-                string[] bins = System.IO.Directory.GetFiles(root.BaseDirectory, "*.bin");
-                foreach (string deletefile in bins)
-                {
-                    System.IO.File.Delete(deletefile);
-                }
+                // Remove copies left by earlier runs; other .bin files in this folder are not ours.
+                LauncherCopies.DeleteOldCopies(root.BaseDirectory);
                 Random rnd = new Random();
                 int file_name_len = rnd.Next(4, 16);
                 const string pool = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

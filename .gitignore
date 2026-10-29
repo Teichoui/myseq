@@ -18,3 +18,7 @@ client/bin/
 server/x64
 
 x64/Release/*.exe
+
+# Test project build output
+tests/client/bin/
+tests/client/obj/

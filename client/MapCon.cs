@@ -2564,7 +2564,7 @@ namespace myseq {
 
             // Draw Spawns
 
-            foreach (SPAWNINFO sp in eq.GetMobsReadonly().Values)
+            foreach (SPAWNINFO sp in eq.GetMobsSnapshot())
 
             {
 
@@ -2671,7 +2671,7 @@ namespace myseq {
 
             // Draw Spawns
 
-            foreach (SPAWNINFO sp in eq.GetMobsReadonly().Values)
+            foreach (SPAWNINFO sp in eq.GetMobsSnapshot())
             {
 
                 x = (float)Math.Round(CalcScreenCoordX(sp.X), 0);
@@ -4211,7 +4211,7 @@ namespace myseq {
 
             // Collect Mob Trails
 
-            foreach (SPAWNINFO sp in eq.GetMobsReadonly().Values)
+            foreach (SPAWNINFO sp in eq.GetMobsSnapshot())
             {
 
                 if (sp.Type == 1)

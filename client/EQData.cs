@@ -111,7 +111,7 @@ namespace myseq
 
         private ArrayList items = new ArrayList();          // Hold the items that are on the ground    
 
-        private Hashtable mobs = new Hashtable();           // Holds the details of the mobs in the current zone.
+        private SyncHashtable mobs = new SyncHashtable();           // Holds the details of the mobs in the current zone.
 
         public MobsTimers mobsTimers = new MobsTimers();   // Manages the timers
 
@@ -328,7 +328,7 @@ namespace myseq
                 { search5 = ""; }
             }
 
-            foreach (Structures.SPAWNINFO sp in mobs.Values)
+            foreach (Structures.SPAWNINFO sp in mobs.Snapshot())
             {
                 sp.isLookup = false;
                 sp.lookupNumber = "";
@@ -477,10 +477,11 @@ namespace myseq
 
         // TODO: make sure it is not changed... 
 
-        public Hashtable GetMobsReadonly()
+        // A copy, so callers on the UI thread can loop over it while the socket thread updates the table.
+        public object[] GetMobsSnapshot()
         {
 
-            return mobs;
+            return mobs.Snapshot();
 
         }
 
@@ -707,7 +708,7 @@ namespace myseq
             try
             {
 
-                foreach (SPAWNINFO sp in mobs.Values)
+                foreach (SPAWNINFO sp in mobs.Snapshot())
                 {
 
                     if (!sp.filtered && !sp.hidden && !sp.isFamiliar && !sp.isPet && !sp.isFamiliar && !sp.isMerc)
@@ -745,7 +746,7 @@ namespace myseq
             try
             {
 
-                foreach (SPAWNINFO sp in mobs.Values)
+                foreach (SPAWNINFO sp in mobs.Snapshot())
                 {
 
                     if (!sp.hidden && !sp.isFamiliar && !sp.isPet && !sp.isFamiliar && !sp.isMerc && !sp.m_isPlayer && !sp.isCorpse)
@@ -783,7 +784,7 @@ namespace myseq
             try
             {
 
-                foreach (SPAWNINFO sp in mobs.Values)
+                foreach (SPAWNINFO sp in mobs.Snapshot())
                 {
 
                     if (!sp.hidden && !sp.isFamiliar && !sp.isPet && !sp.isFamiliar && !sp.isMerc && !sp.isCorpse)
@@ -821,7 +822,7 @@ namespace myseq
             try
             {
 
-                foreach (SPAWNINFO sp in mobs.Values)
+                foreach (SPAWNINFO sp in mobs.Snapshot())
                 {
 
                     if (!sp.hidden && !sp.filtered)
@@ -859,7 +860,7 @@ namespace myseq
             try
             {
 
-                foreach (SPAWNINFO sp in mobs.Values)
+                foreach (SPAWNINFO sp in mobs.Snapshot())
                 {
 
                     if ((sp.SpawnLoc == spawnLoc) && (sp.Type == 1))
@@ -2281,7 +2282,7 @@ namespace myseq
 
             // Increment the remove timers on all the mobs
 
-            foreach (SPAWNINFO sp in mobs.Values)
+            foreach (SPAWNINFO sp in mobs.Snapshot())
             {
 
                 if (sp.delFromList)
@@ -2619,7 +2620,7 @@ namespace myseq
 
 
 
-                        foreach (SPAWNINFO sp in mobs.Values)
+                        foreach (SPAWNINFO sp in mobs.Snapshot())
                         {
 
                             if (sp.SpawnID == EQSelectedID)
@@ -3886,7 +3887,7 @@ namespace myseq
             if (mobs != null)
             {
 
-                foreach (SPAWNINFO si in mobs.Values)
+                foreach (SPAWNINFO si in mobs.Snapshot())
                 {
 
                     ListViewItem li = si.listitem;
@@ -4187,7 +4188,7 @@ namespace myseq
 
 
 
-            foreach (SPAWNINFO si in mobs.Values)
+            foreach (SPAWNINFO si in mobs.Snapshot())
             {
 
                 sw.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}", si.Name, si.Level, classNumToString(si.Class),

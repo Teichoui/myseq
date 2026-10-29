@@ -66,9 +66,9 @@ namespace myseq
 
     {
 
-        // Variables to store any incomplete packets till the next chunk arrives.
+        // Puts the server's responses back together when they arrive in pieces.
 
-        public int incompleteCount = 0;
+        private readonly PacketFramer framer = new PacketFramer();
 
         public bool RequestPending = false;
 
@@ -81,12 +81,6 @@ namespace myseq
         public int newProcessID = 0;
 
         bool send_process = false;
-
-        public int numPackets = 0; // Total Packets expected
-
-        public int numProcessed = 0; // No. of Packets already processed        
-
-        public byte   []incompletebuffer = new byte[2048];
 
         
 
@@ -121,7 +115,7 @@ namespace myseq
 
                 RequestPending = false;
 
-                numPackets = numProcessed = 0;
+                framer.Reset();
 
 
 
@@ -418,190 +412,49 @@ namespace myseq
             return ((newProcessID == 0) && (mbGetProcessInfo == false));
         }
 
-        public void ProcessPacket(byte[] packet, int bytes) 
-
+        public void ProcessPacket(byte[] packet, int bytes)
         {
+            bool complete = false;
 
-            int offset = 0;
-
-            const int SIZE_OF_PACKET = 100;
-
-            try {
-
-                if (bytes > 0) 
-
+            try
+            {
+                if (bytes > 0)
                 {
-
-                    // we have received some bytes, check if this is the beginning of a new packet or a chunk of an existing one.
-
-                    if (numPackets == 0)
-
-                    {
-
-                        // The first word in the data stream is the number of packets
-
-                        numPackets = BitConverter.ToInt32(packet, 0);
-
-                        offset = 4;
-
-                        f1.StartNewPackets();
-
-                    } 
-
-                    else 
-
-                    {
-
-                        // We havent finished processing packets, so check if we have any extra bytes stored in our incomplete buffer.
-
-                        offset =- incompleteCount;
-
-                    }
-
-
-
                     eq.BeginProcessPacket();
 
-
-
-                    for (; (offset + SIZE_OF_PACKET) <= (bytes); offset += SIZE_OF_PACKET) 
-
-                    {
-
-                        SPAWNINFO si = new SPAWNINFO();
-
-                        if (offset < 0) 
-
+                    // A read can end anywhere in a response, so the framer holds back a partial
+                    // header or record until the rest arrives.
+                    complete = framer.Feed(packet, bytes,
+                        count => f1.StartNewPackets(),
+                        (buffer, offset) =>
                         {
-
-                            // copy the missing chunk of the incomplete packet to the incomplete packet buffer
-
-                            try {
-
-                                if (incompleteCount > 0 && packet.Length > 0)
-
-                                    Array.Copy(packet, 0, incompletebuffer, incompleteCount, (SIZE_OF_PACKET - incompleteCount));
-
+                            // One bad record must not lose the ones after it or throw the stream off.
+                            try
+                            {
+                                SPAWNINFO si = new SPAWNINFO();
+                                si.frombytes(buffer, offset);
+                                f1.ProcessPacket(si, update_hidden);
                             }
-
-                            catch (Exception ex) {LogLib.WriteLine("Error in ProcessPacket() Copy Incomplete packet buffer: " ,ex);} 
-
-                            
-
-                            incompleteCount = 0;
-
-                            
-
-                            if (incompletebuffer.Length == 0) {
-
-                                numPackets = 0;
-
-                                break;
-
-                            }
-
-   
-
-                            si.frombytes(incompletebuffer, 0);
-
-                        } 
-
-                        else 
-
-                        {
-
-                            si.frombytes(packet, offset);
-
-                        }
-
-
-
-                        numProcessed ++;
-
-                        
-
-                        f1.ProcessPacket(si, update_hidden);
-
-
-
-                    }
+                            catch (Exception ex) {LogLib.WriteLine("Error in ProcessPacket() processing a record: ", ex);}
+                        });
 
                     f1.ProcessSpawnList();
-
                     f1.ProcessGroundItemList();
-
                     //f1.ProcessSpawnTimer();
-
                 }
-
             }
-
             catch (Exception ex) {LogLib.WriteLine("Error in ProcessPacket(): ", ex);}
 
-            if (numProcessed < numPackets) 
-
+            if (complete)
             {
-
-                if (offset < bytes) 
-
-                {
-
-                    // Copy unprocessed bytes into the incomplete buffer
-
-                    incompleteCount = bytes - offset;
-
-                    try 
-
-                    {
-
-                        //if (incompleteCount > 0 && offset > 0 && (offset + incompleteCount) < incompletebuffer.Length)
-
-                        Array.Copy(packet, offset, incompletebuffer, 0, incompleteCount);
-
-                    }
-
-                    catch (Exception ex) 
-
-                    {
-
-                        LogLib.WriteLine("Error in ProcessPacket(): Copy to Incomplete Buffer: ", ex);
-
-                        LogLib.WriteLine("Packet Size: " + packet.Length.ToString() + " Offset: " + offset);
-
-                        LogLib.WriteLine("Buffer Size: " + incompletebuffer.Length.ToString() + " Incomplete Size: " + incompleteCount);
-
-                    }
-
-                }   
-
-            } 
-
-            else 
-
-            {
-
                 // Finished proceessing the request
-
                 RequestPending = false;
-
                 if (update_hidden)
                     update_hidden = false;
-
-                numPackets=numProcessed=0;
-
-                incompleteCount = 0;
-                // Make sure that the incomplete buffer is actually empty
-                if (incompletebuffer.Length > 0)
-                    for (int pp = 0; pp < incompletebuffer.Length; pp++)
-                        incompletebuffer[pp] = 0;
-
                 f1.checkMobs();
-
                 f1.mapCon.Invalidate();
-
             }
-
-        }  
+        }
 
     }
 
