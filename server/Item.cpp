@@ -82,7 +82,7 @@ void Item::init(IniReaderInterface* ir_intf)
 
 	// We use this to store the raw data from the EQ process
 
-	rawBuffer = new char[largestOffset];
+	rawBuffer = new char[largestOffset]();
 
 
 

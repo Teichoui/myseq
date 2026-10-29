@@ -21,6 +21,7 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 #include "NetworkServer.h"
+#include "NetUtil.h"
 #include <stdlib.h>
 #include <IPHlpApi.h>
 
@@ -346,7 +347,7 @@ UINT NetworkServer::current_offset(int type)
 
 bool NetworkServer::processReceivedData(MemReaderInterface* mr_intf)
 {
-	int bytesRecvd, maxLoop;
+	int maxLoop;
 	QWORD pTemp, pTemp2;
 	string newZoneName;
 	int numSpawns = 0, numItems = 0, numElements;
@@ -359,9 +360,8 @@ bool NetworkServer::processReceivedData(MemReaderInterface* mr_intf)
 	}	
 		
 	// Wait for request from the client
-	bytesRecvd = recv(sockClient, (char*)&clientRequest, sizeof(clientRequest), 0);
-	
-	if (bytesRecvd == 0 || bytesRecvd == SOCKET_ERROR || bytesRecvd != sizeof(clientRequest))
+	// The request is small but TCP may still deliver it in pieces.
+	if (!recvAll(sockClient, (char*)&clientRequest, sizeof(clientRequest)))
 	{
 		return true;
 	}
@@ -413,22 +413,23 @@ bool NetworkServer::processReceivedData(MemReaderInterface* mr_intf)
 		spawnParser.pushNetBuffer();
 		// First send the number of elements
 		numElements = spawnParser.getNetBufferSize();
-		send(sockClient, (char*) &numElements, sizeof(numElements), 0);
-		
+		bool sendOk = sendAll(sockClient, (char*) &numElements, sizeof(numElements));
+
 		// Now sent the array of elements
 		if ( numElements )
 		{
 			// Show the spawncount (minus the zonename and yourself, if there is targeted mob we will get one extra)
 			if (quickInfo)
 				cout << "MySEQServer: numSpawns(" << dec << numSpawns << ") numItems(" << numItems << ")" << endl;
-			
-			send(sockClient, (char*) spawnParser.getNetBufferStart(), numElements * sizeof(netBuffer_t), 0);
+
+			if (sendOk)
+				sendOk = sendAll(sockClient, (char*) spawnParser.getNetBufferStart(), numElements * sizeof(netBuffer_t));
 			spawnParser.clearNetBuffer();
 			numSpawns = numItems = 0;
 		}
 
-		return false;
-		//return true;  // return true, if not good receive
+		// A failed send leaves the client out of step with the stream, so drop the connection.
+		return !sendOk;
 	}
 
 	// Send get_process requests
@@ -526,8 +527,7 @@ bool NetworkServer::processReceivedData(MemReaderInterface* mr_intf)
 			
 		if (offsets[OT_spawnlist])
 			pTemp = pTemp2 = mr_intf->extractRAWPointer(offsets[OT_spawnlist]);
-			cout << "ptemp " << pTemp << " pTemp2 " << pTemp2 << endl;
-				
+
 		/* As of TSS, after shrouds or hover, this pointer may point to a spawn in the
 			middle of the list. Back up to the top of the spawn list just to be sure we
 			grab the whole thing. */
@@ -538,7 +538,6 @@ bool NetworkServer::processReceivedData(MemReaderInterface* mr_intf)
 				if (spawnParser.extractPrevPointer())
 				{
 					pTemp = spawnParser.extractPrevPointer();
-					cout << "pTemp extract " << pTemp << " raw " << spawnParser.rawBuffer << " largest offset " << spawnParser.largestOffset << endl;
 				}
 				else
 					break;
@@ -556,8 +555,9 @@ bool NetworkServer::processReceivedData(MemReaderInterface* mr_intf)
 				cout << "MySEQServer: pSpawnlist changed from INI setting of 0x" << hex << pTemp2 << " to " << pTemp << endl;
 		}
 		loopCount++;
-							
-		while (pTemp)
+
+		WalkGuard spawnWalk;
+		while (pTemp && spawnWalk.visit(pTemp))
 		{
 			if (mr_intf->extractToBuffer(pTemp, spawnParser.rawBuffer, spawnParser.largestOffset))
 			{
@@ -588,7 +588,8 @@ bool NetworkServer::processReceivedData(MemReaderInterface* mr_intf)
 			UINT typeOffset = spawnParser.offsets[spawnParser.OT_type];
 			BYTE result;
 			int pcNum=0, npcNum=0, corpseNum=0;
-			while (pTemp)
+			WalkGuard countWalk;
+			while (pTemp && countWalk.visit(pTemp))
 			{
 				if (mr_intf->extractToBuffer(pTemp, spawnParser.rawBuffer, spawnParser.largestOffset))
 				{
@@ -727,18 +728,20 @@ bool NetworkServer::processReceivedData(MemReaderInterface* mr_intf)
 	numElements = spawnParser.getNetBufferSize();
 		
 	// First send the number of elements
-	send(sockClient, (char*) &numElements, sizeof(numElements), 0);
-		
+	bool sendOk = sendAll(sockClient, (char*) &numElements, sizeof(numElements));
+
 	// Now sent the array of elements
 	if ( numElements )
 	{
 		// Show the spawncount (minus the zonename and yourself, if there is targeted mob we will get one extra)
 		if (quickInfo)
 			cout << "MySEQServer: numSpawns(" << dec << numSpawns << ") numItems(" << numItems << ")" << endl;
-			
-		send(sockClient, (char*) spawnParser.getNetBufferStart(), numElements * sizeof(netBuffer_t), 0);
+
+		if (sendOk)
+			sendOk = sendAll(sockClient, (char*) spawnParser.getNetBufferStart(), numElements * sizeof(netBuffer_t));
 		spawnParser.clearNetBuffer();
 		numSpawns = numItems = 0;
 	}
-	return false;
+	// A failed send leaves the client out of step with the stream, so drop the connection.
+	return !sendOk;
 }

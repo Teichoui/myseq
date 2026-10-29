@@ -78,7 +78,8 @@ public:
 
 private:
 
-	string extractRawString(offset_types ot)	{ return string(&rawBuffer[offsets[ot]]); }
+	// Stop at the end of rawBuffer even if the game memory has no terminating NUL.
+	string extractRawString(offset_types ot)	{ return string(&rawBuffer[offsets[ot]], strnlen(&rawBuffer[offsets[ot]], largestOffset - offsets[ot])); }
 
 	float extractRawFloat(offset_types ot)		{ return *((float*) &rawBuffer[offsets[ot]]); }
 

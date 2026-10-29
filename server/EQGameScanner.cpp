@@ -87,6 +87,12 @@ DWORD EQGameScanner::findEQPointerOffset(DWORD startAddress, std::size_t blockSi
 	if (!file)
 		return NULL;
 
+	// The mask has to mark the target value with t; without it there is nothing to read back.
+	if (std::string(charMask).find_first_of("t") == std::string::npos)
+		return NULL;
+
+	std::size_t maskLen = strlen(charMask);
+
 	int typelen = 0;
 
 	typelen = (int)std::string(charMask).find_last_of("t") - (int)std::string(charMask).find_first_of("t") + 1;
@@ -108,7 +114,8 @@ DWORD EQGameScanner::findEQPointerOffset(DWORD startAddress, std::size_t blockSi
 
 	// Search for a position that fits our masks in memory.
 	// Thanks to dom1n1k for the piece of code this is based off of.
-	for (DWORD i = 0; i < blockSize; ++i)
+	// compareData reads the whole mask, so stop before it would run past the end of the buffer.
+	for (DWORD i = 0; i + maskLen <= blockSize; ++i)
 	{
 		if (compareData(buffer + i, byteMask, charMask))
 		{
@@ -133,7 +140,10 @@ DWORD EQGameScanner::findEQPointerOffset(DWORD startAddress, std::size_t blockSi
 
 	// If we didn't find a match, return NULL
 	if (matchAddr == NULL)
+	{
+		delete[] buffer;
 		return NULL;
+	}
 
 	DWORD nRet;
 
@@ -159,15 +169,19 @@ DWORD EQGameScanner::findEQStructureOffset(DWORD startAddress, std::size_t block
 	if (strlen(charMask) == 0)
 		return nRet;
 
+	// The EQPointer is denoted by the letter o in our character mask and is written as a QWORD,
+	// so the mask must have an o with sizeof(QWORD) bytes of room from there to its end.
+	std::size_t maskLen = strlen(charMask);
+	std::size_t pointerPos = std::string(reinterpret_cast<const PCHAR>(charMask)).find_first_of("o");
+	if (pointerPos == std::string::npos || pointerPos + sizeof(QWORD) > maskLen)
+		return nRet;
+
 	// Create a new, editable, copy of byteMask.
-	PBYTE newByteMask = new BYTE[strlen(charMask)];
-	memcpy(newByteMask, byteMask, strlen(charMask));
+	PBYTE newByteMask = new BYTE[maskLen];
+	memcpy(newByteMask, byteMask, maskLen);
 
 	// Replace the EQPointer in our byteMask with the EQPointer given as an argument.
-	// The location of the EQPointer is denoted by the letter o in our character mask.
-	// Currently we require and always assume that the EQPointer is 4 bytes.
-	PQWORD valueToChange = reinterpret_cast<PQWORD>(newByteMask + std::string(reinterpret_cast<const PCHAR>(charMask)).find_first_of("o"));
-	*valueToChange = baseEQPointerAddress;
+	memcpy(newByteMask + pointerPos, &baseEQPointerAddress, sizeof(QWORD));
 
 	// Use the updated byteMask to locate the EQStructureOffset
 	nRet = findEQPointerOffset(startAddress, blockSize, newByteMask, charMask);
