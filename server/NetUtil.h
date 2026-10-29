@@ -46,9 +46,20 @@ inline bool sendAll(SOCKET s, const char* buf, std::size_t len, int timeoutMs = 
 	return true;
 }
 
+enum class RecvResult
+{
+	Complete,	// all len bytes were read
+	NoData,		// nothing was readable yet; the connection is still fine
+	Closed		// the peer closed the connection, an error occurred, or the request stalled part way
+};
+
 // Read exactly len bytes. A stream socket may deliver a small message in pieces, so once
-// the first bytes have arrived wait for the rest. Fails at once if nothing was readable.
-inline bool recvAll(SOCKET s, char* buf, std::size_t len, int timeoutMs = 1000)
+// the first bytes have arrived wait for the rest.
+//
+// With WSAAsyncSelect, reading again after the first recv() can leave an FD_READ message queued
+// for data that has already been consumed. Handling it finds nothing to read, which is not a
+// disconnect, so that case is reported as NoData and returns at once.
+inline RecvResult recvAll(SOCKET s, char* buf, std::size_t len, int timeoutMs = 1000)
 {
 	std::size_t got = 0;
 
@@ -57,20 +68,24 @@ inline bool recvAll(SOCKET s, char* buf, std::size_t len, int timeoutMs = 1000)
 		int n = recv(s, buf + got, (int)(len - got), 0);
 
 		if (n == 0)
-			return false;
+			return RecvResult::Closed;
 
 		if (n == SOCKET_ERROR)
 		{
-			if (got == 0 || WSAGetLastError() != WSAEWOULDBLOCK || !waitForSocket(s, false, timeoutMs))
-				return false;
+			if (WSAGetLastError() != WSAEWOULDBLOCK)
+				return RecvResult::Closed;
+			if (got == 0)
+				return RecvResult::NoData;
+			if (!waitForSocket(s, false, timeoutMs))
+				return RecvResult::Closed;
 			continue;
 		}
 		got += n;
 
 		if (got < len && !waitForSocket(s, false, timeoutMs))
-			return false;
+			return RecvResult::Closed;
 	}
-	return true;
+	return RecvResult::Complete;
 }
 
 // Stops a linked-list walk through game memory from looping forever on a cycle.

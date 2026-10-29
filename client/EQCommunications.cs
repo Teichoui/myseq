@@ -443,6 +443,17 @@ namespace myseq
                     //f1.ProcessSpawnTimer();
                 }
             }
+            catch (InvalidDataException ex)
+            {
+                // The count in the response header was nonsense, so the stream is out of step with
+                // the server: the rest of that response would be read as the start of the next one.
+                // Dropping the connection (as when the server hangs up) is safer than leaving the
+                // request pending, which would freeze the display without saying why.
+                LogLib.WriteLine("Closing connection after a bad server response: ", ex);
+                framer.Reset();
+                CloseHandler(pSocketClient);
+                return;
+            }
             catch (Exception ex) {LogLib.WriteLine("Error in ProcessPacket(): ", ex);}
 
             if (complete)

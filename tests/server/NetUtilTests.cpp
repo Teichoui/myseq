@@ -187,7 +187,7 @@ static void testRecvAllFragmented()
 	waitForSocket(p.server, false, 2000);
 
 	char got[4] = {};
-	bool ok = recvAll(p.server, got, 4);
+	bool ok = (recvAll(p.server, got, 4) == RecvResult::Complete);
 	writer.join();
 
 	CHECK(ok, "recvAll waits for the remaining bytes");
@@ -208,7 +208,7 @@ static void testRecvAllWholeAtOnce()
 	waitForSocket(p.server, false, 2000);
 
 	char got[4] = {};
-	CHECK(recvAll(p.server, got, 4), "returns true");
+	CHECK(recvAll(p.server, got, 4) == RecvResult::Complete, "returns Complete");
 	CHECK(memcmp(got, msg, 4) == 0, "bytes match");
 
 	closesocket(p.server);
@@ -224,14 +224,55 @@ static void testRecvAllNothingReadable()
 
 	char got[4] = {};
 	auto t0 = std::chrono::steady_clock::now();
-	bool ok = recvAll(p.server, got, 4, 1000);
+	RecvResult r = recvAll(p.server, got, 4, 1000);
 	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t0).count();
 
-	CHECK(!ok, "returns false");
+	CHECK(r == RecvResult::NoData, "returns NoData, not Closed");
 	CHECK(ms < 200, "returns at once instead of waiting out the timeout");
+
+	// The connection must still work afterwards.
+	send(p.client, "wxyz", 4, 0);
+	waitForSocket(p.server, false, 2000);
+	CHECK(recvAll(p.server, got, 4) == RecvResult::Complete && memcmp(got, "wxyz", 4) == 0, "the next request on the same connection is read normally");
 
 	closesocket(p.server);
 	closesocket(p.client);
+}
+
+static void testRecvAllQueuedNotification()
+{
+	printf("recvAll: FD_READ left queued after the data was already read\n");
+
+	// A request arrives in pieces. The first recv() re-arms FD_READ, so the later pieces queue
+	// another notification even though recvAll then reads them. Handling that notification
+	// finds an empty socket; the old code treated that as a dead connection.
+	Pair p = makePair();
+	setNonBlocking(p.server);
+	setsockopt(p.client, IPPROTO_TCP, TCP_NODELAY, "\1", 1);
+
+	const char msg[4] = { 9, 8, 7, 6 };
+	std::thread writer([&] {
+		send(p.client, msg, 2, 0);
+		std::this_thread::sleep_for(std::chrono::milliseconds(60));
+		send(p.client, msg + 2, 2, 0);
+	});
+	waitForSocket(p.server, false, 2000);
+
+	char got[4] = {};
+	CHECK(recvAll(p.server, got, 4) == RecvResult::Complete && memcmp(got, msg, 4) == 0, "the split request is read in one call");
+	writer.join();
+
+	// The second, spurious notification: nothing left to read.
+	char again[4] = {};
+	RecvResult second = recvAll(p.server, again, 4);
+	CHECK(second == RecvResult::NoData, "the empty follow-up read is NoData, so the server keeps the connection");
+
+	// A peer that really hung up is still told apart from that.
+	closesocket(p.client);
+	waitForSocket(p.server, false, 2000);
+	CHECK(recvAll(p.server, again, 4) == RecvResult::Closed, "a real disconnect is still Closed");
+
+	closesocket(p.server);
 }
 
 static void testRecvAllPeerClosed()
@@ -245,7 +286,7 @@ static void testRecvAllPeerClosed()
 	waitForSocket(p.server, false, 2000);
 
 	char got[4] = {};
-	CHECK(!recvAll(p.server, got, 4, 500), "returns false");
+	CHECK(recvAll(p.server, got, 4, 500) == RecvResult::Closed, "returns Closed, not NoData");
 
 	closesocket(p.server);
 }
@@ -261,7 +302,7 @@ static void testRecvAllStalledPartial()
 
 	char got[4] = {};
 	auto t0 = std::chrono::steady_clock::now();
-	bool ok = recvAll(p.server, got, 4, 300);
+	bool ok = (recvAll(p.server, got, 4, 300) == RecvResult::Complete);
 	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t0).count();
 
 	CHECK(!ok, "gives up with false");
@@ -328,6 +369,7 @@ int main()
 	testRecvAllFragmented();
 	testRecvAllWholeAtOnce();
 	testRecvAllNothingReadable();
+	testRecvAllQueuedNotification();
 	testRecvAllPeerClosed();
 	testRecvAllStalledPartial();
 	testWalkGuard();

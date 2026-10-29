@@ -361,7 +361,15 @@ bool NetworkServer::processReceivedData(MemReaderInterface* mr_intf)
 		
 	// Wait for request from the client
 	// The request is small but TCP may still deliver it in pieces.
-	if (!recvAll(sockClient, (char*)&clientRequest, sizeof(clientRequest)))
+	RecvResult received = recvAll(sockClient, (char*)&clientRequest, sizeof(clientRequest));
+
+	// A queued FD_READ for data an earlier call already read: nothing to do, keep the connection.
+	if (received == RecvResult::NoData)
+	{
+		return false;
+	}
+
+	if (received != RecvResult::Complete)
 	{
 		return true;
 	}
