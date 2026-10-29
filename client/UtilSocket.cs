@@ -57,9 +57,9 @@ namespace SocketSystem {
         /// <summary> RefType: The IpAddress the client is connect to </summary>
         public String GetIpAddress {get{return m_strIpAddress;} set{m_strIpAddress = value;}}
 
-        private Int16 m_iPort;
+        private Int32 m_iPort;
         /// <summary> SimType: The Port to either connect to or listen on </summary>
-        public Int16 GetPort {get{return m_iPort;} set{m_iPort = value;}}
+        public Int32 GetPort {get{return m_iPort;} set{m_iPort = value;}}
 
         private Object m_pUserArg;
         /// <summary> RefType: A reference to a user defined object </summary>
@@ -198,7 +198,7 @@ namespace SocketSystem {
         /// <summary> Function used to connect to a server </summary>
         /// <param name="strIpAddress"> RefType: The address to connect to </param>
         /// <param name="iPort"> SimType: The Port to connect to </param>
-        public void Connect(String strIpAddress, Int16 iPort) {
+        public void Connect(String strIpAddress, Int32 iPort) {
             LogLib.WriteLine("Entering in CSocketClient.Connect()", LogLevel.Trace);
             try {
                 if (GetNetworkStream == null) {
