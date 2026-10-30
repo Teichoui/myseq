@@ -215,7 +215,6 @@
     </Compile>
     <Content Include="Resources\EnvelopeHS.png" />
     <None Include="app.manifest" />
-    <None Include="packages.config" />
     <None Include="Resources\ShrinkSpaceHS.PNG" />
     <None Include="Resources\ExpandSpaceHS.png" />
     <None Include="Resources\File.ico" />
