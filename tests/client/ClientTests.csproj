@@ -13,6 +13,7 @@
     <Compile Include="..\..\client\PacketFramer.cs" Link="client\PacketFramer.cs" />
     <Compile Include="..\..\client\SyncHashtable.cs" Link="client\SyncHashtable.cs" />
     <Compile Include="..\..\client\LauncherCopies.cs" Link="client\LauncherCopies.cs" />
+    <Compile Include="..\..\client\DiscordWebhook.cs" Link="client\DiscordWebhook.cs" />
   </ItemGroup>
 
 </Project>

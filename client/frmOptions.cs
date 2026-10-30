@@ -26,9 +26,7 @@ using System.Net;
 
 using System.Net.Mail;
 
-using Discord;
 
-using Discord.Webhook;
 
 
 
@@ -3040,11 +3038,17 @@ namespace myseq
             }
             else
             {
-                using (var client = new DiscordWebhookClient(DiscordSettings.Instance.DiscordWebhookUrl))
+                string webhookUrl = DiscordSettings.Instance.DiscordWebhookUrl;
+                try
                 {
-
-                    await client.SendMessageAsync(text: "Test Message");
-
+                    // Send() blocks, so keep it off the UI thread.
+                    await Task.Run(() => DiscordWebhook.Send(webhookUrl, "Test Message"));
+                    MessageBox.Show("The test message was sent to Discord.", "Discord Test Message", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    LogLib.WriteLine("Error sending the Discord test message: ", ex);
+                    MessageBox.Show("The test message could not be sent:\r\n\r\n" + ex.Message, "Discord Test Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }

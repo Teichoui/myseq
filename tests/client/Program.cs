@@ -3,6 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Sockets;
+using System.Text;
+using System.Text.Json;
 using System.Threading;
 
 namespace myseq.Tests
@@ -33,6 +38,15 @@ namespace myseq.Tests
             Console.WriteLine("\nSyncHashtable");
             SyncBasics();
             SyncConcurrentEnumeration();
+
+            Console.WriteLine("\nDiscordWebhook");
+            WebhookPayload();
+            WebhookTruncation();
+            WebhookSend();
+            WebhookRateLimit();
+            WebhookErrors();
+            WebhookBadUrls();
+            WebhookTimeoutAndUnreachable();
 
             Console.WriteLine("\nLauncherCopies");
             LauncherSelectsOnlyItsOwnCopies();
@@ -401,6 +415,206 @@ namespace myseq.Tests
         }
 
         private static volatile bool volatileStop;
+
+        // ---------- DiscordWebhook ----------
+
+        // A webhook endpoint on localhost. respond gets the request number (0, 1, ...) and the response to fill in.
+        private sealed class FakeWebhook : IDisposable
+        {
+            private readonly HttpListener listener = new HttpListener();
+            public readonly string Url;
+            public readonly List<string> Bodies = new List<string>();
+            public readonly List<string> Methods = new List<string>();
+            public readonly List<string> ContentTypes = new List<string>();
+
+            public FakeWebhook(Action<int, HttpListenerResponse> respond)
+            {
+                int port;
+                TcpListener probe = new TcpListener(IPAddress.Loopback, 0);
+                probe.Start();
+                port = ((IPEndPoint)probe.LocalEndpoint).Port;
+                probe.Stop();
+
+                Url = "http://127.0.0.1:" + port + "/api/webhooks/1234/secret-token";
+                listener.Prefixes.Add("http://127.0.0.1:" + port + "/");
+                listener.Start();
+
+                Thread worker = new Thread(() =>
+                {
+                    int n = 0;
+                    while (true)
+                    {
+                        HttpListenerContext ctx;
+                        try { ctx = listener.GetContext(); }
+                        catch (Exception) { return; }
+
+                        string body;
+                        using (StreamReader r = new StreamReader(ctx.Request.InputStream, Encoding.UTF8))
+                            body = r.ReadToEnd();
+                        lock (Bodies) { Bodies.Add(body); Methods.Add(ctx.Request.HttpMethod); ContentTypes.Add(ctx.Request.ContentType); }
+
+                        try { respond(n++, ctx.Response); ctx.Response.Close(); }
+                        catch (Exception) { }
+                    }
+                });
+                worker.IsBackground = true;
+                worker.Start();
+            }
+
+            public int Requests { get { lock (Bodies) { return Bodies.Count; } } }
+
+            public void Dispose() { try { listener.Close(); } catch (Exception) { } }
+        }
+
+        private static string ContentOf(string json)
+        {
+            using (JsonDocument doc = JsonDocument.Parse(json))
+                return doc.RootElement.GetProperty("content").GetString();
+        }
+
+        private static Exception Catch(Action a)
+        {
+            try { a(); return null; } catch (Exception e) { return e; }
+        }
+
+        private static void WebhookPayload()
+        {
+            Console.WriteLine(" the JSON body");
+            string tricky = "a\"b\\c\n\r\t\u0001 \u00e9 \U0001F600 </script> {\"x\":1}";
+            string json = DiscordWebhook.BuildPayload(tricky);
+            Check(json == "{\"content\":\"a\\\"b\\\\c\\n\\r\\t\\u0001 \u00e9 \U0001F600 </script> {\\\"x\\\":1}\"}", "quotes, backslashes and control characters are escaped");
+            Check(ContentOf(json) == tricky, "a real JSON parser reads back exactly what was sent");
+            Check(ContentOf(DiscordWebhook.BuildPayload(null)) == "" && ContentOf(DiscordWebhook.BuildPayload("")) == "", "null and empty become an empty message");
+
+            Random rnd = new Random(7);
+            string alphabet = "ab \"\\/\n\r\t\u0000\u0007\u001f\u007f\u00e9\u4e2d{}[]:,";
+            bool allOk = true;
+            for (int i = 0; i < 2000 && allOk; i++)
+            {
+                StringBuilder sb = new StringBuilder();
+                int len = rnd.Next(0, 60);
+                for (int j = 0; j < len; j++) sb.Append(alphabet[rnd.Next(alphabet.Length)]);
+                string s = sb.ToString();
+                allOk = ContentOf(DiscordWebhook.BuildPayload(s)) == s;
+            }
+            Check(allOk, "2000 random strings round-trip through a JSON parser");
+        }
+
+        private static void WebhookTruncation()
+        {
+            Console.WriteLine(" the 2000 character limit");
+            string longText = new string('x', 2500);
+            Check(ContentOf(DiscordWebhook.BuildPayload(longText)).Length == DiscordWebhook.MaxContentLength, "a longer message is cut to 2000 characters");
+            Check(ContentOf(DiscordWebhook.BuildPayload(new string('y', 2000))).Length == 2000, "exactly 2000 is left alone");
+
+            // A smiley is two UTF-16 characters; cutting between them would send a broken character.
+            string splitsEmoji = new string('z', 1999) + "\U0001F600";
+            string cut = ContentOf(DiscordWebhook.BuildPayload(splitsEmoji));
+            Check(cut.Length == 1999 && !char.IsHighSurrogate(cut[cut.Length - 1]), "a cut never leaves half of an emoji");
+        }
+
+        private static void WebhookSend()
+        {
+            Console.WriteLine(" posting a message");
+            using (FakeWebhook server = new FakeWebhook((n, resp) => { resp.StatusCode = 204; }))
+            {
+                string message = "Orc Pawn spawned at 7:15 PM \"today\"";
+                Exception e = Catch(() => DiscordWebhook.Send(server.Url, message));
+                Check(e == null, "a 204 answer counts as sent" + (e == null ? "" : " (" + e.Message + ")"));
+                Check(server.Requests == 1 && server.Methods[0] == "POST", "one POST request was made");
+                Check(server.ContentTypes[0] != null && server.ContentTypes[0].StartsWith("application/json"), "sent as application/json");
+                Check(ContentOf(server.Bodies[0]) == message, "the message arrived intact");
+
+                e = Catch(() => DiscordWebhook.Send("  " + server.Url + "  ", "padded"));
+                Check(e == null && ContentOf(server.Bodies[1]) == "padded", "spaces around the saved URL are ignored");
+            }
+        }
+
+        private static void WebhookRateLimit()
+        {
+            Console.WriteLine(" Discord asking us to slow down (HTTP 429)");
+
+            using (FakeWebhook server = new FakeWebhook((n, resp) =>
+            {
+                if (n == 0) { resp.StatusCode = 429; resp.AddHeader("Retry-After", "1"); }
+                else resp.StatusCode = 204;
+            }))
+            {
+                DateTime t0 = DateTime.UtcNow;
+                Exception e = Catch(() => DiscordWebhook.Send(server.Url, "again"));
+                double secs = (DateTime.UtcNow - t0).TotalSeconds;
+                Check(e == null && server.Requests == 2, "waits as asked and retries once, then succeeds");
+                Check(secs >= 0.9 && secs < 5, "after about the 1 second Discord asked for (" + secs.ToString("0.0") + " s)");
+            }
+
+            using (FakeWebhook server = new FakeWebhook((n, resp) => { resp.StatusCode = 429; resp.AddHeader("Retry-After", "1"); }))
+            {
+                Exception e = Catch(() => DiscordWebhook.Send(server.Url, "again"));
+                Check(e is HttpRequestException && e.Message.Contains("429") && server.Requests == 2, "gives up after one retry");
+            }
+
+            using (FakeWebhook server = new FakeWebhook((n, resp) => { resp.StatusCode = 429; resp.AddHeader("Retry-After", "60"); }))
+            {
+                DateTime t0 = DateTime.UtcNow;
+                Exception e = Catch(() => DiscordWebhook.Send(server.Url, "again"));
+                Check(e is HttpRequestException && server.Requests == 1 && (DateTime.UtcNow - t0).TotalSeconds < 3, "a long wait is not sat through; fails at once");
+            }
+        }
+
+        private static void WebhookErrors()
+        {
+            Console.WriteLine(" error answers");
+            using (FakeWebhook server = new FakeWebhook((n, resp) =>
+            {
+                resp.StatusCode = 404;
+                byte[] b = Encoding.UTF8.GetBytes("{\"message\": \"Unknown Webhook\", \"code\": 10015}");
+                resp.OutputStream.Write(b, 0, b.Length);
+            }))
+            {
+                Exception e = Catch(() => DiscordWebhook.Send(server.Url, "x"));
+                Check(e is HttpRequestException && e.Message.Contains("404") && e.Message.Contains("Unknown Webhook"), "the status and Discord's reason are in the error");
+                Check(server.Requests == 1, "an error other than 429 is not retried");
+            }
+
+            using (FakeWebhook server = new FakeWebhook((n, resp) =>
+            {
+                resp.StatusCode = 500;
+                byte[] b = Encoding.UTF8.GetBytes(new string('e', 5000));
+                resp.OutputStream.Write(b, 0, b.Length);
+            }))
+            {
+                Exception e = Catch(() => DiscordWebhook.Send(server.Url, "x"));
+                Check(e != null && e.Message.Length < 400, "a huge error page is trimmed in the message");
+            }
+        }
+
+        private static void WebhookBadUrls()
+        {
+            Console.WriteLine(" URLs that cannot work");
+            foreach (string bad in new string[] { null, "", "   ", "not a url", "discord.com/api/webhooks/1/x", "ftp://example.com/x", "file:///c:/windows/win.ini" })
+            {
+                Exception e = Catch(() => DiscordWebhook.Send(bad, "x"));
+                Check(e is ArgumentException, "rejected before any request: " + (bad == null ? "null" : "\"" + bad + "\""));
+            }
+        }
+
+        private static void WebhookTimeoutAndUnreachable()
+        {
+            Console.WriteLine(" no answer");
+            using (FakeWebhook server = new FakeWebhook((n, resp) => { Thread.Sleep(4000); resp.StatusCode = 204; }))
+            {
+                DateTime t0 = DateTime.UtcNow;
+                Exception e = Catch(() => DiscordWebhook.Send(server.Url, "x", timeoutSeconds: 1));
+                double secs = (DateTime.UtcNow - t0).TotalSeconds;
+                Check(e is TimeoutException, "a server that never answers gives a TimeoutException");
+                Check(secs >= 0.8 && secs < 3.5, "after about the timeout (" + secs.ToString("0.0") + " s)");
+            }
+
+            string closed;
+            using (FakeWebhook gone = new FakeWebhook((n, resp) => { })) { closed = gone.Url; }
+            Exception unreachable = Catch(() => DiscordWebhook.Send(closed, "x", timeoutSeconds: 3));
+            Check(unreachable != null && !(unreachable is ArgumentException), "an address nothing is listening on fails with an error");
+        }
 
         // ---------- LauncherCopies ----------
 

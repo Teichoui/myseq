@@ -32,9 +32,7 @@ using System.Text.RegularExpressions;
 
 using System.Runtime.InteropServices;
 
-using Discord;
 
-using Discord.Webhook;
 
 
 using Color = System.Drawing.Color;
@@ -5731,10 +5729,7 @@ namespace myseq
             // Runs on its own thread; an unhandled exception here would terminate the whole app.
             try
             {
-                using (var client = new DiscordWebhookClient(DiscordSettings.Instance.DiscordWebhookUrl))
-                {
-                    var result = client.SendMessageAsync(text: messageContent).Result;
-                }
+                DiscordWebhook.Send(DiscordSettings.Instance.DiscordWebhookUrl, messageContent);
             }
             catch (Exception ex)
             {
