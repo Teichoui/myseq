@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
 
@@ -35,15 +36,21 @@ namespace myseq
         {
             if ((m.Msg == WM_PAINT || m.Msg == WM_PRINT || m.Msg == WM_PRINTCLIENT) && IsTooSmallToDraw())
             {
+                // Do not call DefWndProc here: on a window that belongs to a Windows Forms control it
+                // forwards to the control's own handler, which is what paints (and throws). Mark the
+                // area as painted so Windows does not send the request again, and answer the message.
                 if (m.Msg == WM_PAINT)
-                    DefWndProc(ref m);      // validates the update region without calling OnPaint
-                else
-                    m.Result = IntPtr.Zero; // nothing to print
+                    ValidateRect(m.HWnd, IntPtr.Zero);
+
+                m.Result = IntPtr.Zero;
                 return;
             }
 
             base.WndProc(ref m);
         }
+
+        [DllImport("user32.dll")]
+        private static extern bool ValidateRect(IntPtr hWnd, IntPtr lpRect);
 
         private bool IsTooSmallToDraw()
         {
