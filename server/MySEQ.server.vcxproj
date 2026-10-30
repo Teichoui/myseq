@@ -204,6 +204,7 @@
     <ClInclude Include="Common.h" />
     <ClInclude Include="Debugger.h" />
     <ClInclude Include="EQGameScanner.h" />
+    <ClInclude Include="NetUtil.h" />
     <ClInclude Include="IniReader.h" />
     <ClInclude Include="Item.h" />
     <ClInclude Include="MemReader.h" />

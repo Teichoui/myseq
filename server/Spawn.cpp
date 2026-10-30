@@ -114,7 +114,7 @@ void Spawn::init(IniReaderInterface* ir_intf)
 
 	// The raw buffer is what where we dump raw data from the EQ process into
 
-	rawBuffer = new char[largestOffset];	
+	rawBuffer = new char[largestOffset]();	
 
 	cout << "Spawn: Spawn Offsets read in." << endl;
 

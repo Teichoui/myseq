@@ -76,7 +76,8 @@ public:
 
 private:
 
-	string extractRawString(World::offset_types ot)	    { return string(&rawBuffer[World::offsets[(UINT)ot]]); }
+	// Stop at the end of rawBuffer even if the game memory has no terminating NUL.
+	string extractRawString(World::offset_types ot)	    { return string(&rawBuffer[World::offsets[(UINT)ot]], strnlen(&rawBuffer[World::offsets[(UINT)ot]], largestOffset - World::offsets[(UINT)ot])); }
 
 	float extractRawFloat(World::offset_types ot)		{ return *((float*)&rawBuffer[World::offsets[(UINT)ot]]); }
 

@@ -143,11 +143,8 @@ bool MemReader::openFirstProcess(string filename, bool debug)
 
 {
 
-	currentEQProcessHandle = NULL;
-
-	currentEQProcessID = 0;
-
-	currentEQProcessBaseAddress = 0x140000000;
+	// Closes any handle we still hold, then resets the ID and base address.
+	closeProcess();
 
 	return openProcess(filename, true, debug);
 
@@ -261,7 +258,9 @@ bool MemReader::openProcess(string filename, bool first, bool debug)
 
 				RTDEBUG("->Match found (PID:0x" << pe32.th32ProcessID << "). Attempting to attach...");
 
-				if (OpenProcess(PROCESS_VM_READ|PROCESS_QUERY_INFORMATION, false, pe32.th32ProcessID))
+				HANDLE hProc = OpenProcess(PROCESS_VM_READ|PROCESS_QUERY_INFORMATION, false, pe32.th32ProcessID);
+
+				if (hProc)
 
 				{
 
@@ -271,7 +270,11 @@ bool MemReader::openProcess(string filename, bool first, bool debug)
 					
 					currentEQProcessID = pe32.th32ProcessID;
 
-					currentEQProcessHandle = OpenProcess(PROCESS_VM_READ|PROCESS_QUERY_INFORMATION, false, currentEQProcessID);
+					// Keep the handle we just opened; release the one for the process we are leaving.
+					if (currentEQProcessHandle)
+						CloseHandle(currentEQProcessHandle);
+
+					currentEQProcessHandle = hProc;
 
 					currentEQProcessBaseAddress = GetModuleBaseAddress( pe32.th32ProcessID, pe32.szExeFile);
 					
@@ -294,6 +297,9 @@ bool MemReader::openProcess(string filename, bool first, bool debug)
 					currentEQProcessID = 0;
 
 					currentEQProcessBaseAddress = 0x140000000;
+
+					if (currentEQProcessHandle)
+						CloseHandle(currentEQProcessHandle);
 
 					currentEQProcessHandle = NULL;
 
