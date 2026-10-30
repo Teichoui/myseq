@@ -46,6 +46,7 @@ namespace myseq.Tests
             WebhookRateLimit();
             WebhookErrors();
             WebhookBadUrls();
+            WebhookRedirect();
             WebhookTimeoutAndUnreachable();
 
             Console.WriteLine("\nLauncherCopies");
@@ -636,10 +637,29 @@ namespace myseq.Tests
         private static void WebhookBadUrls()
         {
             Console.WriteLine(" URLs that cannot work");
-            foreach (string bad in new string[] { null, "", "   ", "not a url", "discord.com/api/webhooks/1/x", "ftp://example.com/x", "file:///c:/windows/win.ini" })
+            foreach (string bad in new string[] { null, "", "   ", "not a url", "discord.com/api/webhooks/1/x", "ftp://example.com/x", "file:///c:/windows/win.ini",
+                                                  "http://example.com/api/webhooks/1/x", "http://192.168.1.5/api/webhooks/1/x" })
             {
                 Exception e = Catch(() => DiscordWebhook.Send(bad, "x"));
                 Check(e is ArgumentException, "rejected before any request: " + (bad == null ? "null" : "\"" + bad + "\""));
+            }
+
+            // https is accepted (it fails to connect here, which is a different error), and so is http to localhost.
+            Exception https = Catch(() => DiscordWebhook.Send("https://127.0.0.1:1/api/webhooks/1/x", "x", timeoutSeconds: 3));
+            Check(https is HttpRequestException, "an https address passes the check (and then fails to connect)");
+        }
+
+        private static void WebhookRedirect()
+        {
+            Console.WriteLine(" a redirect");
+
+            // HttpClient follows redirects on its own by default, and a 307 re-sends the POST body.
+            using (FakeWebhook elsewhere = new FakeWebhook((n, resp) => { resp.StatusCode = 204; }))
+            using (FakeWebhook redirector = new FakeWebhook((n, resp) => { resp.StatusCode = 307; resp.AddHeader("Location", elsewhere.Url); }))
+            {
+                Exception e = Catch(() => DiscordWebhook.Send(redirector.Url, "secret message"));
+                Check(e is HttpRequestException && e.Message.Contains("307"), "a redirect is reported as an error");
+                Check(redirector.Requests == 1 && elsewhere.Requests == 0, "and the message is not sent on to the address it points at");
             }
         }
 
@@ -659,6 +679,12 @@ namespace myseq.Tests
             using (FakeWebhook gone = new FakeWebhook((n, resp) => { })) { closed = gone.Url; }
             Exception unreachable = Catch(() => DiscordWebhook.Send(closed, "x", timeoutSeconds: 3));
             Check(unreachable != null && !(unreachable is ArgumentException), "an address nothing is listening on fails with an error");
+
+            Exception root = unreachable;
+            while (root != null && root.InnerException != null) root = root.InnerException;
+            Check(unreachable is HttpRequestException && root != null && root != unreachable && unreachable.Message.Contains(root.Message),
+                  "the error says why (\"" + (unreachable == null ? "" : unreachable.Message.Replace("\r", " ").Replace("\n", " ")) + "\")");
+            Check(unreachable != null && !unreachable.Message.StartsWith("An error occurred while sending the request"), "and is not just HttpClient's generic message");
         }
 
         // ---------- LauncherCopies ----------

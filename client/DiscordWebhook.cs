@@ -21,24 +21,29 @@ namespace myseq
 
         /// <summary>
         /// Sends content to the webhook and returns when Discord accepts it. Throws if the URL is not
-        /// an http(s) address, the request times out, or Discord answers with an error. Discord
-        /// asking us to slow down (HTTP 429) is retried once if it names a short wait.
+        /// an https address (http is accepted for localhost only, for testing), the request times out
+        /// or cannot connect, or Discord answers with an error. Discord asking us to slow down
+        /// (HTTP 429) is retried once if it names a short wait.
         /// This blocks, so call it from a worker thread.
         /// </summary>
         public static void Send(string webhookUrl, string content, int timeoutSeconds = 15)
         {
+            // A webhook URL carries a secret token, so only send it over https. http is allowed for
+            // localhost, which is how the tests run a fake Discord.
             Uri uri;
             if (string.IsNullOrWhiteSpace(webhookUrl)
                 || !Uri.TryCreate(webhookUrl.Trim(), UriKind.Absolute, out uri)
-                || (uri.Scheme != Uri.UriSchemeHttps && uri.Scheme != Uri.UriSchemeHttp))
+                || !(uri.Scheme == Uri.UriSchemeHttps || (uri.Scheme == Uri.UriSchemeHttp && uri.IsLoopback)))
             {
-                throw new ArgumentException("The Discord webhook URL is not a valid http or https address.");
+                throw new ArgumentException("The Discord webhook URL must be an https address (http is only allowed for localhost).");
             }
 
             EnableTls12();
             string payload = BuildPayload(content);
 
-            using (HttpClient client = new HttpClient())
+            // Never follow a redirect: it would re-send the message and the token in the URL somewhere else.
+            using (HttpClientHandler handler = new HttpClientHandler { AllowAutoRedirect = false })
+            using (HttpClient client = new HttpClient(handler))
             {
                 client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
 
@@ -53,6 +58,15 @@ namespace myseq
                     catch (System.Threading.Tasks.TaskCanceledException)
                     {
                         throw new TimeoutException("Discord did not answer within " + timeoutSeconds + " seconds.");
+                    }
+                    catch (HttpRequestException ex)
+                    {
+                        // HttpClient's own message is only "An error occurred while sending the request."
+                        // The cause (name not found, connection refused, TLS failure) is in the innermost exception.
+                        Exception root = ex;
+                        while (root.InnerException != null)
+                            root = root.InnerException;
+                        throw new HttpRequestException("Could not reach Discord: " + root.Message, ex);
                     }
 
                     using (response)
