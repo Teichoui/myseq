@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace myseq
 {
@@ -58,12 +61,11 @@ namespace myseq
                             return;
 
                         int status = (int)response.StatusCode;
+                        string detail = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
 
                         if (status == 429 && attempt == 0)
                         {
-                            TimeSpan wait = response.Headers.RetryAfter != null && response.Headers.RetryAfter.Delta.HasValue
-                                ? response.Headers.RetryAfter.Delta.Value
-                                : TimeSpan.FromSeconds(1);
+                            TimeSpan wait = RetryDelay(response, detail);
 
                             if (wait <= TimeSpan.FromSeconds(MaxRetryAfterSeconds))
                             {
@@ -72,13 +74,42 @@ namespace myseq
                             }
                         }
 
-                        string detail = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
                         if (detail.Length > 200)
                             detail = detail.Substring(0, 200);
                         throw new HttpRequestException("Discord returned " + status + " " + response.ReasonPhrase + (detail.Length > 0 ? ": " + detail : ""));
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// How long Discord wants us to wait after a 429. Its JSON body gives retry_after in seconds with
+        /// fractions ({"retry_after": 1.75}); the Retry-After header is the fallback, and it is read as
+        /// fractional too because HttpClient's typed parser rejects anything but whole seconds.
+        /// Defaults to one second if neither can be read.
+        /// </summary>
+        internal static TimeSpan RetryDelay(HttpResponseMessage response, string body)
+        {
+            double seconds;
+
+            Match fromBody = Regex.Match(body ?? "", "\"retry_after\"\\s*:\\s*([0-9]+(?:\\.[0-9]+)?)");
+            if (fromBody.Success && double.TryParse(fromBody.Groups[1].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out seconds))
+                return TimeSpan.FromSeconds(seconds);
+
+            if (response.Headers.RetryAfter != null && response.Headers.RetryAfter.Delta.HasValue)
+                return response.Headers.RetryAfter.Delta.Value < TimeSpan.Zero ? TimeSpan.Zero : response.Headers.RetryAfter.Delta.Value;
+
+            IEnumerable<string> raw;
+            if (response.Headers.TryGetValues("Retry-After", out raw))
+            {
+                foreach (string value in raw)
+                {
+                    if (double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out seconds) && seconds >= 0 && !double.IsInfinity(seconds))
+                        return TimeSpan.FromSeconds(seconds);
+                }
+            }
+
+            return TimeSpan.FromSeconds(1);
         }
 
         /// <summary>The JSON body Discord expects: {"content":"..."}, cut to the 2000 character limit.</summary>

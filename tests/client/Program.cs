@@ -547,6 +547,34 @@ namespace myseq.Tests
                 Check(secs >= 0.9 && secs < 5, "after about the 1 second Discord asked for (" + secs.ToString("0.0") + " s)");
             }
 
+            // Discord states the wait in seconds with fractions; the retry must not come back earlier than that.
+            double bodyWait = TimeRetry(resp =>
+            {
+                resp.StatusCode = 429;
+                resp.AddHeader("Retry-After", "1");
+                byte[] b = Encoding.UTF8.GetBytes("{\"message\": \"You are being rate limited.\", \"retry_after\": 1.5, \"global\": false}");
+                resp.OutputStream.Write(b, 0, b.Length);
+            });
+            Check(bodyWait >= 1.4 && bodyWait < 5, "waits the fractional retry_after from Discord's body, not the whole-second header (" + bodyWait.ToString("0.00") + " s)");
+
+            double headerWait = TimeRetry(resp => { resp.StatusCode = 429; resp.AddHeader("Retry-After", "1.75"); });
+            Check(headerWait >= 1.65 && headerWait < 5, "reads a fractional Retry-After header when there is no body value (" + headerWait.ToString("0.00") + " s)");
+
+            double junkWait = TimeRetry(resp => { resp.StatusCode = 429; resp.AddHeader("Retry-After", "-3"); });
+            Check(junkWait >= 0.9 && junkWait < 5, "a negative Retry-After falls back to one second (" + junkWait.ToString("0.00") + " s)");
+
+            using (FakeWebhook server = new FakeWebhook((n, resp) =>
+            {
+                resp.StatusCode = 429;
+                byte[] b = Encoding.UTF8.GetBytes("{\"retry_after\": 20.5}");
+                resp.OutputStream.Write(b, 0, b.Length);
+            }))
+            {
+                DateTime t0 = DateTime.UtcNow;
+                Exception e = Catch(() => DiscordWebhook.Send(server.Url, "again"));
+                Check(e is HttpRequestException && server.Requests == 1 && (DateTime.UtcNow - t0).TotalSeconds < 3, "a retry_after of 20.5 s in the body is not sat through either");
+            }
+
             using (FakeWebhook server = new FakeWebhook((n, resp) => { resp.StatusCode = 429; resp.AddHeader("Retry-After", "1"); }))
             {
                 Exception e = Catch(() => DiscordWebhook.Send(server.Url, "again"));
@@ -558,6 +586,23 @@ namespace myseq.Tests
                 DateTime t0 = DateTime.UtcNow;
                 Exception e = Catch(() => DiscordWebhook.Send(server.Url, "again"));
                 Check(e is HttpRequestException && server.Requests == 1 && (DateTime.UtcNow - t0).TotalSeconds < 3, "a long wait is not sat through; fails at once");
+            }
+        }
+
+        // Sends one message to a server that answers the first request with the given 429, then accepts
+        // the retry. Returns how many seconds the whole call took, or -1 if it did not end up sent.
+        private static double TimeRetry(Action<HttpListenerResponse> rateLimited)
+        {
+            using (FakeWebhook server = new FakeWebhook((n, resp) =>
+            {
+                if (n == 0) rateLimited(resp);
+                else resp.StatusCode = 204;
+            }))
+            {
+                DateTime t0 = DateTime.UtcNow;
+                Exception e = Catch(() => DiscordWebhook.Send(server.Url, "again"));
+                double secs = (DateTime.UtcNow - t0).TotalSeconds;
+                return (e == null && server.Requests == 2) ? secs : -1;
             }
         }
 
