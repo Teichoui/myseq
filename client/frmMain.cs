@@ -3375,6 +3375,8 @@ namespace myseq
             inactiveCaptionGradient.StartColor = System.Drawing.SystemColors.ActiveBorder;
             inactiveCaptionGradient.EndColor = System.Drawing.SystemColors.ActiveBorder;
             inactiveCaptionGradient.TextColor = System.Drawing.SystemColors.ControlText;
+            // The theme's tab strip throws if it is asked to paint with no height (see EmptyStripGuard).
+            vs2005Theme.Extender.DockPaneStripFactory = new GuardedDockPaneStripFactory(vs2005Theme.Extender.DockPaneStripFactory);
             this.dockPanel.Theme = vs2005Theme;
             this.dockPanel.TabIndex = 2;
             // 
