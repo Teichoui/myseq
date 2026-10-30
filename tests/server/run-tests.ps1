@@ -8,8 +8,21 @@
 param(
 	[string]$ServerDir = (Join-Path $PSScriptRoot "..\..\server"),
 	[string]$OutDir = (Join-Path $env:TEMP "myseq-server-tests"),
-	[string]$VsDevCmd = "D:\Program Files\Microsoft Visual Studio\18\Community\Common7\Tools\VsDevCmd.bat"
+	[string]$VsDevCmd = ""		# default: found with vswhere
 )
+
+# Find the C++ build environment of the newest Visual Studio unless a path was given.
+if (-not $VsDevCmd) {
+	$vswhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\Installer\vswhere.exe"
+	if (Test-Path $vswhere) {
+		$vsRoot = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+		if ($vsRoot) { $VsDevCmd = Join-Path $vsRoot "Common7\Tools\VsDevCmd.bat" }
+	}
+}
+if (-not $VsDevCmd -or -not (Test-Path $VsDevCmd)) {
+	Write-Host "Could not find VsDevCmd.bat. Install Visual Studio with the C++ tools, or pass -VsDevCmd <path>." -ForegroundColor Red
+	exit 2
+}
 
 $ServerDir = (Resolve-Path $ServerDir).Path
 New-Item -ItemType Directory -Force $OutDir | Out-Null

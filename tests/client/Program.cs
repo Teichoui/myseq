@@ -447,6 +447,12 @@ namespace myseq.Tests
         private static void LauncherSurvivesRunningCopy()
         {
             Console.WriteLine(" a copy that is still running");
+            if (!OperatingSystem.IsWindows())
+            {
+                // Only Windows refuses to delete a file another process has open.
+                Console.WriteLine("  skip  relies on Windows file sharing");
+                return;
+            }
             string dir = NewTempDir();
             try
             {
@@ -471,6 +477,12 @@ namespace myseq.Tests
         private static void LauncherOldBehaviourControl()
         {
             Console.WriteLine(" control: the old startup code");
+            if (!OperatingSystem.IsWindows())
+            {
+                // Only Windows refuses to delete a file another process has open.
+                Console.WriteLine("  skip  relies on Windows file sharing");
+                return;
+            }
             string dir = NewTempDir();
             try
             {

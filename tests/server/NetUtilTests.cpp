@@ -10,6 +10,7 @@
 #include <vector>
 #include <chrono>
 #include <algorithm>
+#include <atomic>
 
 #include "../../server/NetUtil.h"
 
@@ -41,6 +42,11 @@ static Pair makePair()
 	connect(client, (sockaddr*)&addr, sizeof(addr));
 	SOCKET server = accept(listener, NULL, NULL);
 	closesocket(listener);
+
+	// A test that waits for bytes which never come should fail, not hang.
+	DWORD readLimitMs = 8000;
+	setsockopt(server, SOL_SOCKET, SO_RCVTIMEO, (const char*)&readLimitMs, sizeof(readLimitMs));
+	setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, (const char*)&readLimitMs, sizeof(readLimitMs));
 	return { server, client };
 }
 
@@ -126,7 +132,9 @@ static void testSendAllLargeOnNonBlocking()
 		received = slowRead(p.client, N);
 	});
 
-	bool ok = sendAll(p.server, payload.data(), N);
+	// The reader is deliberately slow (Windows rounds its 2 ms sleeps up to ~15 ms), so allow
+	// plenty of total time; the deadline itself is tested separately below.
+	bool ok = sendAll(p.server, payload.data(), N, 60000);
 	reader.join();
 
 	CHECK(ok, "sendAll reports success");
@@ -312,6 +320,84 @@ static void testRecvAllStalledPartial()
 	closesocket(p.client);
 }
 
+static void testSendAllTotalDeadline()
+{
+	printf("sendAll: timeout is a total limit, not a limit per wait\n");
+
+	Pair p = makePair();
+	setNonBlocking(p.server);
+	setSendBuffer(p.server, 4096);
+	setRecvBuffer(p.client, 4096);
+
+	// Fill the pipe, then read 64 KB every 100 ms. Each wait ends well inside the 600 ms
+	// timeout, but moving 16 MB this way takes about 25 s, so only a deadline for the whole
+	// call stops it.
+	std::vector<char> payload = makePayload(16 * 1024 * 1024);
+	size_t prefilled = 0;
+	for (;;)
+	{
+		int n = send(p.server, payload.data(), 8192, 0);
+		if (n == SOCKET_ERROR) break;
+		prefilled += n;
+		if (prefilled > 256u * 1024 * 1024) break;
+	}
+
+	std::atomic<bool> stop(false);
+	std::thread trickle([&] {
+		std::vector<char> buf(65536);
+		while (!stop)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			recv(p.client, buf.data(), (int)buf.size(), 0);
+		}
+	});
+
+	auto t0 = std::chrono::steady_clock::now();
+	bool ok = sendAll(p.server, payload.data(), payload.size(), 600);
+	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t0).count();
+	stop = true;
+	shutdown(p.server, SD_SEND);	// lets the trickle thread's last recv() return even if the pipe is empty
+	trickle.join();
+
+	CHECK(!ok, "gives up with false");
+	CHECK(ms >= 500 && ms < 1500, "after about the 600 ms total, not after each slow wait");
+
+	closesocket(p.server);
+	closesocket(p.client);
+}
+
+static void testRecvAllTotalDeadline()
+{
+	printf("recvAll: timeout is a total limit, not a limit per wait\n");
+
+	Pair p = makePair();
+	setNonBlocking(p.server);
+	setsockopt(p.client, IPPROTO_TCP, TCP_NODELAY, "\1", 1);
+
+	// One byte every 300 ms: each wait is inside the 500 ms timeout, but the request would
+	// take 900 ms to arrive.
+	std::thread writer([&] {
+		for (int i = 0; i < 4; ++i)
+		{
+			send(p.client, "x", 1, 0);
+			std::this_thread::sleep_for(std::chrono::milliseconds(300));
+		}
+	});
+	waitForSocket(p.server, false, 2000);
+
+	char got[4] = {};
+	auto t0 = std::chrono::steady_clock::now();
+	RecvResult r = recvAll(p.server, got, 4, 500);
+	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t0).count();
+	writer.join();
+
+	CHECK(r == RecvResult::Closed, "gives up with Closed");
+	CHECK(ms >= 400 && ms < 800, "after about the 500 ms total, not once the last byte arrives");
+
+	closesocket(p.server);
+	closesocket(p.client);
+}
+
 static void testWalkGuard()
 {
 	printf("WalkGuard: linked-list walks\n");
@@ -361,6 +447,7 @@ static void testWalkGuard()
 
 int main()
 {
+	setvbuf(stdout, NULL, _IONBF, 0);	// show progress at once, even if a test hangs
 	WSADATA wsa;
 	WSAStartup(MAKEWORD(2, 2), &wsa);
 
@@ -372,6 +459,8 @@ int main()
 	testRecvAllQueuedNotification();
 	testRecvAllPeerClosed();
 	testRecvAllStalledPartial();
+	testSendAllTotalDeadline();
+	testRecvAllTotalDeadline();
 	testWalkGuard();
 
 	WSACleanup();

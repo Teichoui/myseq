@@ -6,6 +6,7 @@
 #include <winsock2.h>
 #include <cstddef>
 #include <cstdint>
+#include <chrono>
 #include <unordered_set>
 
 // Wait until the socket is writable (forWrite) or readable. False on timeout or error.
@@ -23,10 +24,20 @@ inline bool waitForSocket(SOCKET s, bool forWrite, int timeoutMs)
 	return rc > 0;
 }
 
+// Milliseconds left until deadline, or 0 once it has passed.
+inline int msUntil(std::chrono::steady_clock::time_point deadline)
+{
+	auto left = std::chrono::duration_cast<std::chrono::milliseconds>(deadline - std::chrono::steady_clock::now()).count();
+	return left > 0 ? (int)left : 0;
+}
+
 // Send all of buf. The accepted socket can be non-blocking (WSAAsyncSelect), where send()
 // may take only part of the data or fail with WSAEWOULDBLOCK, so loop until it is all out.
+// timeoutMs is the most time the whole call may spend waiting, not the limit for each wait,
+// so a client that drains the socket a little at a time cannot hold the caller up for longer.
 inline bool sendAll(SOCKET s, const char* buf, std::size_t len, int timeoutMs = 5000)
 {
+	auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeoutMs);
 	std::size_t sent = 0;
 
 	while (sent < len)
@@ -37,7 +48,7 @@ inline bool sendAll(SOCKET s, const char* buf, std::size_t len, int timeoutMs = 
 
 		if (n == SOCKET_ERROR)
 		{
-			if (WSAGetLastError() != WSAEWOULDBLOCK || !waitForSocket(s, true, timeoutMs))
+			if (WSAGetLastError() != WSAEWOULDBLOCK || !waitForSocket(s, true, msUntil(deadline)))
 				return false;
 			continue;
 		}
@@ -61,6 +72,8 @@ enum class RecvResult
 // disconnect, so that case is reported as NoData and returns at once.
 inline RecvResult recvAll(SOCKET s, char* buf, std::size_t len, int timeoutMs = 1000)
 {
+	// timeoutMs is the most time the whole call may spend waiting for the rest of the request.
+	auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeoutMs);
 	std::size_t got = 0;
 
 	while (got < len)
@@ -76,13 +89,13 @@ inline RecvResult recvAll(SOCKET s, char* buf, std::size_t len, int timeoutMs = 
 				return RecvResult::Closed;
 			if (got == 0)
 				return RecvResult::NoData;
-			if (!waitForSocket(s, false, timeoutMs))
+			if (!waitForSocket(s, false, msUntil(deadline)))
 				return RecvResult::Closed;
 			continue;
 		}
 		got += n;
 
-		if (got < len && !waitForSocket(s, false, timeoutMs))
+		if (got < len && !waitForSocket(s, false, msUntil(deadline)))
 			return RecvResult::Closed;
 	}
 	return RecvResult::Complete;
