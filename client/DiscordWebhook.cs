@@ -166,8 +166,10 @@ namespace myseq
             return json.ToString();
         }
 
-        // Discord requires TLS 1.2. A .NET Framework 4.5 app does not turn it on by default, so add it
-        // to whatever the process already allows. The "system default" setting (0) already includes it.
+        // Discord requires TLS 1.2. A .NET Framework app that targets a version before 4.7 does not
+        // necessarily have it on by default, so add it to whatever the process already allows. An app
+        // that targets 4.7 or later uses the operating system's setting ("system default", 0), which
+        // already includes it, and is left alone.
         private static void EnableTls12()
         {
             SecurityProtocolType current = ServicePointManager.SecurityProtocol;
