@@ -2,7 +2,6 @@ using System;
 
 using System.IO;
 
-using SpeechLib;
 
 using System.Data;
 

@@ -185,7 +185,6 @@
 
 				<File Id='DockingDLL' Name='WeifenLuo.WinFormsUI.Docking.dll' DiskId='1' Source='client/WeifenLuo.WinFormsUI.Docking.dll' Vital='yes' />
 
-				<File Id='SpeechDLL' Name='speechlib.dll' DiskId='1' Source='client/speechlib.dll' Vital='yes' />
 
 			</Component>
 

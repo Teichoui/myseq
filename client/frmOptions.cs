@@ -20,7 +20,6 @@ using System.Windows.Forms;
 
 using Structures;
 
-using SpeechLib;
 
 using System.Net;
 
@@ -230,7 +229,6 @@ namespace myseq
 
         private TabControl tabOptions;
 
-        private SpVoice speech = new SpVoice();
 
         private GroupBox grpDanger;
 

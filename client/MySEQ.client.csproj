@@ -114,9 +114,8 @@
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="speechlib">
-      <HintPath>.\speechlib.dll</HintPath>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
+    <Reference Include="System.Speech">
+      <Private>False</Private>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
