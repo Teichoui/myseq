@@ -318,4 +318,14 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+  <!-- Costura.Fody and Fody are PackageReferences: their build targets only reach this project through the files
+       NuGet writes when it restores. Without them the build would not embed the referenced DLLs into the exe, so
+       stop with a clear message instead of failing later or producing an exe that cannot start on its own. -->
+  <Target Name="EnsureNuGetPackagesRestored" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <NuGetGeneratedTargets>$(MSBuildProjectExtensionsPath)$(MSBuildProjectFile).nuget.g.targets</NuGetGeneratedTargets>
+      <NuGetGeneratedProps>$(MSBuildProjectExtensionsPath)$(MSBuildProjectFile).nuget.g.props</NuGetGeneratedProps>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(NuGetGeneratedTargets)') Or !Exists('$(NuGetGeneratedProps)')" Text="The NuGet packages (Fody, Costura.Fody, DockPanelSuite) have not been restored, so the build would not embed the referenced DLLs into the exe. Restore first with: msbuild $(MSBuildProjectFile) /t:Restore  (Visual Studio does this automatically)." />
+  </Target>
 </Project>
