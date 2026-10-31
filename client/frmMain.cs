@@ -4075,7 +4075,7 @@ namespace myseq
 
             SpawnTimerList.listView.BackColor = Settings.Instance.ListBackColor;
 
-            GroundItemList.listView.BackColor = Settings.Instance.ListBackColor;
+            SetGroundItemListColors(Settings.Instance.ListBackColor);
 
             SpawnList.listView.GridLines = Settings.Instance.ShowListGridLines;
 
@@ -5627,7 +5627,7 @@ namespace myseq
 
             SpawnTimerList.listView.BackColor = Settings.Instance.ListBackColor;
 
-            GroundItemList.listView.BackColor = Settings.Instance.ListBackColor;
+            SetGroundItemListColors(Settings.Instance.ListBackColor);
 
             if (Settings.Instance.TitleBar.ToString().Length > 0)
 
@@ -6183,7 +6183,7 @@ namespace myseq
 
                 SpawnTimerList.listView.BackColor = Settings.Instance.ListBackColor;
 
-                GroundItemList.listView.BackColor = Settings.Instance.ListBackColor;
+                SetGroundItemListColors(Settings.Instance.ListBackColor);
 
             }
 
@@ -6352,13 +6352,20 @@ namespace myseq
             }
         }
 
+        // Ground item rows have no color of their own, so give the list text that shows on its background.
+        private void SetGroundItemListColors(Color back)
+        {
+            GroundItemList.listView.BackColor = back;
+            GroundItemList.listView.ForeColor = back.GetBrightness() < 0.5f ? Color.White : Color.Black;
+        }
+
         private void SetListColors(Color back)
         {
             Settings.Instance.ListBackColor = back;
 
             SpawnList.listView.BackColor = back;
             SpawnTimerList.listView.BackColor = back;
-            GroundItemList.listView.BackColor = back;
+            SetGroundItemListColors(back);
 
             // Picks the mob name colors again for the new background.
             eq.UpdateMobListColors();
