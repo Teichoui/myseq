@@ -1,0 +1,62 @@
+name: Build and test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    env:
+      OUT: ${{ github.workspace }}\out
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2
+
+      - name: Restore the client packages
+        run: msbuild client\MySEQ.client.csproj /t:Restore /v:minimal /nologo
+
+      - name: Build the client
+        run: msbuild client\MySEQ.client.csproj /t:Rebuild /p:Configuration=Release /p:RunCodeAnalysis=false "/p:OutputPath=$env:OUT\client\" "/p:IntermediateOutputPath=$env:OUT\client-obj\" /v:minimal /nologo
+
+      - name: Build the 64-bit server
+        run: msbuild server\MySEQ.server.vcxproj /t:Rebuild /p:Configuration=Release /p:Platform=x64 "/p:OutDir=$env:OUT\server64\" "/p:IntDir=$env:OUT\server64-obj\" /v:minimal /nologo
+
+      - name: Build the 32-bit server
+        run: msbuild server\MySEQ.server.vcxproj /t:Rebuild /p:Configuration=Release /p:Platform=Win32 "/p:OutDir=$env:OUT\server32\" "/p:IntDir=$env:OUT\server32-obj\" /v:minimal /nologo
+
+      - name: Run the client tests
+        run: dotnet run -c Release --project tests\client
+
+      - name: Run the server tests
+        run: .\tests\server\run-tests.ps1
+
+      - name: Download WiX 3.14.1
+        run: |
+          $zip = Join-Path $env:RUNNER_TEMP "wix314-binaries.zip"
+          Invoke-WebRequest -Uri "https://github.com/wixtoolset/wix3/releases/download/wix3141rtm/wix314-binaries.zip" -OutFile $zip
+          $hash = (Get-FileHash $zip -Algorithm SHA256).Hash
+          if ($hash -ne "6AC824E1642D6F7277D0ED7EA09411A508F6116BA6FAE0AA5F2C7DAA2FF43D31") { throw "Unexpected WiX download: $hash" }
+          $dir = Join-Path $env:RUNNER_TEMP "wix314"
+          Expand-Archive $zip -DestinationPath $dir
+          $dir | Out-File -Append -Encoding utf8 $env:GITHUB_PATH
+
+      - name: Build the installer
+        run: cmd /c ".\Make.bat $env:OUT\client $env:OUT\server32 $env:OUT\server64"
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: myseq-installer
+          path: myseq.msi
+          retention-days: 14
