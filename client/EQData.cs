@@ -179,6 +179,17 @@ namespace myseq
 
         public SolidBrush[] conColors = new SolidBrush[1000];
 
+        // Blue, the lowest con color, is almost invisible on a black list, so use a lighter blue there.
+        private static Color ListColor(Color con)
+        {
+            if (con.ToArgb() == Color.Blue.ToArgb() && DarkTheme.IsBlack(Settings.Instance.ListBackColor))
+            {
+                return Color.FromArgb(90, 150, 255);
+            }
+
+            return con;
+        }
+
         public int greenRange = 0;
 
         public int cyanRange = 0;
@@ -2873,13 +2884,13 @@ namespace myseq
                             else
                             {
 
-                                li.ForeColor = conColors[si.Level].Color;
+                                li.ForeColor = ListColor(conColors[si.Level].Color);
 
                                 if (li.ForeColor == Color.Maroon)
 
                                     li.ForeColor = Color.Red;
 
-                                else if (SpawnList.listView.BackColor == Color.White)
+                                else if (DarkTheme.IsWhite(SpawnList.listView.BackColor))
                                 {
 
                                     // Change the colors to be more visible on white if the background is white
@@ -2963,13 +2974,13 @@ namespace myseq
                             else
                             {
 
-                                li.ForeColor = conColors[mob.Level].Color;
+                                li.ForeColor = ListColor(conColors[mob.Level].Color);
 
                                 if (li.ForeColor == Color.Maroon)
 
                                     li.ForeColor = Color.Red;
 
-                                else if (SpawnList.listView.BackColor == Color.White)
+                                else if (DarkTheme.IsWhite(SpawnList.listView.BackColor))
                                 {
 
                                     // Change the colors to be more visible on white if the background is white
@@ -3817,7 +3828,7 @@ namespace myseq
                         else
                         {
 
-                            item1.ForeColor = conColors[si.Level].Color;
+                            item1.ForeColor = ListColor(conColors[si.Level].Color);
 
                             if (item1.ForeColor == Color.Maroon)
 
@@ -3825,7 +3836,7 @@ namespace myseq
 
                             // Change the colors to be more visible on white if the background is white
 
-                            if (SpawnList.listView.BackColor == Color.White)
+                            if (DarkTheme.IsWhite(SpawnList.listView.BackColor))
                             {
 
                                 if (item1.ForeColor == Color.White)
@@ -3904,7 +3915,7 @@ namespace myseq
                         else
                         {
 
-                            li.ForeColor = conColors[si.Level].Color;
+                            li.ForeColor = ListColor(conColors[si.Level].Color);
 
                             if (li.ForeColor == Color.Maroon)
 
@@ -3912,7 +3923,7 @@ namespace myseq
 
                             // Change the colors to be more visible on white if the background is white
 
-                            if (Settings.Instance.ListBackColor == Color.White)
+                            if (DarkTheme.IsWhite(Settings.Instance.ListBackColor))
                             {
 
                                 if (li.ForeColor == Color.White)
@@ -3925,7 +3936,7 @@ namespace myseq
 
                             }
 
-                            if (Settings.Instance.ListBackColor == Color.Black)
+                            if (DarkTheme.IsBlack(Settings.Instance.ListBackColor))
                             {
 
                                 if (li.ForeColor == Color.Black)

@@ -747,6 +747,13 @@ namespace Structures
 
         private bool alwaysOnTop = false;
 
+        [System.Runtime.Serialization.OptionalField]
+        private bool darkMode = false;
+
+        // True when turning dark mode on is what changed the spawn list from white to black.
+        [System.Runtime.Serialization.OptionalField]
+        private bool darkMovedListColor = false;
+
         private bool showCorpses = true;
 
         private bool showPCCorpses = true;
@@ -840,6 +847,10 @@ namespace Structures
         public bool ShowLookupNumber { get { return showLookupNumber; } set { showLookupNumber = value; } }
 
         public bool AlwaysOnTop { get { return alwaysOnTop; } set { alwaysOnTop = value; } }
+
+        public bool DarkMode { get { return darkMode; } set { darkMode = value; } }
+
+        public bool DarkMovedListColor { get { return darkMovedListColor; } set { darkMovedListColor = value; } }
 
 
         public bool ShowCorpses { get { return showCorpses; } set { showCorpses = value; } }
@@ -1259,6 +1270,12 @@ namespace Structures
                                     break;
                                 case "colorRangeCircle":
                                     ColorRangeCircle = reader.ReadElementContentAsBoolean();
+                                    break;
+                                case "darkMode":
+                                    DarkMode = reader.ReadElementContentAsBoolean();
+                                    break;
+                                case "darkMovedListColor":
+                                    DarkMovedListColor = reader.ReadElementContentAsBoolean();
                                     break;
                                  case "drawFoV":
                                     DrawFoV = reader.ReadElementContentAsBoolean();

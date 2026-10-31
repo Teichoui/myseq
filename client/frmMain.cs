@@ -346,6 +346,7 @@ namespace myseq
         private ToolStripMenuItem mnuShowLookupText;
         private ToolStripMenuItem mnuShowLookupNumber;
         private ToolStripMenuItem mnuAlwaysOnTop;
+        private ToolStripMenuItem mnuDarkMode;
         private ToolStripSeparator toolStripSeparator8;
         private ToolStripSeparator toolStripSeparator9;
         private ToolStripLabel toolStripLabel1;
@@ -380,6 +381,13 @@ namespace myseq
         private ToolStripMenuItem mnuSmallTargetInfo2;
         private ToolStripButton toolStripEmailAlerts;
         private ToolStripSeparator toolStripSeparator19;
+        private ToolStripSeparator toolStripSeparator20;
+        private ToolStripSeparator toolStripSeparator21;
+        private ToolStripSeparator toolStripSeparator22;
+        private ToolStripSeparator toolStripSeparator23;
+        private ToolStripSeparator toolStripSeparator24;
+        private ToolStripSeparator toolStripSeparator25;
+        private ToolStripSeparator toolStripSeparator26;
         private ToolStripMenuItem addZoneEmailAlertFilterToolStripMenuItem;
         private ToolStripMenuItem mnuAutoConnect;
         public ToolStripComboBox toolStripLevel;
@@ -610,7 +618,7 @@ namespace myseq
 
             SpawnList.ColumnsAdd("Name", Settings.Instance.c1w, HorizontalAlignment.Left);
 
-            SpawnList.ColumnsAdd("Level", Settings.Instance.c2w, HorizontalAlignment.Left);
+            SpawnList.ColumnsAdd("Level", Settings.Instance.c2w, HorizontalAlignment.Right);
 
             SpawnList.ColumnsAdd("Class", Settings.Instance.c3w, HorizontalAlignment.Left);
 
@@ -628,19 +636,19 @@ namespace myseq
 
             SpawnList.ColumnsAdd("Invis", Settings.Instance.c7w, HorizontalAlignment.Left);
 
-            SpawnList.ColumnsAdd("Run Speed", Settings.Instance.c8w, HorizontalAlignment.Left);
+            SpawnList.ColumnsAdd("Run Speed", Settings.Instance.c8w, HorizontalAlignment.Right);
 
-            SpawnList.ColumnsAdd("SpawnID", Settings.Instance.c9w, HorizontalAlignment.Left);
+            SpawnList.ColumnsAdd("SpawnID", Settings.Instance.c9w, HorizontalAlignment.Right);
 
             SpawnList.ColumnsAdd("Spawn Time", Settings.Instance.c10w, HorizontalAlignment.Left);
 
-            SpawnList.ColumnsAdd("X", Settings.Instance.c11w, HorizontalAlignment.Left);
+            SpawnList.ColumnsAdd("X", Settings.Instance.c11w, HorizontalAlignment.Right);
 
-            SpawnList.ColumnsAdd("Y", Settings.Instance.c12w, HorizontalAlignment.Left);
+            SpawnList.ColumnsAdd("Y", Settings.Instance.c12w, HorizontalAlignment.Right);
 
-            SpawnList.ColumnsAdd("Z", Settings.Instance.c13w, HorizontalAlignment.Left);
+            SpawnList.ColumnsAdd("Z", Settings.Instance.c13w, HorizontalAlignment.Right);
 
-            SpawnList.ColumnsAdd("Distance", Settings.Instance.c14w, HorizontalAlignment.Left);
+            SpawnList.ColumnsAdd("Distance", Settings.Instance.c14w, HorizontalAlignment.Right);
 
  
             // Set the Font, Size, Style for the Spawn List Window
@@ -889,6 +897,7 @@ namespace myseq
             this.mnuShowLookupText = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuShowLookupNumber = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuAlwaysOnTop = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuDarkMode = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuForceDistinct = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuForceDistinctText = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator12 = new System.Windows.Forms.ToolStripSeparator();
@@ -1028,6 +1037,13 @@ namespace myseq
             this.toolStripResetDepthFilter = new System.Windows.Forms.ToolStripButton();
             this.toolStripEmailAlerts = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator19 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator20 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator21 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator22 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator23 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator24 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator25 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator26 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.toolStripLookupBox = new System.Windows.Forms.ToolStripTextBox();
             this.toolStripResetLookup = new System.Windows.Forms.ToolStripButton();
@@ -1554,7 +1570,8 @@ namespace myseq
             this.mnuShowNPCs,
             this.mnuShowLookupText,
             this.mnuShowLookupNumber,
-            this.mnuAlwaysOnTop});
+            this.mnuAlwaysOnTop,
+            this.mnuDarkMode});
             this.mnuViewMain.Name = "mnuViewMain";
             this.mnuViewMain.Size = new System.Drawing.Size(44, 20);
             this.mnuViewMain.Text = "&View";
@@ -1735,6 +1752,13 @@ namespace myseq
             this.mnuAlwaysOnTop.Size = new System.Drawing.Size(172, 22);
             this.mnuAlwaysOnTop.Text = "Always On Top";
             this.mnuAlwaysOnTop.Click += new System.EventHandler(this.mnuAlwaysOnTop_Click);
+            // 
+            // mnuDarkMode
+            // 
+            this.mnuDarkMode.Name = "mnuDarkMode";
+            this.mnuDarkMode.Size = new System.Drawing.Size(172, 22);
+            this.mnuDarkMode.Text = "Dark Mode";
+            this.mnuDarkMode.Click += new System.EventHandler(this.mnuDarkMode_Click);
             // 
             // mnuMapSettingsMain
             // 
@@ -2779,6 +2803,7 @@ namespace myseq
             this.toolStripZoomIn,
             this.toolStripZoomOut,
             this.toolStripScale,
+            this.toolStripSeparator20,
             this.toolStripDepthFilterButton,
             this.toolStripZPosLabel,
             this.toolStripZPos,
@@ -2789,6 +2814,7 @@ namespace myseq
             this.toolStripZNegUp,
             this.toolStripZNegDown,
             this.toolStripResetDepthFilter,
+            this.toolStripSeparator21,
             this.toolStripDiscordAlerts,
             this.toolStripEmailAlerts,
             this.toolStripSeparator19,
@@ -2796,18 +2822,23 @@ namespace myseq
             this.toolStripLookupBox,
             this.toolStripCheckLookup,
             this.toolStripResetLookup,
+            this.toolStripSeparator22,
             this.toolStripLookupBox1,
             this.toolStripCheckLookup1,
             this.toolStripResetLookup1,
+            this.toolStripSeparator23,
             this.toolStripLookupBox2,
             this.toolStripCheckLookup2,
             this.toolStripResetLookup2,
+            this.toolStripSeparator24,
             this.toolStripLookupBox3,
             this.toolStripCheckLookup3,
             this.toolStripResetLookup3,
+            this.toolStripSeparator25,
             this.toolStripLookupBox4,
             this.toolStripCheckLookup4,
             this.toolStripResetLookup4,
+            this.toolStripSeparator26,
             this.toolStripLookupBox5,
             this.toolStripCheckLookup5,
             this.toolStripResetLookup5,
@@ -2817,6 +2848,41 @@ namespace myseq
             this.toolBarStrip.Size = new System.Drawing.Size(800, 25);
             this.toolBarStrip.TabIndex = 0;
             this.toolBarStrip.Text = "toolBarStrip";
+            // 
+            // toolStripSeparator20
+            // 
+            this.toolStripSeparator20.Name = "toolStripSeparator20";
+            this.toolStripSeparator20.Size = new System.Drawing.Size(6, 25);
+            // 
+            // toolStripSeparator21
+            // 
+            this.toolStripSeparator21.Name = "toolStripSeparator21";
+            this.toolStripSeparator21.Size = new System.Drawing.Size(6, 25);
+            // 
+            // toolStripSeparator22
+            // 
+            this.toolStripSeparator22.Name = "toolStripSeparator22";
+            this.toolStripSeparator22.Size = new System.Drawing.Size(6, 25);
+            // 
+            // toolStripSeparator23
+            // 
+            this.toolStripSeparator23.Name = "toolStripSeparator23";
+            this.toolStripSeparator23.Size = new System.Drawing.Size(6, 25);
+            // 
+            // toolStripSeparator24
+            // 
+            this.toolStripSeparator24.Name = "toolStripSeparator24";
+            this.toolStripSeparator24.Size = new System.Drawing.Size(6, 25);
+            // 
+            // toolStripSeparator25
+            // 
+            this.toolStripSeparator25.Name = "toolStripSeparator25";
+            this.toolStripSeparator25.Size = new System.Drawing.Size(6, 25);
+            // 
+            // toolStripSeparator26
+            // 
+            this.toolStripSeparator26.Name = "toolStripSeparator26";
+            this.toolStripSeparator26.Size = new System.Drawing.Size(6, 25);
             // 
             // toolStripStartStop
             // 
@@ -3146,7 +3212,7 @@ namespace myseq
             // 
             this.toolStripLookupBox.ForeColor = System.Drawing.SystemColors.GrayText;
             this.toolStripLookupBox.Name = "toolStripLookupBox";
-            this.toolStripLookupBox.Size = new System.Drawing.Size(100, 25);
+            this.toolStripLookupBox.Size = new System.Drawing.Size(110, 23);
             this.toolStripLookupBox.Text = "Mob Search";
             this.toolStripLookupBox.ToolTipText = "Type in mob name and press Enter.";
             this.toolStripLookupBox.Leave += new System.EventHandler(this.toolStripLookupBox_Leave);
@@ -3167,7 +3233,7 @@ namespace myseq
             // 
             this.toolStripLookupBox1.ForeColor = System.Drawing.SystemColors.GrayText;
             this.toolStripLookupBox1.Name = "toolStripLookupBox1";
-            this.toolStripLookupBox1.Size = new System.Drawing.Size(100, 23);
+            this.toolStripLookupBox1.Size = new System.Drawing.Size(110, 23);
             this.toolStripLookupBox1.Text = "Mob Search";
             this.toolStripLookupBox1.ToolTipText = "Type in mob name and press Enter.";
             this.toolStripLookupBox1.Leave += new System.EventHandler(this.toolStripLookupBox1_Leave);
@@ -3188,7 +3254,7 @@ namespace myseq
             // 
             this.toolStripLookupBox2.ForeColor = System.Drawing.SystemColors.GrayText;
             this.toolStripLookupBox2.Name = "toolStripLookupBox2";
-            this.toolStripLookupBox2.Size = new System.Drawing.Size(132, 23);
+            this.toolStripLookupBox2.Size = new System.Drawing.Size(110, 23);
             this.toolStripLookupBox2.Text = "Mob Search";
             this.toolStripLookupBox2.ToolTipText = "Type in mob name and press Enter.";
             this.toolStripLookupBox2.Leave += new System.EventHandler(this.toolStripLookupBox2_Leave);
@@ -3209,7 +3275,7 @@ namespace myseq
             // 
             this.toolStripLookupBox3.ForeColor = System.Drawing.SystemColors.GrayText;
             this.toolStripLookupBox3.Name = "toolStripLookupBox3";
-            this.toolStripLookupBox3.Size = new System.Drawing.Size(132, 23);
+            this.toolStripLookupBox3.Size = new System.Drawing.Size(110, 23);
             this.toolStripLookupBox3.Text = "Mob Search";
             this.toolStripLookupBox3.ToolTipText = "Type in mob name and press Enter.";
             this.toolStripLookupBox3.Leave += new System.EventHandler(this.toolStripLookupBox3_Leave);
@@ -3230,7 +3296,7 @@ namespace myseq
             // 
             this.toolStripLookupBox4.ForeColor = System.Drawing.SystemColors.GrayText;
             this.toolStripLookupBox4.Name = "toolStripLookupBox4";
-            this.toolStripLookupBox4.Size = new System.Drawing.Size(132, 23);
+            this.toolStripLookupBox4.Size = new System.Drawing.Size(110, 23);
             this.toolStripLookupBox4.Text = "Mob Search";
             this.toolStripLookupBox4.ToolTipText = "Type in mob name and press Enter.";
             this.toolStripLookupBox4.Leave += new System.EventHandler(this.toolStripLookupBox2_Leave);
@@ -3251,7 +3317,7 @@ namespace myseq
             // 
             this.toolStripLookupBox5.ForeColor = System.Drawing.SystemColors.GrayText;
             this.toolStripLookupBox5.Name = "toolStripLookupBox5";
-            this.toolStripLookupBox5.Size = new System.Drawing.Size(132, 23);
+            this.toolStripLookupBox5.Size = new System.Drawing.Size(110, 23);
             this.toolStripLookupBox5.Text = "Mob Search";
             this.toolStripLookupBox5.ToolTipText = "Type in mob name and press Enter.";
             this.toolStripLookupBox5.Leave += new System.EventHandler(this.toolStripLookupBox5_Leave);
@@ -3367,17 +3433,8 @@ namespace myseq
             this.dockPanel.Location = new System.Drawing.Point(0, 49);
             this.dockPanel.Name = "dockPanel";
             this.dockPanel.Size = new System.Drawing.Size(800, 458);
-            // The VS2005 theme replaces the hand-built skin this form used before. Keep the gray
-            // inactive tool-window title bars of that skin (the theme's default is pale blue). The
-            // colors go on the theme's own skin before it is applied: DockPanel.Skin no longer works.
-            WeifenLuo.WinFormsUI.Docking.VS2005Theme vs2005Theme = new WeifenLuo.WinFormsUI.Docking.VS2005Theme();
-            WeifenLuo.WinFormsUI.Docking.TabGradient inactiveCaptionGradient = vs2005Theme.Skin.DockPaneStripSkin.ToolWindowGradient.InactiveCaptionGradient;
-            inactiveCaptionGradient.StartColor = System.Drawing.SystemColors.ActiveBorder;
-            inactiveCaptionGradient.EndColor = System.Drawing.SystemColors.ActiveBorder;
-            inactiveCaptionGradient.TextColor = System.Drawing.SystemColors.ControlText;
-            // The theme's tab strip throws if it is asked to paint with no height (see EmptyStripGuard).
-            vs2005Theme.Extender.DockPaneStripFactory = new GuardedDockPaneStripFactory(vs2005Theme.Extender.DockPaneStripFactory);
-            this.dockPanel.Theme = vs2005Theme;
+            this.dockPanel.Theme = BuildDockTheme(false);
+
             this.dockPanel.TabIndex = 2;
             // 
             // toolStripDiscordAlerts
@@ -3875,6 +3932,7 @@ namespace myseq
             this.mnuShowLookupText.Checked = Settings.Instance.ShowLookupText;
 
             this.mnuAlwaysOnTop.Checked = Settings.Instance.AlwaysOnTop;
+            this.mnuDarkMode.Checked = Settings.Instance.DarkMode;
 
             this.mnuShowLookupNumber.Checked = Settings.Instance.ShowLookupNumber;
 
@@ -3945,6 +4003,7 @@ namespace myseq
             this.mnuShowLookupText.Checked = Settings.Instance.ShowLookupText;
 
             this.mnuAlwaysOnTop.Checked = Settings.Instance.AlwaysOnTop;
+            this.mnuDarkMode.Checked = Settings.Instance.DarkMode;
             
             this.mnuShowLookupNumber.Checked = Settings.Instance.ShowLookupNumber;
 
@@ -4016,7 +4075,7 @@ namespace myseq
 
             SpawnTimerList.listView.BackColor = Settings.Instance.ListBackColor;
 
-            GroundItemList.listView.BackColor = Settings.Instance.ListBackColor;
+            SetGroundItemListColors(Settings.Instance.ListBackColor);
 
             SpawnList.listView.GridLines = Settings.Instance.ShowListGridLines;
 
@@ -5257,6 +5316,7 @@ namespace myseq
         {
 
             frmOptions f3 = new frmOptions();
+            DarkTheme.Apply(f3);
             if (Settings.Instance.OptionsWindowsLocation.X != 0 && Settings.Instance.OptionsWindowsLocation.Y != 0)
             {
                 f3.StartPosition = FormStartPosition.Manual;
@@ -5567,7 +5627,10 @@ namespace myseq
 
             SpawnTimerList.listView.BackColor = Settings.Instance.ListBackColor;
 
-            GroundItemList.listView.BackColor = Settings.Instance.ListBackColor;
+            SetGroundItemListColors(Settings.Instance.ListBackColor);
+
+            // Mob name colors depend on the list background, so pick them again.
+            eq.UpdateMobListColors();
 
             if (Settings.Instance.TitleBar.ToString().Length > 0)
 
@@ -6088,6 +6151,7 @@ namespace myseq
         {
 
             AboutDlg ab = new AboutDlg();
+            DarkTheme.Apply(ab);
             this.TopMost = false;
             ab.ShowDialog();
             this.TopMost = mnuAlwaysOnTop.Checked;
@@ -6116,13 +6180,10 @@ namespace myseq
 
             {
 
-                Settings.Instance.ListBackColor = colorPicker.Color;
+                // A color picked by hand is the user's own, so dark mode must not undo it later.
+                Settings.Instance.DarkMovedListColor = false;
 
-                SpawnList.listView.BackColor = Settings.Instance.ListBackColor;
-
-                SpawnTimerList.listView.BackColor = Settings.Instance.ListBackColor;
-
-                GroundItemList.listView.BackColor = Settings.Instance.ListBackColor;
+                SetListColors(colorPicker.Color);
 
             }
 
@@ -6169,6 +6230,178 @@ namespace myseq
             comm.UpdateHidden();
 
         }
+        // The VS2005 theme replaces the hand-built skin this form used before. In the light theme
+        // keep the gray inactive tool-window title bars of that skin (the theme's default is pale
+        // blue). The colors go on the theme's own skin before it is applied: DockPanel.Skin no
+        // longer works.
+        private static WeifenLuo.WinFormsUI.Docking.VS2005Theme BuildDockTheme(bool dark)
+        {
+            WeifenLuo.WinFormsUI.Docking.VS2005Theme theme = new WeifenLuo.WinFormsUI.Docking.VS2005Theme();
+            WeifenLuo.WinFormsUI.Docking.DockPanelSkin skin = theme.Skin;
+
+            if (dark)
+            {
+                Color strip = DarkTheme.PanelBack;
+                Color tab = DarkTheme.ButtonBack;
+                Color hover = DarkTheme.ButtonHover;
+
+                foreach (WeifenLuo.WinFormsUI.Docking.DockPaneStripGradient gradient in new WeifenLuo.WinFormsUI.Docking.DockPaneStripGradient[] { skin.DockPaneStripSkin.DocumentGradient, skin.DockPaneStripSkin.ToolWindowGradient })
+                {
+                    SetGradient(gradient.DockStripGradient, strip);
+                    SetTab(gradient.ActiveTabGradient, DarkTheme.Accent, Color.White);
+                    SetTab(gradient.InactiveTabGradient, tab, DarkTheme.Text);
+                    SetTab(gradient.HoverTabGradient, hover, Color.White);
+                }
+
+                SetTab(skin.DockPaneStripSkin.ToolWindowGradient.ActiveCaptionGradient, DarkTheme.Accent, Color.White);
+                SetTab(skin.DockPaneStripSkin.ToolWindowGradient.InactiveCaptionGradient, tab, DarkTheme.Text);
+                SetGradient(skin.AutoHideStripSkin.DockStripGradient, strip);
+                SetTab(skin.AutoHideStripSkin.TabGradient, tab, DarkTheme.Text);
+            }
+            else
+            {
+                WeifenLuo.WinFormsUI.Docking.TabGradient inactiveCaptionGradient = skin.DockPaneStripSkin.ToolWindowGradient.InactiveCaptionGradient;
+                inactiveCaptionGradient.StartColor = System.Drawing.SystemColors.ActiveBorder;
+                inactiveCaptionGradient.EndColor = System.Drawing.SystemColors.ActiveBorder;
+                inactiveCaptionGradient.TextColor = System.Drawing.SystemColors.ControlText;
+            }
+
+            // The theme's tab strip throws if it is asked to paint with no height (see EmptyStripGuard).
+            theme.Extender.DockPaneStripFactory = new GuardedDockPaneStripFactory(theme.Extender.DockPaneStripFactory);
+            return theme;
+        }
+
+        // The dock panel keeps the theme it was given first, so a new theme object does nothing at
+        // run time. Copy the colors of a freshly built theme into the one in use instead.
+        private void ApplyDockSkin(bool dark)
+        {
+            WeifenLuo.WinFormsUI.Docking.DockPanelSkin target = this.dockPanel.Theme.Skin;
+            WeifenLuo.WinFormsUI.Docking.DockPanelSkin source = BuildDockTheme(dark).Skin;
+
+            CopyStrip(target.DockPaneStripSkin.DocumentGradient, source.DockPaneStripSkin.DocumentGradient);
+            CopyStrip(target.DockPaneStripSkin.ToolWindowGradient, source.DockPaneStripSkin.ToolWindowGradient);
+            CopyTab(target.DockPaneStripSkin.ToolWindowGradient.ActiveCaptionGradient, source.DockPaneStripSkin.ToolWindowGradient.ActiveCaptionGradient);
+            CopyTab(target.DockPaneStripSkin.ToolWindowGradient.InactiveCaptionGradient, source.DockPaneStripSkin.ToolWindowGradient.InactiveCaptionGradient);
+            CopyPanelGradient(target.AutoHideStripSkin.DockStripGradient, source.AutoHideStripSkin.DockStripGradient);
+            CopyTab(target.AutoHideStripSkin.TabGradient, source.AutoHideStripSkin.TabGradient);
+
+            this.dockPanel.Invalidate(true);
+        }
+
+        private static void CopyStrip(WeifenLuo.WinFormsUI.Docking.DockPaneStripGradient target, WeifenLuo.WinFormsUI.Docking.DockPaneStripGradient source)
+        {
+            CopyPanelGradient(target.DockStripGradient, source.DockStripGradient);
+            CopyTab(target.ActiveTabGradient, source.ActiveTabGradient);
+            CopyTab(target.HoverTabGradient, source.HoverTabGradient);
+            CopyTab(target.InactiveTabGradient, source.InactiveTabGradient);
+        }
+
+        private static void CopyPanelGradient(WeifenLuo.WinFormsUI.Docking.DockPanelGradient target, WeifenLuo.WinFormsUI.Docking.DockPanelGradient source)
+        {
+            target.StartColor = source.StartColor;
+            target.EndColor = source.EndColor;
+            target.LinearGradientMode = source.LinearGradientMode;
+        }
+
+        private static void CopyTab(WeifenLuo.WinFormsUI.Docking.TabGradient target, WeifenLuo.WinFormsUI.Docking.TabGradient source)
+        {
+            target.StartColor = source.StartColor;
+            target.EndColor = source.EndColor;
+            target.TextColor = source.TextColor;
+            target.LinearGradientMode = source.LinearGradientMode;
+        }
+
+        private static void SetGradient(WeifenLuo.WinFormsUI.Docking.DockPanelGradient gradient, Color color)
+        {
+            gradient.StartColor = color;
+            gradient.EndColor = color;
+        }
+
+        private static void SetTab(WeifenLuo.WinFormsUI.Docking.TabGradient gradient, Color color, Color text)
+        {
+            gradient.StartColor = color;
+            gradient.EndColor = color;
+            gradient.TextColor = text;
+        }
+
+        // The theme change recolors the Mob Search boxes like plain text boxes, so give the placeholder
+        // and any typed text their own colors again.
+        private void UpdateSearchBoxColors()
+        {
+            ToolStripTextBox[] boxes = { toolStripLookupBox, toolStripLookupBox1, toolStripLookupBox2, toolStripLookupBox3, toolStripLookupBox4, toolStripLookupBox5 };
+            foreach (ToolStripTextBox box in boxes)
+            {
+                box.ForeColor = box.Text == "Mob Search" ? DarkTheme.PlaceholderText : DarkTheme.InputText;
+            }
+        }
+
+        // Turn the dark theme on or off for the whole client. fromMenu is true when the user just
+        // changed it: the lists then switch between black and white too, like the View > list color
+        // command does.
+        private void ApplyDarkMode(bool dark, bool fromMenu)
+        {
+            DarkTheme.SetEnabled(dark);
+            UpdateSearchBoxColors();
+            mapCon.ApplyInfoTheme();
+
+            ApplyDockSkin(dark);
+            this.dockPanel.DockBackColor = dark ? DarkTheme.WindowBack : System.Drawing.SystemColors.ControlLight;
+            this.BackColor = dark ? DarkTheme.PanelBack : System.Drawing.SystemColors.ControlLight;
+
+            if (fromMenu)
+            {
+                // Mob colors are picked for a white or a black list (see EQData), so move them too.
+                if (dark && DarkTheme.IsWhite(Settings.Instance.ListBackColor))
+                {
+                    Settings.Instance.DarkMovedListColor = true;
+                    SetListColors(Color.Black);
+                }
+                else if (!dark && Settings.Instance.DarkMovedListColor && DarkTheme.IsBlack(Settings.Instance.ListBackColor))
+                {
+                    Settings.Instance.DarkMovedListColor = false;
+                    SetListColors(Color.White);
+                }
+            }
+        }
+
+        // Ground item rows have no color of their own, so give the list text that shows on its background.
+        private void SetGroundItemListColors(Color back)
+        {
+            GroundItemList.listView.BackColor = back;
+            GroundItemList.listView.ForeColor = back.GetBrightness() < 0.5f ? Color.White : Color.Black;
+        }
+
+        private void SetListColors(Color back)
+        {
+            Settings.Instance.ListBackColor = back;
+
+            SpawnList.listView.BackColor = back;
+            SpawnTimerList.listView.BackColor = back;
+            SetGroundItemListColors(back);
+
+            // Picks the mob name colors again for the new background.
+            eq.UpdateMobListColors();
+        }
+
+        private void mnuDarkMode_Click(object sender, System.EventArgs e)
+        {
+            mnuDarkMode.Checked = !mnuDarkMode.Checked;
+
+            Settings.Instance.DarkMode = mnuDarkMode.Checked;
+
+            ApplyDarkMode(mnuDarkMode.Checked, true);
+        }
+
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+
+            if (Settings.Instance.DarkMode)
+            {
+                ApplyDarkMode(true, false);
+            }
+        }
+
         private void mnuAlwaysOnTop_Click(object sender, System.EventArgs e)
 
         {
@@ -6790,6 +7023,7 @@ namespace myseq
         public void addMapText(string textToAdd)
         {
             frmAddMapText mapBox = new frmAddMapText();
+            DarkTheme.Apply(mapBox);
             mapBox.txtColr = Settings.Instance.SelectedAddMapText;
             string new_text = textToAdd.Replace("#","");
 
@@ -6885,6 +7119,7 @@ namespace myseq
         {
 
             frmDialogBox dlgBox = new frmDialogBox();
+            DarkTheme.Apply(dlgBox);
 
             dlgBox.dlgTitle = titleText;
 
@@ -8255,6 +8490,7 @@ namespace myseq
 
                     // Pop up username/password login screen for email
                     frmLogin f4 = new frmLogin();
+                    DarkTheme.Apply(f4);
                     f4.StartPosition = FormStartPosition.CenterScreen;
                     // the validation in the ShowDialog, will turn on alerts if passes and ok pushed.
                     f4.ShowDialog();
@@ -8339,7 +8575,7 @@ namespace myseq
             if (toolStripLookupBox.Text == "Mob Search")
             {
                 toolStripLookupBox.Text = "";
-                this.toolStripLookupBox.ForeColor = System.Drawing.SystemColors.WindowText;
+                this.toolStripLookupBox.ForeColor = DarkTheme.InputText;
             }
             
         }
@@ -8348,7 +8584,7 @@ namespace myseq
             if (toolStripLookupBox1.Text == "Mob Search")
             {
                 toolStripLookupBox1.Text = "";
-                this.toolStripLookupBox1.ForeColor = System.Drawing.SystemColors.WindowText;
+                this.toolStripLookupBox1.ForeColor = DarkTheme.InputText;
             }
 
         }
@@ -8357,7 +8593,7 @@ namespace myseq
             if (toolStripLookupBox2.Text == "Mob Search")
             {
                 toolStripLookupBox2.Text = "";
-                this.toolStripLookupBox2.ForeColor = System.Drawing.SystemColors.WindowText;
+                this.toolStripLookupBox2.ForeColor = DarkTheme.InputText;
             }
 
         }
@@ -8366,7 +8602,7 @@ namespace myseq
             if (toolStripLookupBox3.Text == "Mob Search")
             {
                 toolStripLookupBox3.Text = "";
-                this.toolStripLookupBox3.ForeColor = System.Drawing.SystemColors.WindowText;
+                this.toolStripLookupBox3.ForeColor = DarkTheme.InputText;
             }
 
         }
@@ -8375,7 +8611,7 @@ namespace myseq
             if (toolStripLookupBox4.Text == "Mob Search")
             {
                 toolStripLookupBox4.Text = "";
-                this.toolStripLookupBox4.ForeColor = System.Drawing.SystemColors.WindowText;
+                this.toolStripLookupBox4.ForeColor = DarkTheme.InputText;
             }
 
         }
@@ -8384,7 +8620,7 @@ namespace myseq
             if (toolStripLookupBox5.Text == "Mob Search")
             {
                 toolStripLookupBox5.Text = "";
-                this.toolStripLookupBox5.ForeColor = System.Drawing.SystemColors.WindowText;
+                this.toolStripLookupBox5.ForeColor = DarkTheme.InputText;
             }
 
         }
@@ -8395,7 +8631,7 @@ namespace myseq
             {
                 if (toolStripLookupBox.Text == "Mob Search")
                 {
-                    this.toolStripLookupBox.ForeColor = System.Drawing.SystemColors.GrayText;
+                    this.toolStripLookupBox.ForeColor = DarkTheme.PlaceholderText;
                     eq.MarkLookups("0:");
                 }
                 else
@@ -8406,7 +8642,7 @@ namespace myseq
             }
             else
             {
-                this.toolStripLookupBox.ForeColor = System.Drawing.SystemColors.GrayText;
+                this.toolStripLookupBox.ForeColor = DarkTheme.PlaceholderText;
                 toolStripLookupBox.Text = "Mob Search";
                 eq.MarkLookups("0:");
             }
@@ -8419,7 +8655,7 @@ namespace myseq
             {
                 if (toolStripLookupBox1.Text == "Mob Search")
                 {
-                    this.toolStripLookupBox1.ForeColor = System.Drawing.SystemColors.GrayText;
+                    this.toolStripLookupBox1.ForeColor = DarkTheme.PlaceholderText;
                     eq.MarkLookups("1:");
                 }
                 else
@@ -8430,7 +8666,7 @@ namespace myseq
             }
             else
             {
-                this.toolStripLookupBox1.ForeColor = System.Drawing.SystemColors.GrayText;
+                this.toolStripLookupBox1.ForeColor = DarkTheme.PlaceholderText;
                 toolStripLookupBox1.Text = "Mob Search";
                 eq.MarkLookups("1:");
             }
@@ -8443,7 +8679,7 @@ namespace myseq
             {
                 if (toolStripLookupBox2.Text == "Mob Search")
                 {
-                    this.toolStripLookupBox2.ForeColor = System.Drawing.SystemColors.GrayText;
+                    this.toolStripLookupBox2.ForeColor = DarkTheme.PlaceholderText;
                     eq.MarkLookups("2:");
                 }
                 else
@@ -8454,7 +8690,7 @@ namespace myseq
             }
             else
             {
-                this.toolStripLookupBox2.ForeColor = System.Drawing.SystemColors.GrayText;
+                this.toolStripLookupBox2.ForeColor = DarkTheme.PlaceholderText;
                 toolStripLookupBox2.Text = "Mob Search";
                 eq.MarkLookups("2:");
             }
@@ -8467,7 +8703,7 @@ namespace myseq
             {
                 if (toolStripLookupBox3.Text == "Mob Search")
                 {
-                    this.toolStripLookupBox3.ForeColor = System.Drawing.SystemColors.GrayText;
+                    this.toolStripLookupBox3.ForeColor = DarkTheme.PlaceholderText;
                     eq.MarkLookups("3:");
                 }
                 else
@@ -8478,7 +8714,7 @@ namespace myseq
             }
             else
             {
-                this.toolStripLookupBox3.ForeColor = System.Drawing.SystemColors.GrayText;
+                this.toolStripLookupBox3.ForeColor = DarkTheme.PlaceholderText;
                 toolStripLookupBox3.Text = "Mob Search";
                 eq.MarkLookups("3:");
             }
@@ -8491,7 +8727,7 @@ namespace myseq
             {
                 if (toolStripLookupBox4.Text == "Mob Search")
                 {
-                    this.toolStripLookupBox4.ForeColor = System.Drawing.SystemColors.GrayText;
+                    this.toolStripLookupBox4.ForeColor = DarkTheme.PlaceholderText;
                     eq.MarkLookups("4:");
                 }
                 else
@@ -8502,7 +8738,7 @@ namespace myseq
             }
             else
             {
-                this.toolStripLookupBox4.ForeColor = System.Drawing.SystemColors.GrayText;
+                this.toolStripLookupBox4.ForeColor = DarkTheme.PlaceholderText;
                 toolStripLookupBox4.Text = "Mob Search";
                 eq.MarkLookups("4:");
             }
@@ -8515,7 +8751,7 @@ namespace myseq
             {
                 if (toolStripLookupBox5.Text == "Mob Search")
                 {
-                    this.toolStripLookupBox5.ForeColor = System.Drawing.SystemColors.GrayText;
+                    this.toolStripLookupBox5.ForeColor = DarkTheme.PlaceholderText;
                     eq.MarkLookups("5:");
                 }
                 else
@@ -8526,7 +8762,7 @@ namespace myseq
             }
             else
             {
-                this.toolStripLookupBox5.ForeColor = System.Drawing.SystemColors.GrayText;
+                this.toolStripLookupBox5.ForeColor = DarkTheme.PlaceholderText;
                 toolStripLookupBox5.Text = "Mob Search";
                 eq.MarkLookups("5:");
             }

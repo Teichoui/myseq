@@ -2451,6 +2451,9 @@ namespace myseq
 
 				Settings.Instance.ListBackColor = colorOptionPicker.Color;
 
+				// A color picked by hand is the user's own, so dark mode must not undo it later.
+				Settings.Instance.DarkMovedListColor = false;
+
 				picListBackgroundColor.BackColor = colorOptionPicker.Color;
 
 			}
