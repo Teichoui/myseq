@@ -70,7 +70,7 @@
 					<RegistryValue Id="MySEQInstallDir" Type="string" Name="InstallDir" Value="[INSTALLDIR]" />
 				</RegistryKey>
 			</Component>
-			<Component Id="ClientShortcut" Guid="95AEEDDD-9C35-498E-927C-36D031B36E5C">
+			<Component Id="ClientShortcut" Guid="C0176759-C166-4462-897E-3B85F0CF6B1C">
 				<Shortcut Id="startmenuMySEQ"
 						  Name="MySEQ Client"
 						  Target="[INSTALLDIR]MySEQ.exe"
@@ -80,7 +80,7 @@
 				<RegistryValue Root="HKCU" Key="Software\ShowEQ Project\MySEQ" Name="installed-client" Type="integer" Value="1" KeyPath="yes"/>
 			</Component>
 			<!-- The server reads myseqserver.ini and config.ini from its working directory. -->
-			<Component Id="Server64Shortcut" Guid="DA936C66-EDF5-4FB5-8013-512D2CE8E948">
+			<Component Id="Server64Shortcut" Guid="C0499018-759E-4209-A3C3-8C8A717F6E17">
 				<Shortcut Id="startmenuMySEQSrv64"
 						  Name="MySEQ Server (64-bit)"
 						  Target="[INSTALLDIR]serverx64.exe"
@@ -89,7 +89,7 @@
 						  IconIndex="0" />
 				<RegistryValue Root="HKCU" Key="Software\ShowEQ Project\MySEQ" Name="installed-server64" Type="integer" Value="1" KeyPath="yes"/>
 			</Component>
-			<Component Id="Server64DebugShortcut" Guid="7ED212C0-7347-4797-AC51-31C73B58DD22">
+			<Component Id="Server64DebugShortcut" Guid="CC51B153-ED30-4A68-8EC0-8AA7243D58E6">
 				<Shortcut Id="startmenuMySEQSrv64Debug"
 						  Name="MySEQ Server (64-bit, debug)"
 						  Target="[INSTALLDIR]serverx64.exe"
@@ -121,7 +121,7 @@
 		</DirectoryRef>
 
 		<DirectoryRef Id="DesktopFolder">
-			<Component Id="DesktopClientShortcut" Guid="FE432205-D1B0-4561-8681-C73CCBBEB17F">
+			<Component Id="DesktopClientShortcut" Guid="DCD9BB67-703B-4493-B2A2-4EC1ABB91BFD">
 				<Shortcut Id="desktopMySEQ"
 						  Name="MySEQ Client"
 						  Target="[INSTALLDIR]MySEQ.exe"
@@ -151,7 +151,7 @@
 			<Component Id='ConfigIni' Guid="*">
 				<File Id='config' Name='config.ini' DiskId='1' Source='server/config.ini' Vital='yes' />
 			</Component>
-			<Component Id='Licenses' Guid="3C728561-40A6-4869-9FEB-088587DA249F">
+			<Component Id='Licenses' Guid="063CAEAD-EE18-4656-B30F-E48D6F313C98">
 				<File Id="licensetxt" Name="LICENSE-MySEQ.txt" DiskId="1" Source="LICENSE" Vital="no" />
 				<File Id="gpl3txt" Name="gpl-3.0.txt" DiskId="1" Source="server/gpl-3.0.txt" Vital="no" />
 				<File Id='mittxt' Name='license.txt' DiskId='1' Source='client/license.txt' Vital='no' />
