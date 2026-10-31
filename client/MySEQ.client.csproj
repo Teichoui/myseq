@@ -326,5 +326,12 @@
       <NuGetGeneratedProps>$(MSBuildProjectExtensionsPath)$(MSBuildProjectFile).nuget.g.props</NuGetGeneratedProps>
     </PropertyGroup>
     <Error Condition="!Exists('$(NuGetGeneratedTargets)') Or !Exists('$(NuGetGeneratedProps)')" Text="The NuGet packages (Fody, Costura.Fody, DockPanelSuite) have not been restored, so the build would not embed the referenced DLLs into the exe. Restore first with: msbuild $(MSBuildProjectFile) /t:Restore  (Visual Studio does this automatically)." />
+    <!-- The generated files import each package's build assets only if the package folder exists, so a restore
+         whose packages were later deleted would leave the files above in place and silently skip Fody and Costura. -->
+    <ItemGroup>
+      <CosturaWeaverFound Include="@(WeaverFiles)" Condition="'%(Filename)' == 'Costura.Fody' And Exists('%(FullPath)')" />
+    </ItemGroup>
+    <Error Condition="'$(FodyAssembly)' == '' Or !Exists('$(FodyAssembly)')" Text="Fody's build assets were not imported (its package folder is missing), so the build would not embed the referenced DLLs into the exe. Restore again with: msbuild $(MSBuildProjectFile) /t:Restore" />
+    <Error Condition="'@(CosturaWeaverFound)' == ''" Text="Costura.Fody's build assets were not imported (its package folder is missing), so the build would not embed the referenced DLLs into the exe. Restore again with: msbuild $(MSBuildProjectFile) /t:Restore" />
   </Target>
 </Project>
