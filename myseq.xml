@@ -227,6 +227,8 @@
 						 Description='For the 64-bit EverQuest client.'
 						 AllowAdvertise='no'
 						 Level='1'>
+					<!-- A 64-bit exe cannot run on 32-bit Windows, so do not offer it there. -->
+					<Condition Level='0'><![CDATA[NOT VersionNT64]]></Condition>
 					<ComponentRef Id='Server64Exe' />
 					<ComponentRef Id='Server64Shortcut' />
 					<ComponentRef Id='Server64DebugShortcut' />
