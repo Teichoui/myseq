@@ -77,7 +77,7 @@
 						  WorkingDirectory='INSTALLDIR'
 						  Icon="MySEQIcon"
 						  IconIndex="0" />
-				<RegistryValue Root="HKCU" Key="Software\ShowEQ Project\MySEQ" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+				<RegistryValue Root="HKCU" Key="Software\ShowEQ Project\MySEQ" Name="installed-client" Type="integer" Value="1" KeyPath="yes"/>
 			</Component>
 			<!-- The server reads myseqserver.ini and config.ini from its working directory. -->
 			<Component Id="Server64Shortcut" Guid="DA936C66-EDF5-4FB5-8013-512D2CE8E948">
@@ -87,7 +87,7 @@
 						  WorkingDirectory='INSTALLDIR'
 						  Icon="MySEQIcon"
 						  IconIndex="0" />
-				<RegistryValue Root="HKCU" Key="Software\ShowEQ Project\MySEQ" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+				<RegistryValue Root="HKCU" Key="Software\ShowEQ Project\MySEQ" Name="installed-server64" Type="integer" Value="1" KeyPath="yes"/>
 			</Component>
 			<Component Id="Server64DebugShortcut" Guid="7ED212C0-7347-4797-AC51-31C73B58DD22">
 				<Shortcut Id="startmenuMySEQSrv64Debug"
@@ -97,7 +97,7 @@
 						  WorkingDirectory='INSTALLDIR'
 						  Icon="MySEQIcon"
 						  IconIndex="0" />
-				<RegistryValue Root="HKCU" Key="Software\ShowEQ Project\MySEQ" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+				<RegistryValue Root="HKCU" Key="Software\ShowEQ Project\MySEQ" Name="installed-server64-debug" Type="integer" Value="1" KeyPath="yes"/>
 			</Component>
 			<Component Id="Server32Shortcut" Guid="B2D1E5C3-6A7F-4C58-9E21-0F3A8D4B7C16">
 				<Shortcut Id="startmenuMySEQSrv32"
@@ -106,7 +106,7 @@
 						  WorkingDirectory='INSTALLDIR'
 						  Icon="MySEQIcon"
 						  IconIndex="0" />
-				<RegistryValue Root="HKCU" Key="Software\ShowEQ Project\MySEQ" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+				<RegistryValue Root="HKCU" Key="Software\ShowEQ Project\MySEQ" Name="installed-server32" Type="integer" Value="1" KeyPath="yes"/>
 			</Component>
 			<Component Id="Server32DebugShortcut" Guid="4E8A6D12-93B5-4F70-A1C8-5D2B7E9F3A04">
 				<Shortcut Id="startmenuMySEQSrv32Debug"
@@ -116,7 +116,7 @@
 						  WorkingDirectory='INSTALLDIR'
 						  Icon="MySEQIcon"
 						  IconIndex="0" />
-				<RegistryValue Root="HKCU" Key="Software\ShowEQ Project\MySEQ" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+				<RegistryValue Root="HKCU" Key="Software\ShowEQ Project\MySEQ" Name="installed-server32-debug" Type="integer" Value="1" KeyPath="yes"/>
 			</Component>
 		</DirectoryRef>
 
@@ -128,7 +128,7 @@
 						  WorkingDirectory='INSTALLDIR'
 						  Icon="MySEQIcon"
 						  IconIndex="0" />
-				<RegistryValue Root="HKCU" Key="Software\ShowEQ Project\MySEQ" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+				<RegistryValue Root="HKCU" Key="Software\ShowEQ Project\MySEQ" Name="installed-desktop-client" Type="integer" Value="1" KeyPath="yes"/>
 			</Component>
 		</DirectoryRef>
 

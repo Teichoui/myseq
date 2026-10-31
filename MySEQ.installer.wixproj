@@ -11,7 +11,7 @@
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
     <Name>MySEQ.installer</Name>
-    <!-- Pass the installer values on the command line, for example: /p:MySeqDefines="Version=2.6.0.1;ClientDir=...;Server32Dir=...;Server64Dir=..." (Make.bat does this for candle directly). -->
+    <!-- Pass the installer values on the command line, for example: /p:MySeqDefines="Version=2.6.0.1%3BClientDir=...%3BServer32Dir=...%3BServer64Dir=..." (Make.bat does this for candle directly). -->
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>bin\$(Configuration)\</OutputPath>
