@@ -526,6 +526,27 @@ namespace myseq {
 
         #endregion
 
+        // The spawn information box takes the con color of the selected mob. With nothing selected it is
+        // plain: white in the light theme, dark in the dark one.
+        private void SetIdleInfoColors()
+        {
+            lblMobInfo.BackColor = DarkTheme.Enabled ? DarkTheme.InputBack : Color.White;
+            lblMobInfo.ForeColor = DarkTheme.Enabled ? DarkTheme.Text : Color.Black;
+        }
+
+        // Called when the theme changes.
+        public void ApplyInfoTheme()
+        {
+            if (lblMobInfo.Text == "Spawn Information Window")
+            {
+                SetIdleInfoColors();
+            }
+            else
+            {
+                lblMobInfo.ForeColor = Color.Black;
+            }
+        }
+
        
 
         private void InitializeVariables() {
@@ -1750,7 +1771,7 @@ namespace myseq {
 
                     }
 
-                    lblMobInfo.BackColor = System.Drawing.Color.White;
+                    SetIdleInfoColors();
 
                     return "Spawn Information Window";
 
@@ -1860,6 +1881,8 @@ namespace myseq {
                 
                 if (SetColor) {
                     
+                    lblMobInfo.ForeColor = Color.Black;
+
                     if (si.Level < (eq.greyRange + eq.playerinfo.Level)) lblMobInfo.BackColor = Color.LightGray;
 
                     else if (si.Level < (eq.greenRange + eq.playerinfo.Level)) lblMobInfo.BackColor = Color.PaleGreen;
@@ -2208,6 +2231,7 @@ namespace myseq {
                 //String timerInfo = st.GetDescription();
 
                 lblMobInfo.BackColor = System.Drawing.Color.White;
+                lblMobInfo.ForeColor = System.Drawing.Color.Black;
 
                 Graphics g = lblMobInfo.CreateGraphics();
 
@@ -2304,6 +2328,7 @@ namespace myseq {
                 grounditemInfo.AppendFormat("Y: {0:f3}  X: {1:f3}  Z: {2:f3}", gi.Y, gi.X, gi.Z);
 
                 lblMobInfo.BackColor = System.Drawing.Color.White;
+                lblMobInfo.ForeColor = System.Drawing.Color.Black;
 
                 Graphics g = lblMobInfo.CreateGraphics();
 
