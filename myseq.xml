@@ -15,7 +15,7 @@
 
 		<Package Id="*" Keywords='Installer'
 			Description="MySEQ Open Installer"
-			Comments='MySEQ Open is open source software. See LICENSE.txt and gpl-3.0.txt.'
+			Comments='MySEQ Open is open source software. See LICENSE-MySEQ.txt and gpl-3.0.txt.'
 			Manufacturer='ShowEQ Project'
 			InstallerVersion='200' Languages='1033' Compressed="yes" SummaryCodepage='1252' />
 
@@ -64,8 +64,7 @@
 						  Arguments="/x [ProductCode]"
 						  Description="Uninstalls MySEQ Open" />
 				<RemoveFolder Id="ProgramMenuDir" On="uninstall"/>
-				<RegistryKey Id="MySEQRegRoot"
-							 Action="createAndRemoveOnUninstall"
+				<RegistryKey Id="MySEQRegRoot" ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes"
 							 Key="Software\ShowEQ Project\MySEQ"
 							 Root="HKCU">
 					<RegistryValue Id="MySEQInstallDir" Type="string" Name="InstallDir" Value="[INSTALLDIR]" />
@@ -153,7 +152,7 @@
 				<File Id='config' Name='config.ini' DiskId='1' Source='server/config.ini' Vital='yes' />
 			</Component>
 			<Component Id='Licenses' Guid="3C728561-40A6-4869-9FEB-088587DA249F">
-				<File Id="licensetxt" Name="LICENSE.txt" DiskId="1" Source="LICENSE" Vital="no" />
+				<File Id="licensetxt" Name="LICENSE-MySEQ.txt" DiskId="1" Source="LICENSE" Vital="no" />
 				<File Id="gpl3txt" Name="gpl-3.0.txt" DiskId="1" Source="server/gpl-3.0.txt" Vital="no" />
 				<File Id='mittxt' Name='license.txt' DiskId='1' Source='client/license.txt' Vital='no' />
 			</Component>
