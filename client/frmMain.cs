@@ -6324,12 +6324,24 @@ namespace myseq
             gradient.TextColor = text;
         }
 
+        // The theme change recolors the Mob Search boxes like plain text boxes, so give the placeholder
+        // and any typed text their own colors again.
+        private void UpdateSearchBoxColors()
+        {
+            ToolStripTextBox[] boxes = { toolStripLookupBox, toolStripLookupBox1, toolStripLookupBox2, toolStripLookupBox3, toolStripLookupBox4, toolStripLookupBox5 };
+            foreach (ToolStripTextBox box in boxes)
+            {
+                box.ForeColor = box.Text == "Mob Search" ? DarkTheme.PlaceholderText : DarkTheme.InputText;
+            }
+        }
+
         // Turn the dark theme on or off for the whole client. fromMenu is true when the user just
         // changed it: the lists then switch between black and white too, like the View > list color
         // command does.
         private void ApplyDarkMode(bool dark, bool fromMenu)
         {
             DarkTheme.SetEnabled(dark);
+            UpdateSearchBoxColors();
             mapCon.ApplyInfoTheme();
 
             ApplyDockSkin(dark);
