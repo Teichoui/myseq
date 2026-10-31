@@ -365,6 +365,11 @@ namespace myseq
             {
                 control.ForeColor = Text;
             }
+            else if (chosenBack && o.Fore.IsSystemColor)
+            {
+                // Pin the text color: it would otherwise follow the parent to the light text color.
+                control.ForeColor = o.Fore;
+            }
         }
 
         private static void Restore(Control control)

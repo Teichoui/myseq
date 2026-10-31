@@ -6274,6 +6274,7 @@ namespace myseq
         private void ApplyDarkMode(bool dark, bool fromMenu)
         {
             DarkTheme.SetEnabled(dark);
+            mapCon.ApplyInfoTheme();
 
             ApplyDockSkin(dark);
             this.dockPanel.DockBackColor = dark ? DarkTheme.WindowBack : System.Drawing.SystemColors.ControlLight;
