@@ -381,6 +381,13 @@ namespace myseq
         private ToolStripMenuItem mnuSmallTargetInfo2;
         private ToolStripButton toolStripEmailAlerts;
         private ToolStripSeparator toolStripSeparator19;
+        private ToolStripSeparator toolStripSeparator20;
+        private ToolStripSeparator toolStripSeparator21;
+        private ToolStripSeparator toolStripSeparator22;
+        private ToolStripSeparator toolStripSeparator23;
+        private ToolStripSeparator toolStripSeparator24;
+        private ToolStripSeparator toolStripSeparator25;
+        private ToolStripSeparator toolStripSeparator26;
         private ToolStripMenuItem addZoneEmailAlertFilterToolStripMenuItem;
         private ToolStripMenuItem mnuAutoConnect;
         public ToolStripComboBox toolStripLevel;
@@ -1030,6 +1037,13 @@ namespace myseq
             this.toolStripResetDepthFilter = new System.Windows.Forms.ToolStripButton();
             this.toolStripEmailAlerts = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator19 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator20 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator21 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator22 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator23 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator24 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator25 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator26 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.toolStripLookupBox = new System.Windows.Forms.ToolStripTextBox();
             this.toolStripResetLookup = new System.Windows.Forms.ToolStripButton();
@@ -2789,6 +2803,7 @@ namespace myseq
             this.toolStripZoomIn,
             this.toolStripZoomOut,
             this.toolStripScale,
+            this.toolStripSeparator20,
             this.toolStripDepthFilterButton,
             this.toolStripZPosLabel,
             this.toolStripZPos,
@@ -2799,6 +2814,7 @@ namespace myseq
             this.toolStripZNegUp,
             this.toolStripZNegDown,
             this.toolStripResetDepthFilter,
+            this.toolStripSeparator21,
             this.toolStripDiscordAlerts,
             this.toolStripEmailAlerts,
             this.toolStripSeparator19,
@@ -2806,18 +2822,23 @@ namespace myseq
             this.toolStripLookupBox,
             this.toolStripCheckLookup,
             this.toolStripResetLookup,
+            this.toolStripSeparator22,
             this.toolStripLookupBox1,
             this.toolStripCheckLookup1,
             this.toolStripResetLookup1,
+            this.toolStripSeparator23,
             this.toolStripLookupBox2,
             this.toolStripCheckLookup2,
             this.toolStripResetLookup2,
+            this.toolStripSeparator24,
             this.toolStripLookupBox3,
             this.toolStripCheckLookup3,
             this.toolStripResetLookup3,
+            this.toolStripSeparator25,
             this.toolStripLookupBox4,
             this.toolStripCheckLookup4,
             this.toolStripResetLookup4,
+            this.toolStripSeparator26,
             this.toolStripLookupBox5,
             this.toolStripCheckLookup5,
             this.toolStripResetLookup5,
@@ -2827,6 +2848,41 @@ namespace myseq
             this.toolBarStrip.Size = new System.Drawing.Size(800, 25);
             this.toolBarStrip.TabIndex = 0;
             this.toolBarStrip.Text = "toolBarStrip";
+            // 
+            // toolStripSeparator20
+            // 
+            this.toolStripSeparator20.Name = "toolStripSeparator20";
+            this.toolStripSeparator20.Size = new System.Drawing.Size(6, 25);
+            // 
+            // toolStripSeparator21
+            // 
+            this.toolStripSeparator21.Name = "toolStripSeparator21";
+            this.toolStripSeparator21.Size = new System.Drawing.Size(6, 25);
+            // 
+            // toolStripSeparator22
+            // 
+            this.toolStripSeparator22.Name = "toolStripSeparator22";
+            this.toolStripSeparator22.Size = new System.Drawing.Size(6, 25);
+            // 
+            // toolStripSeparator23
+            // 
+            this.toolStripSeparator23.Name = "toolStripSeparator23";
+            this.toolStripSeparator23.Size = new System.Drawing.Size(6, 25);
+            // 
+            // toolStripSeparator24
+            // 
+            this.toolStripSeparator24.Name = "toolStripSeparator24";
+            this.toolStripSeparator24.Size = new System.Drawing.Size(6, 25);
+            // 
+            // toolStripSeparator25
+            // 
+            this.toolStripSeparator25.Name = "toolStripSeparator25";
+            this.toolStripSeparator25.Size = new System.Drawing.Size(6, 25);
+            // 
+            // toolStripSeparator26
+            // 
+            this.toolStripSeparator26.Name = "toolStripSeparator26";
+            this.toolStripSeparator26.Size = new System.Drawing.Size(6, 25);
             // 
             // toolStripStartStop
             // 
@@ -3156,7 +3212,7 @@ namespace myseq
             // 
             this.toolStripLookupBox.ForeColor = System.Drawing.SystemColors.GrayText;
             this.toolStripLookupBox.Name = "toolStripLookupBox";
-            this.toolStripLookupBox.Size = new System.Drawing.Size(100, 25);
+            this.toolStripLookupBox.Size = new System.Drawing.Size(110, 23);
             this.toolStripLookupBox.Text = "Mob Search";
             this.toolStripLookupBox.ToolTipText = "Type in mob name and press Enter.";
             this.toolStripLookupBox.Leave += new System.EventHandler(this.toolStripLookupBox_Leave);
@@ -3177,7 +3233,7 @@ namespace myseq
             // 
             this.toolStripLookupBox1.ForeColor = System.Drawing.SystemColors.GrayText;
             this.toolStripLookupBox1.Name = "toolStripLookupBox1";
-            this.toolStripLookupBox1.Size = new System.Drawing.Size(100, 23);
+            this.toolStripLookupBox1.Size = new System.Drawing.Size(110, 23);
             this.toolStripLookupBox1.Text = "Mob Search";
             this.toolStripLookupBox1.ToolTipText = "Type in mob name and press Enter.";
             this.toolStripLookupBox1.Leave += new System.EventHandler(this.toolStripLookupBox1_Leave);
@@ -3198,7 +3254,7 @@ namespace myseq
             // 
             this.toolStripLookupBox2.ForeColor = System.Drawing.SystemColors.GrayText;
             this.toolStripLookupBox2.Name = "toolStripLookupBox2";
-            this.toolStripLookupBox2.Size = new System.Drawing.Size(132, 23);
+            this.toolStripLookupBox2.Size = new System.Drawing.Size(110, 23);
             this.toolStripLookupBox2.Text = "Mob Search";
             this.toolStripLookupBox2.ToolTipText = "Type in mob name and press Enter.";
             this.toolStripLookupBox2.Leave += new System.EventHandler(this.toolStripLookupBox2_Leave);
@@ -3219,7 +3275,7 @@ namespace myseq
             // 
             this.toolStripLookupBox3.ForeColor = System.Drawing.SystemColors.GrayText;
             this.toolStripLookupBox3.Name = "toolStripLookupBox3";
-            this.toolStripLookupBox3.Size = new System.Drawing.Size(132, 23);
+            this.toolStripLookupBox3.Size = new System.Drawing.Size(110, 23);
             this.toolStripLookupBox3.Text = "Mob Search";
             this.toolStripLookupBox3.ToolTipText = "Type in mob name and press Enter.";
             this.toolStripLookupBox3.Leave += new System.EventHandler(this.toolStripLookupBox3_Leave);
@@ -3240,7 +3296,7 @@ namespace myseq
             // 
             this.toolStripLookupBox4.ForeColor = System.Drawing.SystemColors.GrayText;
             this.toolStripLookupBox4.Name = "toolStripLookupBox4";
-            this.toolStripLookupBox4.Size = new System.Drawing.Size(132, 23);
+            this.toolStripLookupBox4.Size = new System.Drawing.Size(110, 23);
             this.toolStripLookupBox4.Text = "Mob Search";
             this.toolStripLookupBox4.ToolTipText = "Type in mob name and press Enter.";
             this.toolStripLookupBox4.Leave += new System.EventHandler(this.toolStripLookupBox2_Leave);
@@ -3261,7 +3317,7 @@ namespace myseq
             // 
             this.toolStripLookupBox5.ForeColor = System.Drawing.SystemColors.GrayText;
             this.toolStripLookupBox5.Name = "toolStripLookupBox5";
-            this.toolStripLookupBox5.Size = new System.Drawing.Size(132, 23);
+            this.toolStripLookupBox5.Size = new System.Drawing.Size(110, 23);
             this.toolStripLookupBox5.Text = "Mob Search";
             this.toolStripLookupBox5.ToolTipText = "Type in mob name and press Enter.";
             this.toolStripLookupBox5.Leave += new System.EventHandler(this.toolStripLookupBox5_Leave);
