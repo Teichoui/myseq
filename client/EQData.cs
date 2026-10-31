@@ -179,6 +179,17 @@ namespace myseq
 
         public SolidBrush[] conColors = new SolidBrush[1000];
 
+        // Blue, the lowest con color, is almost invisible on a black list, so use a lighter blue there.
+        private static Color ListColor(Color con)
+        {
+            if (con == Color.Blue && Settings.Instance.ListBackColor == Color.Black)
+            {
+                return Color.FromArgb(90, 150, 255);
+            }
+
+            return con;
+        }
+
         public int greenRange = 0;
 
         public int cyanRange = 0;
@@ -2873,7 +2884,7 @@ namespace myseq
                             else
                             {
 
-                                li.ForeColor = conColors[si.Level].Color;
+                                li.ForeColor = ListColor(conColors[si.Level].Color);
 
                                 if (li.ForeColor == Color.Maroon)
 
@@ -2963,7 +2974,7 @@ namespace myseq
                             else
                             {
 
-                                li.ForeColor = conColors[mob.Level].Color;
+                                li.ForeColor = ListColor(conColors[mob.Level].Color);
 
                                 if (li.ForeColor == Color.Maroon)
 
@@ -3817,7 +3828,7 @@ namespace myseq
                         else
                         {
 
-                            item1.ForeColor = conColors[si.Level].Color;
+                            item1.ForeColor = ListColor(conColors[si.Level].Color);
 
                             if (item1.ForeColor == Color.Maroon)
 
@@ -3904,7 +3915,7 @@ namespace myseq
                         else
                         {
 
-                            li.ForeColor = conColors[si.Level].Color;
+                            li.ForeColor = ListColor(conColors[si.Level].Color);
 
                             if (li.ForeColor == Color.Maroon)
 
