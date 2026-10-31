@@ -47,9 +47,6 @@ Make.bat <client dir> <32-bit server dir> <64-bit server dir>
 ```
 
 The version comes from `client/AssemblyInfo.cs`. The installer needs .NET Framework 4.8 and administrator rights. It installs to `Program Files (x86)\MySEQ`, adds Start Menu shortcuts for the client and each server, and keeps edited `myseqserver.ini` and `config.ini` files when upgrading. The 64-bit server is not offered on 32-bit Windows.
-
-The old `wix\` folder holds an unused WiX 2.0 toolset and is not needed.
-
 ### Tests
 
 The client's non-UI logic (packet framing, launcher copy cleanup, Discord webhook, and so on) has a small test program:
