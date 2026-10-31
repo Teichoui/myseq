@@ -6271,8 +6271,6 @@ namespace myseq
         // Turn the dark theme on or off for the whole client. fromMenu is true when the user just
         // changed it: the lists then switch between black and white too, like the View > list color
         // command does.
-        private bool darkMovedListColor;
-
         private void ApplyDarkMode(bool dark, bool fromMenu)
         {
             DarkTheme.SetEnabled(dark);
@@ -6286,12 +6284,12 @@ namespace myseq
                 // Mob colors are picked for a white or a black list (see EQData), so move them too.
                 if (dark && Settings.Instance.ListBackColor == Color.White)
                 {
-                    darkMovedListColor = true;
+                    Settings.Instance.DarkMovedListColor = true;
                     SetListColors(Color.Black);
                 }
-                else if (!dark && darkMovedListColor && Settings.Instance.ListBackColor == Color.Black)
+                else if (!dark && Settings.Instance.DarkMovedListColor && Settings.Instance.ListBackColor == Color.Black)
                 {
-                    darkMovedListColor = false;
+                    Settings.Instance.DarkMovedListColor = false;
                     SetListColors(Color.White);
                 }
             }
