@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
-  <Import Project="..\packages\Costura.Fody.3.3.3\build\Costura.Fody.props" Condition="Exists('..\packages\Costura.Fody.3.3.3\build\Costura.Fody.props')" />
   <PropertyGroup>
     <ProjectType>Local</ProjectType>
     <ProductVersion>8.0.50727</ProductVersion>
@@ -108,15 +107,10 @@
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Costura, Version=3.3.3.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
-      <HintPath>..\packages\Costura.Fody.3.3.3\lib\net40\Costura.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="speechlib">
-      <HintPath>.\speechlib.dll</HintPath>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
+    <Reference Include="System.Speech">
+      <Private>False</Private>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
@@ -140,10 +134,6 @@
       <Name>System.XML</Name>
     </Reference>
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="WeifenLuo.WinFormsUI.Docking, Version=2.5.0.15095, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\WeifenLuo.WinFormsUI.Docking.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AboutDlg.cs">
@@ -159,6 +149,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DiscordWebhook.cs" />
+    <Compile Include="EmptyStripGuard.cs" />
     <Compile Include="LauncherCopies.cs" />
     <Compile Include="PacketFramer.cs" />
     <Compile Include="SyncHashtable.cs" />
@@ -224,7 +215,6 @@
     </Compile>
     <Content Include="Resources\EnvelopeHS.png" />
     <None Include="app.manifest" />
-    <None Include="packages.config" />
     <None Include="Resources\ShrinkSpaceHS.PNG" />
     <None Include="Resources\ExpandSpaceHS.png" />
     <None Include="Resources\File.ico" />
@@ -310,6 +300,16 @@
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="DockPanelSuite" Version="3.1.1" />
+    <PackageReference Include="DockPanelSuite.ThemeVS2005" Version="3.1.1" />
+    <PackageReference Include="Costura.Fody" Version="6.2.0">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Fody" Version="6.9.3">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>
@@ -317,12 +317,21 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-  <Import Project="..\packages\Fody.4.2.1\build\Fody.targets" Condition="Exists('..\packages\Fody.4.2.1\build\Fody.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+  <!-- Costura.Fody and Fody are PackageReferences: their build targets only reach this project through the files
+       NuGet writes when it restores. Without them the build would not embed the referenced DLLs into the exe, so
+       stop with a clear message instead of failing later or producing an exe that cannot start on its own. -->
+  <Target Name="EnsureNuGetPackagesRestored" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+      <NuGetGeneratedTargets>$(MSBuildProjectExtensionsPath)$(MSBuildProjectFile).nuget.g.targets</NuGetGeneratedTargets>
+      <NuGetGeneratedProps>$(MSBuildProjectExtensionsPath)$(MSBuildProjectFile).nuget.g.props</NuGetGeneratedProps>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Fody.4.2.1\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.4.2.1\build\Fody.targets'))" />
-    <Error Condition="!Exists('..\packages\Costura.Fody.3.3.3\build\Costura.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.3.3.3\build\Costura.Fody.props'))" />
+    <Error Condition="!Exists('$(NuGetGeneratedTargets)') Or !Exists('$(NuGetGeneratedProps)')" Text="The NuGet packages (Fody, Costura.Fody, DockPanelSuite) have not been restored, so the build would not embed the referenced DLLs into the exe. Restore first with: msbuild $(MSBuildProjectFile) /t:Restore  (Visual Studio does this automatically)." />
+    <!-- The generated files import each package's build assets only if the package folder exists, so a restore
+         whose packages were later deleted would leave the files above in place and silently skip Fody and Costura. -->
+    <ItemGroup>
+      <CosturaWeaverFound Include="@(WeaverFiles)" Condition="'%(Filename)' == 'Costura.Fody' And Exists('%(FullPath)')" />
+    </ItemGroup>
+    <Error Condition="'$(FodyAssembly)' == '' Or !Exists('$(FodyAssembly)')" Text="Fody's build assets were not imported (its package folder is missing), so the build would not embed the referenced DLLs into the exe. Restore again with: msbuild $(MSBuildProjectFile) /t:Restore" />
+    <Error Condition="'@(CosturaWeaverFound)' == ''" Text="Costura.Fody's build assets were not imported (its package folder is missing), so the build would not embed the referenced DLLs into the exe. Restore again with: msbuild $(MSBuildProjectFile) /t:Restore" />
   </Target>
 </Project>

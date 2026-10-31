@@ -181,14 +181,6 @@
 
 			</Component>
 
-			<Component Id='SupportLibs' Guid="FE24F611-9201-4105-80A3-80ABF81E6FEE">
-
-				<File Id='DockingDLL' Name='WeifenLuo.WinFormsUI.Docking.dll' DiskId='1' Source='client/WeifenLuo.WinFormsUI.Docking.dll' Vital='yes' />
-
-				<File Id='SpeechDLL' Name='speechlib.dll' DiskId='1' Source='client/speechlib.dll' Vital='yes' />
-
-			</Component>
-
 			<Component Id='ServerIni' Guid="*">
 
 				<File Id='server.ini' Name='myseqserver.ini' DiskId='1' Source='server/myseqserver.ini' Vital='yes' />
@@ -311,7 +303,6 @@
 
         <ComponentRef Id='ClientExe' />
 
-        <ComponentRef Id='SupportLibs' />
 
         <ComponentRef Id='MapDir' />
 

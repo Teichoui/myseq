@@ -30,7 +30,6 @@ help:
 
 RELFILES += myseq.exe 
 RELFILES += FolderBrowser.dll
-RELFILES += SpeechLib.dll
 RELFILES += MagicLibrary.DLL
 RELFILES += ClientReleaseNotes.htm
 RELFILES += Docking.bmp

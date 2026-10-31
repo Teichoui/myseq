@@ -65,10 +65,8 @@ client\myseq.sln
 client\Process.cs
 client\Settings.cs
 client\SoDConLevels.Ini
-client\speechlib.dll
 client\Structures.cs
 client\UtilSocket.cs
-client\WeifenLuo.WinFormsUI.Docking.dll
 client\cfg\Classes.txt
 client\cfg\ConLevels.Ini
 client\cfg\GroundItems.Ini

@@ -2,7 +2,7 @@ using System;
 
 using System.IO;
 
-using SpeechLib;
+using System.Speech.Synthesis;
 
 using System.Net.Mail;
 
@@ -5745,13 +5745,17 @@ namespace myseq
 
         public string speakText;
 
-        public static SpVoice speech = new SpVoice();
+        public static SpeechSynthesizer speech = new SpeechSynthesizer();
 
         public void SpeakText()
 
         {
 
-            speech.Speak(speakText, SpeechVoiceSpeakFlags.SVSFDefault);
+            // Alerts are spoken from worker threads and a synthesizer handles one request at a time.
+            lock (speech)
+            {
+                speech.Speak(speakText);
+            }
 
         }
 

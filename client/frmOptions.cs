@@ -20,7 +20,6 @@ using System.Windows.Forms;
 
 using Structures;
 
-using SpeechLib;
 
 using System.Net;
 
@@ -116,6 +115,8 @@ namespace myseq
 
         public TextBox txtAlertAudioFile;
 
+        private Button btnTestAlert;
+
         public TextBox txtAlertPrefix;
 
         private Label lblAlertPrefix;
@@ -134,6 +135,8 @@ namespace myseq
 
         public TextBox txtCautionAudioFile;
 
+        private Button btnTestCaution;
+
         public TextBox txtCautionPrefix;
 
         private Label lblCautionPrefix;
@@ -151,6 +154,8 @@ namespace myseq
         public RadioButton optHuntNone;
 
         public TextBox txtHuntAudioFile;
+
+        private Button btnTestHunt;
 
         public TextBox txtHuntPrefix;
 
@@ -230,7 +235,6 @@ namespace myseq
 
         private TabControl tabOptions;
 
-        private SpVoice speech = new SpVoice();
 
         private GroupBox grpDanger;
 
@@ -243,6 +247,8 @@ namespace myseq
         public RadioButton optDangerNone;
 
         public TextBox txtDangerAudioFile;
+
+        private Button btnTestDanger;
 
         public TextBox txtDangerPrefix;
 
@@ -480,6 +486,7 @@ namespace myseq
             this.optDangerBeep = new System.Windows.Forms.RadioButton();
             this.optDangerNone = new System.Windows.Forms.RadioButton();
             this.txtDangerAudioFile = new System.Windows.Forms.TextBox();
+            this.btnTestDanger = new System.Windows.Forms.Button();
             this.txtDangerPrefix = new System.Windows.Forms.TextBox();
             this.lblDangerPrefix = new System.Windows.Forms.Label();
             this.chkDangerMatchFull = new System.Windows.Forms.CheckBox();
@@ -489,6 +496,7 @@ namespace myseq
             this.optAlertBeep = new System.Windows.Forms.RadioButton();
             this.optAlertNone = new System.Windows.Forms.RadioButton();
             this.txtAlertAudioFile = new System.Windows.Forms.TextBox();
+            this.btnTestAlert = new System.Windows.Forms.Button();
             this.txtAlertPrefix = new System.Windows.Forms.TextBox();
             this.lblAlertPrefix = new System.Windows.Forms.Label();
             this.chkAlertMatchFull = new System.Windows.Forms.CheckBox();
@@ -498,6 +506,7 @@ namespace myseq
             this.optCautionBeep = new System.Windows.Forms.RadioButton();
             this.optCautionNone = new System.Windows.Forms.RadioButton();
             this.txtCautionAudioFile = new System.Windows.Forms.TextBox();
+            this.btnTestCaution = new System.Windows.Forms.Button();
             this.txtCautionPrefix = new System.Windows.Forms.TextBox();
             this.lblCautionPrefix = new System.Windows.Forms.Label();
             this.chkCautionMatchFull = new System.Windows.Forms.CheckBox();
@@ -507,6 +516,7 @@ namespace myseq
             this.optHuntBeep = new System.Windows.Forms.RadioButton();
             this.optHuntNone = new System.Windows.Forms.RadioButton();
             this.txtHuntAudioFile = new System.Windows.Forms.TextBox();
+            this.btnTestHunt = new System.Windows.Forms.Button();
             this.txtHuntPrefix = new System.Windows.Forms.TextBox();
             this.lblHuntPrefix = new System.Windows.Forms.Label();
             this.chkHuntMatchFull = new System.Windows.Forms.CheckBox();
@@ -949,6 +959,7 @@ namespace myseq
             this.grpDanger.Controls.Add(this.optDangerBeep);
             this.grpDanger.Controls.Add(this.optDangerNone);
             this.grpDanger.Controls.Add(this.txtDangerAudioFile);
+            this.grpDanger.Controls.Add(this.btnTestDanger);
             this.grpDanger.Controls.Add(this.txtDangerPrefix);
             this.grpDanger.Controls.Add(this.lblDangerPrefix);
             this.grpDanger.Controls.Add(this.chkDangerMatchFull);
@@ -993,11 +1004,22 @@ namespace myseq
             this.optDangerNone.TabStop = true;
             this.optDangerNone.Text = "None";
             // 
+            // btnTestDanger
+            // 
+            this.btnTestDanger.Location = new System.Drawing.Point(248, 62);
+            this.btnTestDanger.Name = "btnTestDanger";
+            this.btnTestDanger.Size = new System.Drawing.Size(40, 24);
+            this.btnTestDanger.TabIndex = 30;
+            this.btnTestDanger.Text = "Test";
+            this.btnTestDanger.UseVisualStyleBackColor = true;
+            this.btnTestDanger.Click += (s, e) => TestAlert(optDangerBeep, optDangerSpeak, optDangerPlay, txtDangerAudioFile, "Danger Mob");
+
+            // 
             // txtDangerAudioFile
             // 
             this.txtDangerAudioFile.Location = new System.Drawing.Point(106, 63);
             this.txtDangerAudioFile.Name = "txtDangerAudioFile";
-            this.txtDangerAudioFile.Size = new System.Drawing.Size(182, 22);
+            this.txtDangerAudioFile.Size = new System.Drawing.Size(138, 22);
             this.txtDangerAudioFile.TabIndex = 19;
             // 
             // txtDangerPrefix
@@ -1032,6 +1054,7 @@ namespace myseq
             this.grpAlert.Controls.Add(this.optAlertBeep);
             this.grpAlert.Controls.Add(this.optAlertNone);
             this.grpAlert.Controls.Add(this.txtAlertAudioFile);
+            this.grpAlert.Controls.Add(this.btnTestAlert);
             this.grpAlert.Controls.Add(this.txtAlertPrefix);
             this.grpAlert.Controls.Add(this.lblAlertPrefix);
             this.grpAlert.Controls.Add(this.chkAlertMatchFull);
@@ -1076,11 +1099,22 @@ namespace myseq
             this.optAlertNone.TabStop = true;
             this.optAlertNone.Text = "None";
             // 
+            // btnTestAlert
+            // 
+            this.btnTestAlert.Location = new System.Drawing.Point(248, 62);
+            this.btnTestAlert.Name = "btnTestAlert";
+            this.btnTestAlert.Size = new System.Drawing.Size(40, 24);
+            this.btnTestAlert.TabIndex = 30;
+            this.btnTestAlert.Text = "Test";
+            this.btnTestAlert.UseVisualStyleBackColor = true;
+            this.btnTestAlert.Click += (s, e) => TestAlert(optAlertBeep, optAlertSpeak, optAlertPlay, txtAlertAudioFile, "Rare Mob");
+
+            // 
             // txtAlertAudioFile
             // 
             this.txtAlertAudioFile.Location = new System.Drawing.Point(106, 63);
             this.txtAlertAudioFile.Name = "txtAlertAudioFile";
-            this.txtAlertAudioFile.Size = new System.Drawing.Size(182, 22);
+            this.txtAlertAudioFile.Size = new System.Drawing.Size(138, 22);
             this.txtAlertAudioFile.TabIndex = 28;
             // 
             // txtAlertPrefix
@@ -1115,6 +1149,7 @@ namespace myseq
             this.grpCaution.Controls.Add(this.optCautionBeep);
             this.grpCaution.Controls.Add(this.optCautionNone);
             this.grpCaution.Controls.Add(this.txtCautionAudioFile);
+            this.grpCaution.Controls.Add(this.btnTestCaution);
             this.grpCaution.Controls.Add(this.txtCautionPrefix);
             this.grpCaution.Controls.Add(this.lblCautionPrefix);
             this.grpCaution.Controls.Add(this.chkCautionMatchFull);
@@ -1159,11 +1194,22 @@ namespace myseq
             this.optCautionNone.TabStop = true;
             this.optCautionNone.Text = "None";
             // 
+            // btnTestCaution
+            // 
+            this.btnTestCaution.Location = new System.Drawing.Point(248, 62);
+            this.btnTestCaution.Name = "btnTestCaution";
+            this.btnTestCaution.Size = new System.Drawing.Size(40, 24);
+            this.btnTestCaution.TabIndex = 30;
+            this.btnTestCaution.Text = "Test";
+            this.btnTestCaution.UseVisualStyleBackColor = true;
+            this.btnTestCaution.Click += (s, e) => TestAlert(optCautionBeep, optCautionSpeak, optCautionPlay, txtCautionAudioFile, "Caution Mob");
+
+            // 
             // txtCautionAudioFile
             // 
             this.txtCautionAudioFile.Location = new System.Drawing.Point(106, 63);
             this.txtCautionAudioFile.Name = "txtCautionAudioFile";
-            this.txtCautionAudioFile.Size = new System.Drawing.Size(182, 22);
+            this.txtCautionAudioFile.Size = new System.Drawing.Size(138, 22);
             this.txtCautionAudioFile.TabIndex = 19;
             // 
             // txtCautionPrefix
@@ -1198,6 +1244,7 @@ namespace myseq
             this.grpHunt.Controls.Add(this.optHuntBeep);
             this.grpHunt.Controls.Add(this.optHuntNone);
             this.grpHunt.Controls.Add(this.txtHuntAudioFile);
+            this.grpHunt.Controls.Add(this.btnTestHunt);
             this.grpHunt.Controls.Add(this.txtHuntPrefix);
             this.grpHunt.Controls.Add(this.lblHuntPrefix);
             this.grpHunt.Controls.Add(this.chkHuntMatchFull);
@@ -1242,11 +1289,22 @@ namespace myseq
             this.optHuntNone.TabStop = true;
             this.optHuntNone.Text = "None";
             // 
+            // btnTestHunt
+            // 
+            this.btnTestHunt.Location = new System.Drawing.Point(248, 62);
+            this.btnTestHunt.Name = "btnTestHunt";
+            this.btnTestHunt.Size = new System.Drawing.Size(40, 24);
+            this.btnTestHunt.TabIndex = 30;
+            this.btnTestHunt.Text = "Test";
+            this.btnTestHunt.UseVisualStyleBackColor = true;
+            this.btnTestHunt.Click += (s, e) => TestAlert(optHuntBeep, optHuntSpeak, optHuntPlay, txtHuntAudioFile, "Hunt Mob");
+
+            // 
             // txtHuntAudioFile
             // 
             this.txtHuntAudioFile.Location = new System.Drawing.Point(106, 63);
             this.txtHuntAudioFile.Name = "txtHuntAudioFile";
-            this.txtHuntAudioFile.Size = new System.Drawing.Size(182, 22);
+            this.txtHuntAudioFile.Size = new System.Drawing.Size(138, 22);
             this.txtHuntAudioFile.TabIndex = 10;
             // 
             // txtHuntPrefix
@@ -2860,6 +2918,33 @@ namespace myseq
 
         }
 
+        // Does what the alert group is currently set to, so a choice can be heard before saving.
+        private void TestAlert(RadioButton beep, RadioButton speak, RadioButton play, TextBox audioFile, string description)
+        {
+            if (speak.Checked)
+            {
+                Talker talker = new Talker();
+                talker.speakText = description + ", Test Mob, is up.";
+                new System.Threading.Thread(talker.SpeakText).Start();
+            }
+            else if (play.Checked)
+            {
+                if (!File.Exists(audioFile.Text))
+                {
+                    MessageBox.Show("Choose a wav file that exists first.", "Test", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+                EQData.Play(audioFile.Text.Replace("\\", "\\\\"));
+            }
+            else if (beep.Checked)
+            {
+                EQData.Beep(300, 100);
+            }
+            else
+            {
+                MessageBox.Show("Select Beep, Speak or Play Wav first.", "Test", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
         private void btnTestEmail_Click(object sender, EventArgs e)
         {
             UpdateSMTPSettings();

@@ -31,7 +31,6 @@ help:
 
 RELFILES += client/myseq.exe 
 RELFILES += client/folderbrowser.dll
-RELFILES += client/speechlib.dll
 RELFILES += client/magiclibrary.dll
 RELFILES += client/ClientReleaseNotes.htm
 RELFILES += client/OVERHAUL-v1.22
