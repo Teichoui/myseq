@@ -2231,6 +2231,7 @@ namespace myseq {
                 //String timerInfo = st.GetDescription();
 
                 lblMobInfo.BackColor = System.Drawing.Color.White;
+                lblMobInfo.ForeColor = System.Drawing.Color.Black;
 
                 Graphics g = lblMobInfo.CreateGraphics();
 
@@ -2327,6 +2328,7 @@ namespace myseq {
                 grounditemInfo.AppendFormat("Y: {0:f3}  X: {1:f3}  Z: {2:f3}", gi.Y, gi.X, gi.Z);
 
                 lblMobInfo.BackColor = System.Drawing.Color.White;
+                lblMobInfo.ForeColor = System.Drawing.Color.Black;
 
                 Graphics g = lblMobInfo.CreateGraphics();
 
