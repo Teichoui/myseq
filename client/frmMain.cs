@@ -47,7 +47,7 @@ namespace myseq
 
     {
 
-        public string Version = "";     
+        public string Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();     
 
         public Filters filters = new Filters();
 

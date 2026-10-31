@@ -44,7 +44,7 @@ namespace myseq {
 
 
 
-			//lblVersion.Text = Application.ProductVersion.ToString() + " JHz's Build";
+			lblVersion.Text = "Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version + (IntPtr.Size == 8 ? " x64" : " x86");
 
 
 
