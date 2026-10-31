@@ -182,7 +182,7 @@ namespace myseq
         // Blue, the lowest con color, is almost invisible on a black list, so use a lighter blue there.
         private static Color ListColor(Color con)
         {
-            if (con == Color.Blue && Settings.Instance.ListBackColor == Color.Black)
+            if (con.ToArgb() == Color.Blue.ToArgb() && DarkTheme.IsBlack(Settings.Instance.ListBackColor))
             {
                 return Color.FromArgb(90, 150, 255);
             }
@@ -3923,7 +3923,7 @@ namespace myseq
 
                             // Change the colors to be more visible on white if the background is white
 
-                            if (Settings.Instance.ListBackColor == Color.White)
+                            if (DarkTheme.IsWhite(Settings.Instance.ListBackColor))
                             {
 
                                 if (li.ForeColor == Color.White)
@@ -3936,7 +3936,7 @@ namespace myseq
 
                             }
 
-                            if (Settings.Instance.ListBackColor == Color.Black)
+                            if (DarkTheme.IsBlack(Settings.Instance.ListBackColor))
                             {
 
                                 if (li.ForeColor == Color.Black)

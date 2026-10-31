@@ -750,7 +750,7 @@ namespace myseq {
             if (SpawnTimeRemaining < 1 || SpawnTimeRemaining > 120)
 
                 // Black text would vanish on the black list that dark mode switches to.
-                itmSpawnTimerList.ForeColor = Settings.Instance.ListBackColor == Color.Black ? Color.White : Color.Black;
+                itmSpawnTimerList.ForeColor = DarkTheme.IsBlack(Settings.Instance.ListBackColor) ? Color.White : Color.Black;
 
             else if (SpawnTimeRemaining < 30)
 

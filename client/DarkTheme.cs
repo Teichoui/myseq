@@ -24,6 +24,10 @@ namespace myseq
         public static readonly Color DisabledText = Color.FromArgb(130, 130, 130);
 
         // Colors for text typed into a box and for its placeholder, in either theme.
+        // Color == also compares names, so a black picked in a color dialog is not Color.Black.
+        public static bool IsBlack(Color color) { return color.ToArgb() == Color.Black.ToArgb(); }
+        public static bool IsWhite(Color color) { return color.ToArgb() == Color.White.ToArgb(); }
+
         public static Color InputText { get { return Enabled ? Text : SystemColors.WindowText; } }
         public static Color PlaceholderText { get { return Enabled ? DisabledText : SystemColors.GrayText; } }
         public static readonly Color LinkText = Color.FromArgb(100, 170, 255);

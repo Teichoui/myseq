@@ -6179,6 +6179,9 @@ namespace myseq
 
                 Settings.Instance.ListBackColor = colorPicker.Color;
 
+                // A color picked by hand is the user's own, so dark mode must not undo it later.
+                Settings.Instance.DarkMovedListColor = false;
+
                 SpawnList.listView.BackColor = Settings.Instance.ListBackColor;
 
                 SpawnTimerList.listView.BackColor = Settings.Instance.ListBackColor;
@@ -6351,12 +6354,12 @@ namespace myseq
             if (fromMenu)
             {
                 // Mob colors are picked for a white or a black list (see EQData), so move them too.
-                if (dark && Settings.Instance.ListBackColor == Color.White)
+                if (dark && DarkTheme.IsWhite(Settings.Instance.ListBackColor))
                 {
                     Settings.Instance.DarkMovedListColor = true;
                     SetListColors(Color.Black);
                 }
-                else if (!dark && Settings.Instance.DarkMovedListColor && Settings.Instance.ListBackColor == Color.Black)
+                else if (!dark && Settings.Instance.DarkMovedListColor && DarkTheme.IsBlack(Settings.Instance.ListBackColor))
                 {
                     Settings.Instance.DarkMovedListColor = false;
                     SetListColors(Color.White);
