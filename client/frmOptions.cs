@@ -1012,7 +1012,7 @@ namespace myseq
             this.btnTestDanger.TabIndex = 30;
             this.btnTestDanger.Text = "Test";
             this.btnTestDanger.UseVisualStyleBackColor = true;
-            this.btnTestDanger.Click += (s, e) => TestAlert(optDangerBeep, optDangerSpeak, optDangerPlay, txtDangerAudioFile, "a");
+            this.btnTestDanger.Click += (s, e) => TestAlert(optDangerBeep, optDangerSpeak, optDangerPlay, txtDangerAudioFile, "Danger Mob");
 
             // 
             // txtDangerAudioFile
@@ -1107,7 +1107,7 @@ namespace myseq
             this.btnTestAlert.TabIndex = 30;
             this.btnTestAlert.Text = "Test";
             this.btnTestAlert.UseVisualStyleBackColor = true;
-            this.btnTestAlert.Click += (s, e) => TestAlert(optAlertBeep, optAlertSpeak, optAlertPlay, txtAlertAudioFile, "l");
+            this.btnTestAlert.Click += (s, e) => TestAlert(optAlertBeep, optAlertSpeak, optAlertPlay, txtAlertAudioFile, "Rare Mob");
 
             // 
             // txtAlertAudioFile
@@ -1202,7 +1202,7 @@ namespace myseq
             this.btnTestCaution.TabIndex = 30;
             this.btnTestCaution.Text = "Test";
             this.btnTestCaution.UseVisualStyleBackColor = true;
-            this.btnTestCaution.Click += (s, e) => TestAlert(optCautionBeep, optCautionSpeak, optCautionPlay, txtCautionAudioFile, "a");
+            this.btnTestCaution.Click += (s, e) => TestAlert(optCautionBeep, optCautionSpeak, optCautionPlay, txtCautionAudioFile, "Caution Mob");
 
             // 
             // txtCautionAudioFile
@@ -1297,7 +1297,7 @@ namespace myseq
             this.btnTestHunt.TabIndex = 30;
             this.btnTestHunt.Text = "Test";
             this.btnTestHunt.UseVisualStyleBackColor = true;
-            this.btnTestHunt.Click += (s, e) => TestAlert(optHuntBeep, optHuntSpeak, optHuntPlay, txtHuntAudioFile, "u");
+            this.btnTestHunt.Click += (s, e) => TestAlert(optHuntBeep, optHuntSpeak, optHuntPlay, txtHuntAudioFile, "Hunt Mob");
 
             // 
             // txtHuntAudioFile
