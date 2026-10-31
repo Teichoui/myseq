@@ -5629,6 +5629,9 @@ namespace myseq
 
             SetGroundItemListColors(Settings.Instance.ListBackColor);
 
+            // Mob name colors depend on the list background, so pick them again.
+            eq.UpdateMobListColors();
+
             if (Settings.Instance.TitleBar.ToString().Length > 0)
 
                 BaseTitle = Settings.Instance.TitleBar;
@@ -6177,16 +6180,10 @@ namespace myseq
 
             {
 
-                Settings.Instance.ListBackColor = colorPicker.Color;
-
                 // A color picked by hand is the user's own, so dark mode must not undo it later.
                 Settings.Instance.DarkMovedListColor = false;
 
-                SpawnList.listView.BackColor = Settings.Instance.ListBackColor;
-
-                SpawnTimerList.listView.BackColor = Settings.Instance.ListBackColor;
-
-                SetGroundItemListColors(Settings.Instance.ListBackColor);
+                SetListColors(colorPicker.Color);
 
             }
 

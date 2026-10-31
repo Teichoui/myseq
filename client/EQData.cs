@@ -2890,7 +2890,7 @@ namespace myseq
 
                                     li.ForeColor = Color.Red;
 
-                                else if (SpawnList.listView.BackColor == Color.White)
+                                else if (DarkTheme.IsWhite(SpawnList.listView.BackColor))
                                 {
 
                                     // Change the colors to be more visible on white if the background is white
@@ -2980,7 +2980,7 @@ namespace myseq
 
                                     li.ForeColor = Color.Red;
 
-                                else if (SpawnList.listView.BackColor == Color.White)
+                                else if (DarkTheme.IsWhite(SpawnList.listView.BackColor))
                                 {
 
                                     // Change the colors to be more visible on white if the background is white
@@ -3836,7 +3836,7 @@ namespace myseq
 
                             // Change the colors to be more visible on white if the background is white
 
-                            if (SpawnList.listView.BackColor == Color.White)
+                            if (DarkTheme.IsWhite(SpawnList.listView.BackColor))
                             {
 
                                 if (item1.ForeColor == Color.White)
