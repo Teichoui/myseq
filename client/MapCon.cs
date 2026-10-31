@@ -1658,13 +1658,147 @@ namespace myseq {
 
         
 
+        // Where the names of this frame were drawn, so a later name can be placed clear of them.
+        private readonly System.Collections.Generic.List<RectangleF> labelBoxes = new System.Collections.Generic.List<RectangleF>();
+
+        // Thin line from a mob to its name when the name had to be moved.
+        private readonly Pen labelLinkPen = new Pen(Color.FromArgb(110, Color.LightGray));
+
+        // Spots to try for a name, in steps of (a third of a name's width, one line) from its usual
+        // spot above the mob, nearest first. Built once per font height.
+        private int[][] labelSteps = null;
+        private float labelStepsHeight = 0;
+
+        private int[][] GetLabelSteps(float lineHeight)
+        {
+            if (labelSteps == null || labelStepsHeight != lineHeight)
+            {
+                System.Collections.Generic.List<int[]> steps = new System.Collections.Generic.List<int[]>();
+
+                for (int ix = -3; ix <= 3; ix++)
+
+                    for (int iy = -20; iy <= 20; iy++)
+
+                        steps.Add(new int[] { ix, iy });
+
+                // Cost is the distance in pixels, with sideways steps counting for a bit less.
+                steps.Sort(delegate(int[] a, int[] b)
+                {
+                    double ca = Math.Pow(a[0] * 30.0, 2) + Math.Pow(a[1] * lineHeight, 2);
+                    double cb = Math.Pow(b[0] * 30.0, 2) + Math.Pow(b[1] * lineHeight, 2);
+                    return ca.CompareTo(cb);
+                });
+
+                labelSteps = steps.ToArray();
+                labelStepsHeight = lineHeight;
+            }
+
+            return labelSteps;
+        }
+
         private void DrawSpawnNames(Brush dBrush, String tName, float x1, float y1) {
 
-            float xoffset;
+            try {
 
-            xoffset = bkgBuffer.Graphics.MeasureString(tName, drawFont).Width * 0.5f;
+                SizeF size = bkgBuffer.Graphics.MeasureString(tName, drawFont);
 
-            try { bkgBuffer.Graphics.DrawString(tName, drawFont, dBrush, CalcScreenCoordX(x1) - xoffset, CalcScreenCoordY(y1) - SpawnSize - drawFont.GetHeight()); }
+                float cx = CalcScreenCoordX(x1);
+
+                float cy = CalcScreenCoordY(y1);
+
+                float h = drawFont.GetHeight();
+
+                float left = cx - size.Width * 0.5f;
+
+                float top = cy - SpawnSize - h;
+
+                if (Settings.Instance.AvoidLabelOverlap)
+
+                {
+
+                    // Take the first spot where the name touches no other name, stays on the map and
+                    // does not cover its own mob. MeasureString adds a little space on each side, so
+                    // the box is shrunk to the text. If nothing is free, the usual spot is used.
+
+                    float w = size.Width;
+
+                    float dot = SpawnSize + 1;
+
+                    RectangleF ownDot = new RectangleF(cx - dot, cy - dot, dot * 2, dot * 2);
+
+                    RectangleF area = new RectangleF(0, 0, Width, Height);
+
+                    RectangleF found = RectangleF.Empty;
+
+                    float foundLeft = left, foundTop = top;
+
+                    bool moved = false;
+
+                    bool free = false;
+
+                    foreach (int[] step in GetLabelSteps(h))
+
+                    {
+
+                        float l = left + step[0] * 30, t = top + step[1] * h;
+
+                        RectangleF box = new RectangleF(l + 2, t, w - 4, size.Height);
+
+                        if (step[0] != 0 || step[1] != 0)
+
+                        {
+
+                            if (!area.Contains(box) || box.IntersectsWith(ownDot)) continue;
+
+                        }
+
+                        bool clear = true;
+
+                        foreach (RectangleF taken in labelBoxes)
+
+                        {
+
+                            if (taken.IntersectsWith(box)) { clear = false; break; }
+
+                        }
+
+                        if (clear)
+
+                        {
+
+                            found = box; foundLeft = l; foundTop = t; moved = step[0] != 0 || step[1] != 0; free = true;
+
+                            break;
+
+                        }
+
+                    }
+
+                    if (!free) found = new RectangleF(left + 2, top, w - 4, size.Height);
+
+                    labelBoxes.Add(found);
+
+                    left = foundLeft;
+
+                    top = foundTop;
+
+                    if (moved)
+
+                    {
+
+                        float px = Math.Max(found.Left, Math.Min(cx, found.Right));
+
+                        float py = Math.Max(found.Top, Math.Min(cy, found.Bottom));
+
+                        bkgBuffer.Graphics.DrawLine(labelLinkPen, cx, cy, px, py);
+
+                    }
+
+                }
+
+                bkgBuffer.Graphics.DrawString(tName, drawFont, dBrush, left, top);
+
+            }
 
             catch (Exception ex) {LogLib.WriteLine(String.Format("Error with DrawSpawnNames({0}, {1}, {2}): ", tName, x1, y1 ), ex);}
 
@@ -2431,6 +2565,7 @@ namespace myseq {
                     // Clear Map
 
                     bkgBuffer.Graphics.Clear(Settings.Instance.BackColor);
+                    labelBoxes.Clear();
 
 
 

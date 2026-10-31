@@ -347,6 +347,7 @@ namespace myseq
         private ToolStripMenuItem mnuShowLookupNumber;
         private ToolStripMenuItem mnuAlwaysOnTop;
         private ToolStripMenuItem mnuDarkMode;
+        private ToolStripMenuItem mnuAvoidLabelOverlap;
         private ToolStripSeparator toolStripSeparator8;
         private ToolStripSeparator toolStripSeparator9;
         private ToolStripLabel toolStripLabel1;
@@ -898,6 +899,7 @@ namespace myseq
             this.mnuShowLookupNumber = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuAlwaysOnTop = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuDarkMode = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuAvoidLabelOverlap = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuForceDistinct = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuForceDistinctText = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator12 = new System.Windows.Forms.ToolStripSeparator();
@@ -1570,6 +1572,7 @@ namespace myseq
             this.mnuShowNPCs,
             this.mnuShowLookupText,
             this.mnuShowLookupNumber,
+            this.mnuAvoidLabelOverlap,
             this.mnuAlwaysOnTop,
             this.mnuDarkMode});
             this.mnuViewMain.Name = "mnuViewMain";
@@ -1759,6 +1762,14 @@ namespace myseq
             this.mnuDarkMode.Size = new System.Drawing.Size(172, 22);
             this.mnuDarkMode.Text = "Dark Mode";
             this.mnuDarkMode.Click += new System.EventHandler(this.mnuDarkMode_Click);
+            // 
+            // mnuAvoidLabelOverlap
+            // 
+            this.mnuAvoidLabelOverlap.Name = "mnuAvoidLabelOverlap";
+            this.mnuAvoidLabelOverlap.Size = new System.Drawing.Size(172, 22);
+            this.mnuAvoidLabelOverlap.Text = "Avoid Overlapping Labels";
+            this.mnuAvoidLabelOverlap.ToolTipText = "Move a name on the map to a free spot when it would be drawn over another name.";
+            this.mnuAvoidLabelOverlap.Click += new System.EventHandler(this.mnuAvoidLabelOverlap_Click);
             // 
             // mnuMapSettingsMain
             // 
@@ -3933,6 +3944,7 @@ namespace myseq
 
             this.mnuAlwaysOnTop.Checked = Settings.Instance.AlwaysOnTop;
             this.mnuDarkMode.Checked = Settings.Instance.DarkMode;
+            this.mnuAvoidLabelOverlap.Checked = Settings.Instance.AvoidLabelOverlap;
 
             this.mnuShowLookupNumber.Checked = Settings.Instance.ShowLookupNumber;
 
@@ -4004,6 +4016,7 @@ namespace myseq
 
             this.mnuAlwaysOnTop.Checked = Settings.Instance.AlwaysOnTop;
             this.mnuDarkMode.Checked = Settings.Instance.DarkMode;
+            this.mnuAvoidLabelOverlap.Checked = Settings.Instance.AvoidLabelOverlap;
             
             this.mnuShowLookupNumber.Checked = Settings.Instance.ShowLookupNumber;
 
@@ -6381,6 +6394,15 @@ namespace myseq
 
             // Picks the mob name colors again for the new background.
             eq.UpdateMobListColors();
+        }
+
+        private void mnuAvoidLabelOverlap_Click(object sender, System.EventArgs e)
+        {
+            mnuAvoidLabelOverlap.Checked = !mnuAvoidLabelOverlap.Checked;
+
+            Settings.Instance.AvoidLabelOverlap = mnuAvoidLabelOverlap.Checked;
+
+            mapCon.Invalidate();
         }
 
         private void mnuDarkMode_Click(object sender, System.EventArgs e)
