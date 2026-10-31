@@ -11,6 +11,14 @@ if "%~3"=="" (
     exit /b 1
 )
 
+rem Drop a trailing backslash: in -dName="dir\" the backslash would escape the closing quote.
+set "CLIENTDIR=%~1"
+set "SERVER32DIR=%~2"
+set "SERVER64DIR=%~3"
+if "%CLIENTDIR:~-1%"=="\" set "CLIENTDIR=%CLIENTDIR:~0,-1%"
+if "%SERVER32DIR:~-1%"=="\" set "SERVER32DIR=%SERVER32DIR:~0,-1%"
+if "%SERVER64DIR:~-1%"=="\" set "SERVER64DIR=%SERVER64DIR:~0,-1%"
+
 set VERSION=
 for /f tokens^=2^ delims^=^" %%a in ('findstr /b /c:"[assembly: AssemblyVersion" client\AssemblyInfo.cs') do set VERSION=%%a
 if "%VERSION%"=="" (
@@ -19,5 +27,5 @@ if "%VERSION%"=="" (
 )
 
 echo Building MySEQ Open %VERSION%
-candle.exe -nologo -dVersion=%VERSION% -dClientDir="%~1" -dServer32Dir="%~2" -dServer64Dir="%~3" myseq.xml || exit /b 1
+candle.exe -nologo -dVersion=%VERSION% -dClientDir="%CLIENTDIR%" -dServer32Dir="%SERVER32DIR%" -dServer64Dir="%SERVER64DIR%" myseq.xml || exit /b 1
 light.exe -nologo -ext WixUIExtension -cultures:en-us myseq.wixobj -out myseq.msi || exit /b 1

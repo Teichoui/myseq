@@ -247,8 +247,12 @@
 			<ComponentRef Id='Licenses' />
 		</Feature>
 
-		<!-- Windows Installer ignores the 4th number of the version, so 2.6.0.2 looks the same as 2.6.0.1 without AllowSameVersionUpgrades. -->
-		<MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage="A newer version of MySEQ Open is already installed." />
+		<!-- Windows Installer ignores the 4th number of the version, so AllowSameVersionUpgrades is needed for 2.6.0.1 -> 2.6.0.2.
+		     The downside: the same-version rule also means an older 2.6.0.x installer can replace a newer one, so
+		     DowngradeErrorMessage only protects releases where one of the first three numbers changes.
+		     afterInstallExecute installs the new files before the old product is removed, so a myseqserver.ini or
+		     config.ini the user has edited is kept instead of being deleted with the old package. -->
+		<MajorUpgrade Schedule="afterInstallExecute" AllowSameVersionUpgrades="yes" DowngradeErrorMessage="A newer version of MySEQ Open is already installed." />
 
 		<CustomAction Id="Set_INSTALLDIR" Execute="firstSequence" Property="INSTALLDIR" Value="[EXISTINGINSTALLDIR]" />
 		<InstallExecuteSequence>
