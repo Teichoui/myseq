@@ -618,7 +618,7 @@ namespace myseq
 
             SpawnList.ColumnsAdd("Name", Settings.Instance.c1w, HorizontalAlignment.Left);
 
-            SpawnList.ColumnsAdd("Level", Settings.Instance.c2w, HorizontalAlignment.Left);
+            SpawnList.ColumnsAdd("Level", Settings.Instance.c2w, HorizontalAlignment.Right);
 
             SpawnList.ColumnsAdd("Class", Settings.Instance.c3w, HorizontalAlignment.Left);
 
@@ -636,19 +636,19 @@ namespace myseq
 
             SpawnList.ColumnsAdd("Invis", Settings.Instance.c7w, HorizontalAlignment.Left);
 
-            SpawnList.ColumnsAdd("Run Speed", Settings.Instance.c8w, HorizontalAlignment.Left);
+            SpawnList.ColumnsAdd("Run Speed", Settings.Instance.c8w, HorizontalAlignment.Right);
 
-            SpawnList.ColumnsAdd("SpawnID", Settings.Instance.c9w, HorizontalAlignment.Left);
+            SpawnList.ColumnsAdd("SpawnID", Settings.Instance.c9w, HorizontalAlignment.Right);
 
             SpawnList.ColumnsAdd("Spawn Time", Settings.Instance.c10w, HorizontalAlignment.Left);
 
-            SpawnList.ColumnsAdd("X", Settings.Instance.c11w, HorizontalAlignment.Left);
+            SpawnList.ColumnsAdd("X", Settings.Instance.c11w, HorizontalAlignment.Right);
 
-            SpawnList.ColumnsAdd("Y", Settings.Instance.c12w, HorizontalAlignment.Left);
+            SpawnList.ColumnsAdd("Y", Settings.Instance.c12w, HorizontalAlignment.Right);
 
-            SpawnList.ColumnsAdd("Z", Settings.Instance.c13w, HorizontalAlignment.Left);
+            SpawnList.ColumnsAdd("Z", Settings.Instance.c13w, HorizontalAlignment.Right);
 
-            SpawnList.ColumnsAdd("Distance", Settings.Instance.c14w, HorizontalAlignment.Left);
+            SpawnList.ColumnsAdd("Distance", Settings.Instance.c14w, HorizontalAlignment.Right);
 
  
             // Set the Font, Size, Style for the Spawn List Window
