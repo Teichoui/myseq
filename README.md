@@ -38,6 +38,18 @@ NuGet restores DockPanelSuite and Fody/Costura. The build stops with a clear err
 
 Open `server/MySEQ.server.sln` in Visual Studio 2022 (toolset v143) and build the `Release` configuration for Win32 or x64.
 
+### Installer
+
+`Make.bat` builds `myseq.msi` from `myseq.xml`. It needs the [WiX Toolset 3.x](https://github.com/wixtoolset/wix3/releases) (`candle.exe` and `light.exe`) on the PATH. Build the client and both servers first, then run this from the repository root, giving the folder that holds each exe:
+
+```
+Make.bat <client dir> <32-bit server dir> <64-bit server dir>
+```
+
+The version comes from `client/AssemblyInfo.cs`. The installer needs .NET Framework 4.8 and administrator rights. It installs to `Program Files (x86)\MySEQ`, adds Start Menu shortcuts for the client and each server, and keeps edited `myseqserver.ini` and `config.ini` files when upgrading. The 64-bit server is not offered on 32-bit Windows.
+
+The old `wix\` folder holds an unused WiX 2.0 toolset and is not needed.
+
 ### Tests
 
 The client's non-UI logic (packet framing, launcher copy cleanup, Discord webhook, and so on) has a small test program:
@@ -49,7 +61,7 @@ dotnet run -c Release
 
 ## Version numbers
 
-The client version is set in one place, `client/AssemblyInfo.cs` (`AssemblyVersion` and `AssemblyFileVersion`). It is shown in the About dialog, the status bar, and the exe's file properties. To make a new build, change the last number.
+The client version is set in one place, `client/AssemblyInfo.cs` (`AssemblyVersion` and `AssemblyFileVersion`). It is shown in the About dialog, the status bar, and the exe's file properties. To make a new build, change the last number. The installer reads it from there too.
 
 ## Contributing
 
