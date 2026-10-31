@@ -6,20 +6,23 @@
     <ProductVersion>3.5</ProductVersion>
     <ProjectGuid>{38467b5c-0427-4683-8c3f-3533804530df}</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
-    <OutputName>MySEQ Open 2.3.1</OutputName>
+    <OutputName>MySEQ</OutputName>
     <OutputType>Package</OutputType>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
     <Name>MySEQ.installer</Name>
+    <!-- Pass the installer values on the command line, for example: /p:MySeqVersion=2.6.0.1 /p:MySeqClientDir=... /p:MySeqServer32Dir=... /p:MySeqServer64Dir=... (Make.bat does this for candle directly). -->
+    <MySeqDefines>Version=$(MySeqVersion);ClientDir=$(MySeqClientDir);Server32Dir=$(MySeqServer32Dir);Server64Dir=$(MySeqServer64Dir)</MySeqDefines>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
-    <DefineConstants>Debug</DefineConstants>
+    <DefineConstants>Debug;$(MySeqDefines)</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>$(MySeqDefines)</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <WixExtension Include="WixUIExtension">
@@ -34,9 +37,11 @@
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.
 	Other similar extension points exist, see Wix.targets.
-	<Target Name="BeforeBuild">
-	</Target>
 	<Target Name="AfterBuild">
 	</Target>
 	-->
+  <!-- myseq.xml needs Version, ClientDir, Server32Dir and Server64Dir. Stop with a clear message instead of a candle error. -->
+  <Target Name="BeforeBuild">
+    <Error Condition="'$(MySeqVersion)' == '' Or '$(MySeqClientDir)' == '' Or '$(MySeqServer32Dir)' == '' Or '$(MySeqServer64Dir)' == ''" Text="Set MySeqVersion, MySeqClientDir, MySeqServer32Dir and MySeqServer64Dir (see the comment at the top of this project) or build the installer with Make.bat." />
+  </Target>
 </Project>
