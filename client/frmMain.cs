@@ -8558,18 +8558,12 @@ namespace myseq
         }
 
 
-        // Text typed into a Mob Search box has to stay readable on the dark input color.
-        private static Color SearchTextColor()
-        {
-            return DarkTheme.Enabled ? DarkTheme.Text : System.Drawing.SystemColors.WindowText;
-        }
-
         private void toolStripLookupBox_Click(object sender, EventArgs e)
         {
             if (toolStripLookupBox.Text == "Mob Search")
             {
                 toolStripLookupBox.Text = "";
-                this.toolStripLookupBox.ForeColor = SearchTextColor();
+                this.toolStripLookupBox.ForeColor = DarkTheme.InputText;
             }
             
         }
@@ -8578,7 +8572,7 @@ namespace myseq
             if (toolStripLookupBox1.Text == "Mob Search")
             {
                 toolStripLookupBox1.Text = "";
-                this.toolStripLookupBox1.ForeColor = SearchTextColor();
+                this.toolStripLookupBox1.ForeColor = DarkTheme.InputText;
             }
 
         }
@@ -8587,7 +8581,7 @@ namespace myseq
             if (toolStripLookupBox2.Text == "Mob Search")
             {
                 toolStripLookupBox2.Text = "";
-                this.toolStripLookupBox2.ForeColor = SearchTextColor();
+                this.toolStripLookupBox2.ForeColor = DarkTheme.InputText;
             }
 
         }
@@ -8596,7 +8590,7 @@ namespace myseq
             if (toolStripLookupBox3.Text == "Mob Search")
             {
                 toolStripLookupBox3.Text = "";
-                this.toolStripLookupBox3.ForeColor = SearchTextColor();
+                this.toolStripLookupBox3.ForeColor = DarkTheme.InputText;
             }
 
         }
@@ -8605,7 +8599,7 @@ namespace myseq
             if (toolStripLookupBox4.Text == "Mob Search")
             {
                 toolStripLookupBox4.Text = "";
-                this.toolStripLookupBox4.ForeColor = SearchTextColor();
+                this.toolStripLookupBox4.ForeColor = DarkTheme.InputText;
             }
 
         }
@@ -8614,7 +8608,7 @@ namespace myseq
             if (toolStripLookupBox5.Text == "Mob Search")
             {
                 toolStripLookupBox5.Text = "";
-                this.toolStripLookupBox5.ForeColor = SearchTextColor();
+                this.toolStripLookupBox5.ForeColor = DarkTheme.InputText;
             }
 
         }
@@ -8625,7 +8619,7 @@ namespace myseq
             {
                 if (toolStripLookupBox.Text == "Mob Search")
                 {
-                    this.toolStripLookupBox.ForeColor = System.Drawing.SystemColors.GrayText;
+                    this.toolStripLookupBox.ForeColor = DarkTheme.PlaceholderText;
                     eq.MarkLookups("0:");
                 }
                 else
@@ -8636,7 +8630,7 @@ namespace myseq
             }
             else
             {
-                this.toolStripLookupBox.ForeColor = System.Drawing.SystemColors.GrayText;
+                this.toolStripLookupBox.ForeColor = DarkTheme.PlaceholderText;
                 toolStripLookupBox.Text = "Mob Search";
                 eq.MarkLookups("0:");
             }
@@ -8649,7 +8643,7 @@ namespace myseq
             {
                 if (toolStripLookupBox1.Text == "Mob Search")
                 {
-                    this.toolStripLookupBox1.ForeColor = System.Drawing.SystemColors.GrayText;
+                    this.toolStripLookupBox1.ForeColor = DarkTheme.PlaceholderText;
                     eq.MarkLookups("1:");
                 }
                 else
@@ -8660,7 +8654,7 @@ namespace myseq
             }
             else
             {
-                this.toolStripLookupBox1.ForeColor = System.Drawing.SystemColors.GrayText;
+                this.toolStripLookupBox1.ForeColor = DarkTheme.PlaceholderText;
                 toolStripLookupBox1.Text = "Mob Search";
                 eq.MarkLookups("1:");
             }
@@ -8673,7 +8667,7 @@ namespace myseq
             {
                 if (toolStripLookupBox2.Text == "Mob Search")
                 {
-                    this.toolStripLookupBox2.ForeColor = System.Drawing.SystemColors.GrayText;
+                    this.toolStripLookupBox2.ForeColor = DarkTheme.PlaceholderText;
                     eq.MarkLookups("2:");
                 }
                 else
@@ -8684,7 +8678,7 @@ namespace myseq
             }
             else
             {
-                this.toolStripLookupBox2.ForeColor = System.Drawing.SystemColors.GrayText;
+                this.toolStripLookupBox2.ForeColor = DarkTheme.PlaceholderText;
                 toolStripLookupBox2.Text = "Mob Search";
                 eq.MarkLookups("2:");
             }
@@ -8697,7 +8691,7 @@ namespace myseq
             {
                 if (toolStripLookupBox3.Text == "Mob Search")
                 {
-                    this.toolStripLookupBox3.ForeColor = System.Drawing.SystemColors.GrayText;
+                    this.toolStripLookupBox3.ForeColor = DarkTheme.PlaceholderText;
                     eq.MarkLookups("3:");
                 }
                 else
@@ -8708,7 +8702,7 @@ namespace myseq
             }
             else
             {
-                this.toolStripLookupBox3.ForeColor = System.Drawing.SystemColors.GrayText;
+                this.toolStripLookupBox3.ForeColor = DarkTheme.PlaceholderText;
                 toolStripLookupBox3.Text = "Mob Search";
                 eq.MarkLookups("3:");
             }
@@ -8721,7 +8715,7 @@ namespace myseq
             {
                 if (toolStripLookupBox4.Text == "Mob Search")
                 {
-                    this.toolStripLookupBox4.ForeColor = System.Drawing.SystemColors.GrayText;
+                    this.toolStripLookupBox4.ForeColor = DarkTheme.PlaceholderText;
                     eq.MarkLookups("4:");
                 }
                 else
@@ -8732,7 +8726,7 @@ namespace myseq
             }
             else
             {
-                this.toolStripLookupBox4.ForeColor = System.Drawing.SystemColors.GrayText;
+                this.toolStripLookupBox4.ForeColor = DarkTheme.PlaceholderText;
                 toolStripLookupBox4.Text = "Mob Search";
                 eq.MarkLookups("4:");
             }
@@ -8745,7 +8739,7 @@ namespace myseq
             {
                 if (toolStripLookupBox5.Text == "Mob Search")
                 {
-                    this.toolStripLookupBox5.ForeColor = System.Drawing.SystemColors.GrayText;
+                    this.toolStripLookupBox5.ForeColor = DarkTheme.PlaceholderText;
                     eq.MarkLookups("5:");
                 }
                 else
@@ -8756,7 +8750,7 @@ namespace myseq
             }
             else
             {
-                this.toolStripLookupBox5.ForeColor = System.Drawing.SystemColors.GrayText;
+                this.toolStripLookupBox5.ForeColor = DarkTheme.PlaceholderText;
                 toolStripLookupBox5.Text = "Mob Search";
                 eq.MarkLookups("5:");
             }

@@ -22,6 +22,10 @@ namespace myseq
         public static readonly Color Border = Color.FromArgb(85, 85, 90);
         public static readonly Color Text = Color.FromArgb(230, 230, 230);
         public static readonly Color DisabledText = Color.FromArgb(130, 130, 130);
+
+        // Colors for text typed into a box and for its placeholder, in either theme.
+        public static Color InputText { get { return Enabled ? Text : SystemColors.WindowText; } }
+        public static Color PlaceholderText { get { return Enabled ? DisabledText : SystemColors.GrayText; } }
         public static readonly Color LinkText = Color.FromArgb(100, 170, 255);
         public static readonly Color Accent = Color.FromArgb(0, 122, 204);
 
@@ -55,7 +59,7 @@ namespace myseq
             }
             else
             {
-                ToolStripManager.RenderMode = ToolStripManagerRenderMode.System;
+                ToolStripManager.RenderMode = ToolStripManagerRenderMode.Professional;
             }
 
             List<Form> forms = new List<Form>();
