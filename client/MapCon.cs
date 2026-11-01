@@ -1772,7 +1772,12 @@ namespace myseq {
 
                 float top = cy - SpawnSize - h;
 
-                if (Settings.Instance.AvoidLabelOverlap)
+                RectangleF area = new RectangleF(0, 0, Width, Height);
+
+                // A name whose usual spot is off the map stays where it is: it is not seen, so it must not
+                // be moved onto the map or take room from the names that are.
+
+                if (Settings.Instance.AvoidLabelOverlap && area.IntersectsWith(new RectangleF(left + 2, top, size.Width - 4, size.Height)))
 
                 {
 
@@ -1785,8 +1790,6 @@ namespace myseq {
                     float dot = SpawnSize + 1;
 
                     RectangleF ownDot = new RectangleF(cx - dot, cy - dot, dot * 2, dot * 2);
-
-                    RectangleF area = new RectangleF(0, 0, Width, Height);
 
                     RectangleF found = RectangleF.Empty;
 
