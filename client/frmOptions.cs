@@ -2183,6 +2183,7 @@ namespace myseq
             this.lblSMTPPort.AutoSize = true;
             this.lblSMTPPort.Location = new System.Drawing.Point(245, 18);
             this.lblSMTPPort.Name = "lblSMTPPort";
+            this.lblSMTPPort.Anchor = ((System.Windows.Forms.AnchorStyles)(System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right));
             this.lblSMTPPort.Size = new System.Drawing.Size(38, 17);
             this.lblSMTPPort.TabIndex = 8;
             this.lblSMTPPort.Text = "Port:";
@@ -2191,6 +2192,7 @@ namespace myseq
             // 
             this.textSMTPPort.Location = new System.Drawing.Point(248, 37);
             this.textSMTPPort.Name = "textSMTPPort";
+            this.textSMTPPort.Anchor = ((System.Windows.Forms.AnchorStyles)(System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right));
             this.textSMTPPort.Size = new System.Drawing.Size(51, 22);
             this.textSMTPPort.TabIndex = 1;
             this.textSMTPPort.Text = "25";
