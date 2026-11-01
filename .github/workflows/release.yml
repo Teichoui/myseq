@@ -54,16 +54,21 @@ jobs:
         with:
           name: myseq-installer
 
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: myseq-portable
+
       - name: Publish the release
         run: |
           version="${TAG#v}"
           mv myseq.msi "MySEQ-$version.msi"
-          sha256sum "MySEQ-$version.msi" > "MySEQ-$version.msi.sha256"
-          gh release create "$TAG" "MySEQ-$version.msi" "MySEQ-$version.msi.sha256" \
+          mv myseq-portable.zip "MySEQ-$version-portable.zip"
+          sha256sum "MySEQ-$version.msi" "MySEQ-$version-portable.zip" > "MySEQ-$version.sha256"
+          gh release create "$TAG" "MySEQ-$version.msi" "MySEQ-$version-portable.zip" "MySEQ-$version.sha256" \
             --repo "$GITHUB_REPOSITORY" \
             --verify-tag \
             --title "MySEQ Open $version" \
-            --notes "Run the .msi to install or upgrade. It needs .NET Framework 4.8. The .sha256 file is the installer's SHA-256 checksum." \
+            --notes "Two ways to use it: run the .msi to install or upgrade, or unpack the -portable.zip anywhere you can write to and run it from there, with no install. Both need .NET Framework 4.8. The .sha256 file has the SHA-256 checksum of each." \
             --generate-notes
         env:
           TAG: ${{ github.ref_name }}

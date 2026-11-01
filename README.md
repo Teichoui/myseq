@@ -13,6 +13,8 @@ The current client version is **2.6.0.2**. See [Changelog.md](Changelog.md) for 
 2. Start the server (`server.exe` for 32-bit or `serverx64.exe` for 64-bit EverQuest). It listens on port 5555 by default; change it in `myseqserver.ini`.
 3. Start the client and connect it to the server's address and port.
 
+You can use it installed or not. A release has an installer (`MySEQ-<version>.msi`) and a portable zip (`MySEQ-<version>-portable.zip`) with the same files: unpack the zip anywhere you can write to (not Program Files) and run `MySEQ.exe` and the server from that folder. The client saves its settings in `%APPDATA%\MySEQ`, not in the folder, so delete that folder as well to remove every trace.
+
 The server reads game memory, so it only shows real data while EverQuest is running. The client can run on the same PC or on another one that can reach the server.
 
 After EverQuest is patched the memory offsets in `myseqserver.ini` often have to be found again. The server remembers the `eqgame.exe` timestamp it last read real data from (`VerifiedExeTime` in the ini file). If `eqgame.exe` has a different timestamp and the server can read no zone or character from it for about 45 seconds, the Patch line in the server window turns red and says `(EQ patched?)`. Use **Offset Finder** to find the new offsets. If the offsets still work after a patch, the line stays normal.
@@ -61,6 +63,16 @@ Make.bat <client dir> <32-bit server dir> <64-bit server dir>
 
 The version comes from `client/AssemblyInfo.cs`. The installer needs .NET Framework 4.8 and administrator rights. It installs to `Program Files (x86)\MySEQ`, adds Start Menu shortcuts for the client and each server, and keeps edited `myseqserver.ini` and `config.ini` files when upgrading. The 64-bit server is not offered on 32-bit Windows.
 
+### Portable zip
+
+`Make-Portable.ps1` builds `myseq-portable.zip`, the same files and folders as the installer, from the same three folders. Run it from the repository root:
+
+```
+Make-Portable.ps1 <client dir> <32-bit server dir> <64-bit server dir>
+```
+
+`tests\portable\check-portable.ps1 myseq-portable.zip` checks the zip against `myseq.xml`, so a file added to the installer but not to the zip fails the build.
+
 ### Tests
 
 The client's non-UI logic (packet framing, launcher copy cleanup, Discord webhook, and so on) has a small test program:
@@ -95,7 +107,7 @@ git tag v2.6.0.3
 git push origin v2.6.0.3
 ```
 
-`.github/workflows/release.yml` then checks that the tag matches the version in the source and is on `main`, builds the client and both servers, runs the tests, builds the installer, and publishes a GitHub release with `MySEQ-<version>.msi` and its SHA-256 checksum. Release notes are generated from the merged pull requests. A tag that does not match the version stops before anything is built.
+`.github/workflows/release.yml` then checks that the tag matches the version in the source and is on `main`, builds the client and both servers, runs the tests, builds the installer and the portable zip, and publishes a GitHub release with `MySEQ-<version>.msi`, `MySEQ-<version>-portable.zip` and their SHA-256 checksums. Release notes are generated from the merged pull requests. A tag that does not match the version stops before anything is built.
 
 ## Contributing
 
