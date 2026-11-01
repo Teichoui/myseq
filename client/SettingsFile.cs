@@ -33,13 +33,14 @@ namespace myseq
                     fs.Flush(true);
                 }
 
+                // Remove the old backup first: if that fails, the save fails and nothing has been replaced.
+                if (!keepBackup)
+                    File.Delete(BackupPath(path));
+
                 if (File.Exists(path))
                     File.Replace(temp, path, keepBackup ? BackupPath(path) : null);
                 else
                     File.Move(temp, path);
-
-                if (!keepBackup)
-                    File.Delete(BackupPath(path));
             }
             catch
             {

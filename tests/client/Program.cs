@@ -135,6 +135,41 @@ namespace myseq.Tests
             }
             finally { Directory.Delete(dir, true); }
         }
+        private static void SettingsFileWithoutBackupFailsIfOldCopyStays()
+        {
+            string dir = SettingsTestDir();
+            string path = Path.Combine(dir, "myseq.xml");
+            string backup = SettingsFile.BackupPath(path);
+            try
+            {
+                WriteText(path, "password: secret");
+                WriteText(path, "password: secret again");
+                File.SetAttributes(backup, FileAttributes.ReadOnly);
+
+                bool threw = false;
+                try { WriteText2(path, "password: ", false); }
+                catch (UnauthorizedAccessException) { threw = true; }
+                catch (IOException) { threw = true; }
+
+                Check(threw, "a save that cannot remove the old backup reports the failure");
+                Check(File.ReadAllText(path) == "password: secret again", "and it leaves the main file as it was, with nothing replaced");
+                Check(Directory.GetFiles(dir, "*.tmp").Length == 0, "and removes its temporary file");
+            }
+            finally
+            {
+                if (File.Exists(backup)) File.SetAttributes(backup, FileAttributes.Normal);
+                Directory.Delete(dir, true);
+            }
+        }
+
+        private static void WriteText2(string path, string text, bool keepBackup)
+        {
+            SettingsFile.Write(path, delegate (Stream s)
+            {
+                byte[] bytes = Encoding.UTF8.GetBytes(text);
+                s.Write(bytes, 0, bytes.Length);
+            }, keepBackup);
+        }
         private static int Main()
         {
             Console.WriteLine("PacketFramer");
@@ -173,6 +208,7 @@ namespace myseq.Tests
             SettingsFileFailedWriteKeepsOriginal();
             SettingsFileFailedFirstWriteLeavesNothing();
             SettingsFileWithoutBackupLeavesNoOldCopy();
+            SettingsFileWithoutBackupFailsIfOldCopyStays();
 
             Console.WriteLine("\n" + (failures == 0 ? "PASSED" : "FAILED") + " (" + failures + " failure" + (failures == 1 ? "" : "s") + ")");
             return failures == 0 ? 0 : 1;

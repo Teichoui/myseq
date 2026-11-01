@@ -1211,12 +1211,15 @@ namespace Structures
                 try {
                     XmlTextReader reader = new XmlTextReader(filename);
                     bool sawSettings = false;
+                    int settingsDepth = -1;
                     while (reader.Read())
                     {
                         if (reader.NodeType == XmlNodeType.Element)
                         {
-                            // A real settings file has a Settings element; any other XML is not one.
-                            if (reader.LocalName == "Settings") sawSettings = true;
+                            // A real settings file has a Settings element with settings inside it; an empty one,
+                            // or any other XML, is not a usable file.
+                            if (reader.LocalName == "Settings") settingsDepth = reader.Depth;
+                            else if (settingsDepth >= 0 && reader.Depth == settingsDepth + 1) sawSettings = true;
 
                             switch (reader.Name)
                             {
