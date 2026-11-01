@@ -1,0 +1,70 @@
+name: Release
+
+# Push a tag that matches the client version (v2.6.0.3 for AssemblyVersion 2.6.0.3) to build everything, run the
+# same tests as a pull request, and publish a GitHub release with the installer.
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+.[0-9]+']
+
+permissions:
+  contents: read
+
+jobs:
+  # Stops a wrong tag before anything is built: the tag must match the version in the source and sit on main.
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: The tag must match the version and be on main
+        run: |
+          version=$(sed -n 's/^\[assembly: AssemblyVersion("\([0-9.]*\)")\].*/\1/p' client/AssemblyInfo.cs)
+          file_version=$(sed -n 's/^\[assembly: AssemblyFileVersion("\([0-9.]*\)")\].*/\1/p' client/AssemblyInfo.cs)
+          if [ -z "$version" ] || [ "$version" != "$file_version" ]; then
+            echo "::error::AssemblyVersion ('$version') and AssemblyFileVersion ('$file_version') in client/AssemblyInfo.cs must be the same."
+            exit 1
+          fi
+          if [ "$TAG" != "v$version" ]; then
+            echo "::error::The tag is $TAG but client/AssemblyInfo.cs says $version. Change the version in a pull request first, or tag v$version."
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::$TAG is not on main. Merge the change first, then tag the merge."
+            exit 1
+          fi
+        env:
+          TAG: ${{ github.ref_name }}
+
+  build:
+    needs: check
+    uses: ./.github/workflows/build.yml
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: myseq-installer
+
+      - name: Publish the release
+        run: |
+          version="${TAG#v}"
+          mv myseq.msi "MySEQ-$version.msi"
+          sha256sum "MySEQ-$version.msi" > "MySEQ-$version.msi.sha256"
+          gh release create "$TAG" "MySEQ-$version.msi" "MySEQ-$version.msi.sha256" \
+            --repo "$GITHUB_REPOSITORY" \
+            --verify-tag \
+            --title "MySEQ Open $version" \
+            --notes "Run the .msi to install or upgrade. It needs .NET Framework 4.8. The .sha256 file is the installer's SHA-256 checksum." \
+            --generate-notes
+        env:
+          TAG: ${{ github.ref_name }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

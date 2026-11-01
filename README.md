@@ -84,6 +84,19 @@ tests\server\run-tests.ps1
 
 The client version is set in one place, `client/AssemblyInfo.cs` (`AssemblyVersion` and `AssemblyFileVersion`). It is shown in the About dialog, the status bar, and the exe's file properties. To make a new build, change the last number. The installer reads it from there too.
 
+## Releasing
+
+To publish a release, change the version in `client/AssemblyInfo.cs` in a pull request and merge it. Then tag the merge with the same version and push the tag:
+
+```
+git checkout main
+git pull
+git tag v2.6.0.3
+git push origin v2.6.0.3
+```
+
+`.github/workflows/release.yml` then checks that the tag matches the version in the source and is on `main`, builds the client and both servers, runs the tests, builds the installer, and publishes a GitHub release with `MySEQ-<version>.msi` and its SHA-256 checksum. Release notes are generated from the merged pull requests. A tag that does not match the version stops before anything is built.
+
 ## Contributing
 
 Make changes on a new branch and open a pull request against `main`.
