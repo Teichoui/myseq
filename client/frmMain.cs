@@ -399,6 +399,12 @@ namespace myseq
 
         private ToolStripButton toolStripDiscordAlerts;
         bool bIsRunning = false;
+
+        // True while connected to a server.
+        public bool IsConnected { get { return bIsRunning; } }
+
+        // True when no map file was found for the current zone, so the map shows a stand-in.
+        public bool MapMissing = false;
         bool bFilter0 = false;
         bool bFilter1 = false;
         bool bFilter2 = false;
@@ -4824,7 +4830,8 @@ namespace myseq
 
                 LogLib.WriteLine("Short Zone Name: (" + si.Name + ")");
 
-                bool foundmap = false;                
+                bool foundmap = false;
+                MapMissing = false;
 
                 string f = Settings.Instance.MapDir + "\\";
 
@@ -5000,6 +5007,7 @@ namespace myseq
 
                         //this.Text = BaseTitle + " - Couldn't find a map for the zone: " + si.Name.ToString();
 
+                        MapMissing = true;
                         map.loadDummyMap(fn);
                         
                     }

@@ -2750,6 +2750,8 @@ namespace myseq {
 
                     }
 
+                    DrawFirstRunNotice();
+
                     f1.toolStripFPS.Text = String.Format("FPS: {0}", fpsValue);
 
                     bkgBuffer.Render(sg);
@@ -2764,6 +2766,45 @@ namespace myseq {
 
 
 
+        private readonly SolidBrush noticeFill = new SolidBrush(Color.FromArgb(235, 25, 25, 25));
+        private readonly Pen noticeBorder = new Pen(Color.FromArgb(160, 140, 140, 140));
+        private readonly StringFormat noticeFormat = new StringFormat { Alignment = StringAlignment.Center };
+
+        // A short note on the map for someone starting out: not connected yet, or no map file for this zone.
+        private void DrawFirstRunNotice()
+        {
+            try
+            {
+                string text = null;
+
+                if (!f1.IsConnected)
+                {
+                    text = "Not connected to a server.\nClick Go in the toolbar, or use File > Connect.";
+                }
+                else if (f1.MapMissing && !String.IsNullOrEmpty(eq.shortname))
+                {
+                    text = String.Format("No map found for the zone \"{0}\".\nPut its map files ({0}.txt, {0}_1.txt, ...) in:\n{1}",
+                        eq.shortname, Settings.Instance.MapDir);
+                }
+
+                if (text == null) return;
+
+                Graphics g = bkgBuffer.Graphics;
+
+                SizeF size = g.MeasureString(text, drawFont, Math.Max(100, Width - 40), noticeFormat);
+
+                float pad = 8;
+
+                RectangleF box = new RectangleF((Width - size.Width) / 2 - pad, Math.Max(Height * 0.15f, tableLayoutPanel1.Bottom + 8), size.Width + pad * 2, size.Height + pad * 2);
+
+                g.FillRectangle(noticeFill, box);
+
+                g.DrawRectangle(noticeBorder, box.X, box.Y, box.Width, box.Height);
+
+                g.DrawString(text, drawFont, textBrush, new RectangleF(box.X + pad, box.Y + pad, size.Width, size.Height), noticeFormat);
+            }
+            catch (Exception ex) { LogLib.WriteLine("Error in DrawFirstRunNotice(): ", ex); }
+        }
         private void DrawCorpses(float pX, float pY, float pZ, float playerx, float playery, DrawOptions DrawOpts)
 
         {
