@@ -22,6 +22,180 @@ namespace myseq.Tests
             if (!ok) failures++;
         }
 
+        private static string SettingsTestDir()
+        {
+            string dir = Path.Combine(Path.GetTempPath(), "myseq-settingsfile-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(dir);
+            return dir;
+        }
+
+        private static void WriteText(string path, string text)
+        {
+            SettingsFile.Write(path, delegate (Stream s)
+            {
+                byte[] bytes = Encoding.UTF8.GetBytes(text);
+                s.Write(bytes, 0, bytes.Length);
+            });
+        }
+
+        private static void SettingsFileWritesNewFile()
+        {
+            string dir = SettingsTestDir();
+            try
+            {
+                string path = Path.Combine(dir, "prefs.xml");
+                WriteText(path, "one");
+                Check(File.ReadAllText(path) == "one", "a new file gets its content");
+                Check(Directory.GetFiles(dir, "*.tmp").Length == 0, "no temporary file is left behind");
+                Check(!File.Exists(SettingsFile.BackupPath(path)), "there is no backup when nothing was replaced");
+            }
+            finally { Directory.Delete(dir, true); }
+        }
+
+        private static void SettingsFileKeepsBackup()
+        {
+            string dir = SettingsTestDir();
+            try
+            {
+                string path = Path.Combine(dir, "prefs.xml");
+                WriteText(path, "one");
+                WriteText(path, "two");
+                Check(File.ReadAllText(path) == "two", "the file holds the latest save");
+                Check(File.ReadAllText(SettingsFile.BackupPath(path)) == "one", "the previous save is kept as the backup");
+                WriteText(path, "three");
+                Check(File.ReadAllText(SettingsFile.BackupPath(path)) == "two", "the backup moves on with each save");
+                Check(Directory.GetFiles(dir, "*.tmp").Length == 0, "no temporary file is left behind after replacing");
+            }
+            finally { Directory.Delete(dir, true); }
+        }
+
+        private static void SettingsFileFailedWriteKeepsOriginal()
+        {
+            string dir = SettingsTestDir();
+            try
+            {
+                string path = Path.Combine(dir, "prefs.xml");
+                WriteText(path, "good");
+                bool threw = false;
+                try
+                {
+                    SettingsFile.Write(path, delegate (Stream s)
+                    {
+                        byte[] bytes = Encoding.UTF8.GetBytes("half of a new file");
+                        s.Write(bytes, 0, bytes.Length);
+                        throw new InvalidOperationException("save failed part way");
+                    });
+                }
+                catch (InvalidOperationException) { threw = true; }
+
+                Check(threw, "the error from a failed save is passed on");
+                Check(File.ReadAllText(path) == "good", "a failed save leaves the old file as it was");
+                Check(Directory.GetFiles(dir, "*.tmp").Length == 0, "a failed save removes its temporary file");
+                Check(!File.Exists(SettingsFile.BackupPath(path)), "a failed save does not touch the backup");
+            }
+            finally { Directory.Delete(dir, true); }
+        }
+
+        private static void SettingsFileFailedFirstWriteLeavesNothing()
+        {
+            string dir = SettingsTestDir();
+            try
+            {
+                string path = Path.Combine(dir, "prefs.xml");
+                try
+                {
+                    SettingsFile.Write(path, delegate (Stream s) { throw new InvalidOperationException("save failed"); });
+                }
+                catch (InvalidOperationException) { }
+
+                Check(!File.Exists(path), "a failed first save does not create a file");
+                Check(Directory.GetFiles(dir, "*.tmp").Length == 0, "a failed first save removes its temporary file");
+            }
+            finally { Directory.Delete(dir, true); }
+        }
+        private static void SettingsFileWithoutBackupLeavesNoOldCopy()
+        {
+            string dir = SettingsTestDir();
+            try
+            {
+                string path = Path.Combine(dir, "myseq.xml");
+                WriteText(path, "password: secret");
+                WriteText(path, "password: secret again");
+                Check(File.Exists(SettingsFile.BackupPath(path)), "a normal save keeps a backup");
+
+                SettingsFile.Write(path, delegate (Stream s)
+                {
+                    byte[] bytes = Encoding.UTF8.GetBytes("password: ");
+                    s.Write(bytes, 0, bytes.Length);
+                }, false);
+
+                Check(File.ReadAllText(path) == "password: ", "a save without backup still replaces the file");
+                Check(!File.Exists(SettingsFile.BackupPath(path)), "a save without backup removes the old backup, so no older copy is left");
+                Check(Directory.GetFiles(dir, "*.tmp").Length == 0, "no temporary file is left behind");
+            }
+            finally { Directory.Delete(dir, true); }
+        }
+        private static void SettingsFileWithoutBackupFailsIfOldCopyStays()
+        {
+            // A read-only file blocks deleting it on Windows only.
+            if (!OperatingSystem.IsWindows()) { Console.WriteLine("  skip  a backup that cannot be removed (Windows only)"); return; }
+
+            string dir = SettingsTestDir();
+            string path = Path.Combine(dir, "myseq.xml");
+            string backup = SettingsFile.BackupPath(path);
+            try
+            {
+                WriteText(path, "password: secret");
+                WriteText(path, "password: secret again");
+                File.SetAttributes(backup, FileAttributes.ReadOnly);
+
+                bool threw = false;
+                try { WriteText2(path, "password: ", false); }
+                catch (UnauthorizedAccessException) { threw = true; }
+                catch (IOException) { threw = true; }
+
+                Check(threw, "a save that cannot remove the old backup reports the failure");
+                Check(File.ReadAllText(path) == "password: secret again", "and it leaves the main file as it was, with nothing replaced");
+                Check(Directory.GetFiles(dir, "*.tmp").Length == 0, "and removes its temporary file");
+            }
+            finally
+            {
+                if (File.Exists(backup)) File.SetAttributes(backup, FileAttributes.Normal);
+                Directory.Delete(dir, true);
+            }
+        }
+
+        private static void WriteText2(string path, string text, bool keepBackup)
+        {
+            SettingsFile.Write(path, delegate (Stream s)
+            {
+                byte[] bytes = Encoding.UTF8.GetBytes(text);
+                s.Write(bytes, 0, bytes.Length);
+            }, keepBackup);
+        }
+        private static void SettingsFileRestoreFromBackup()
+        {
+            string dir = SettingsTestDir();
+            try
+            {
+                string path = Path.Combine(dir, "prefs.xml");
+                WriteText(path, "good");
+                WriteText(path, "good again");
+                // the main file gets damaged, the backup still holds the last good copy
+                File.WriteAllText(path, "half");
+                SettingsFile.RestoreFromBackup(path);
+                Check(File.ReadAllText(path) == "good", "after a recovery the main file is the good copy again");
+                WriteText(path, "next save");
+                Check(File.ReadAllText(SettingsFile.BackupPath(path)) == "good", "so the next save keeps the good copy as the backup, not the damaged one");
+
+                // no backup: nothing happens and nothing fails
+                string other = Path.Combine(dir, "other.xml");
+                File.WriteAllText(other, "only copy");
+                SettingsFile.RestoreFromBackup(other);
+                Check(File.ReadAllText(other) == "only copy", "restoring without a backup leaves the file alone");
+            }
+            finally { Directory.Delete(dir, true); }
+        }
         private static int Main()
         {
             Console.WriteLine("PacketFramer");
@@ -53,6 +227,15 @@ namespace myseq.Tests
             LauncherSelectsOnlyItsOwnCopies();
             LauncherSurvivesRunningCopy();
             LauncherOldBehaviourControl();
+
+            Console.WriteLine("\nSettingsFile");
+            SettingsFileWritesNewFile();
+            SettingsFileKeepsBackup();
+            SettingsFileFailedWriteKeepsOriginal();
+            SettingsFileFailedFirstWriteLeavesNothing();
+            SettingsFileWithoutBackupLeavesNoOldCopy();
+            SettingsFileWithoutBackupFailsIfOldCopyStays();
+            SettingsFileRestoreFromBackup();
 
             Console.WriteLine("\n" + (failures == 0 ? "PASSED" : "FAILED") + " (" + failures + " failure" + (failures == 1 ? "" : "s") + ")");
             return failures == 0 ? 0 : 1;

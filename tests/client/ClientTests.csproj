@@ -14,6 +14,7 @@
     <Compile Include="..\..\client\SyncHashtable.cs" Link="client\SyncHashtable.cs" />
     <Compile Include="..\..\client\LauncherCopies.cs" Link="client\LauncherCopies.cs" />
     <Compile Include="..\..\client\DiscordWebhook.cs" Link="client\DiscordWebhook.cs" />
+    <Compile Include="..\..\client\SettingsFile.cs" Link="client\SettingsFile.cs" />
   </ItemGroup>
 
 </Project>

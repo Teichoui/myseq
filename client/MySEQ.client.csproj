@@ -150,6 +150,7 @@
     </Compile>
     <Compile Include="DiscordWebhook.cs" />
     <Compile Include="DarkTheme.cs" />
+    <Compile Include="SettingsFile.cs" />
     <Compile Include="EmptyStripGuard.cs" />
     <Compile Include="LauncherCopies.cs" />
     <Compile Include="PacketFramer.cs" />

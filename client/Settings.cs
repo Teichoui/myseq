@@ -157,13 +157,7 @@ namespace Structures
 
             }
 
-            FileStream fs = new FileStream(filename, FileMode.Create);
-
-            SoapFormatter sf1 = new SoapFormatter();
-
-            sf1.Serialize(fs, DiscordSettings.Instance);
-
-            fs.Close();
+            myseq.SettingsFile.Write(filename, delegate(Stream stream) { new SoapFormatter().Serialize(stream, DiscordSettings.Instance); });
 
             String oldconfigFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "myseq.xml");
             if (File.Exists(oldconfigFile))
@@ -173,29 +167,25 @@ namespace Structures
 
         public void Load(string filename)
         {
+            // If the file is missing or damaged, use the copy kept by the last save.
+            if (!LoadFile(filename) && File.Exists(myseq.SettingsFile.BackupPath(filename)) && LoadFile(myseq.SettingsFile.BackupPath(filename)))
+                myseq.SettingsFile.RestoreFromBackup(filename);
+        }
 
+        private bool LoadFile(string filename)
+        {
             FileStream fs = null;
-
             try
             {
-
                 fs = new FileStream(filename, FileMode.Open);
-
                 SoapFormatter sf1 = new SoapFormatter();
-
-
                 DiscordSettings.Instance = (DiscordSettings)sf1.Deserialize(fs);
-
                 String myPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MySEQ");
-
                 DiscordSettings.Instance.prefsDir = myPath;
-
+                return true;
             }
-
-            catch (Exception ex) { LogLib.WriteLine("Error in DiscordSettings.Load(): ", ex); }
-
-            if (fs != null) fs.Close();
-
+            catch (Exception ex) { LogLib.WriteLine("Error in DiscordSettings.Load(): ", ex); return false; }
+            finally { if (fs != null) fs.Close(); }
         }
 
     }
@@ -332,18 +322,20 @@ namespace Structures
                 SMTPSettings.Instance.SmtpPassword = "";
             }
 
-            FileStream fs = new FileStream(filename, FileMode.Create);
-
-            SoapFormatter sf1 = new SoapFormatter();
-
-            sf1.Serialize(fs, SMTPSettings.Instance);
-
-            if (SMTPSettings.Instance.SavePassword == false) {
-                SMTPSettings.Instance.SmtpPassword = curpass;
-                curpass = "";
+            try
+            {
+                // With password saving off, keep no backup either: it could hold the password saved earlier.
+                myseq.SettingsFile.Write(filename, delegate(Stream stream) { new SoapFormatter().Serialize(stream, SMTPSettings.Instance); }, SMTPSettings.Instance.SavePassword);
             }
-
-            fs.Close();
+            finally
+            {
+                // Put the password back even if the save failed.
+                if (SMTPSettings.Instance.SavePassword == false)
+                {
+                    SMTPSettings.Instance.SmtpPassword = curpass;
+                    curpass = "";
+                }
+            }
 
             String oldconfigFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "myseq.xml");
             if (File.Exists(oldconfigFile))
@@ -353,29 +345,27 @@ namespace Structures
 
 
 
-        public void Load(string filename) {
+        public void Load(string filename)
+        {
+            // If the file is missing or damaged, use the copy kept by the last save.
+            if (!LoadFile(filename) && File.Exists(myseq.SettingsFile.BackupPath(filename)) && LoadFile(myseq.SettingsFile.BackupPath(filename)))
+                myseq.SettingsFile.RestoreFromBackup(filename);
+        }
 
+        private bool LoadFile(string filename)
+        {
             FileStream fs = null;
-
-            try {
-
+            try
+            {
                 fs = new FileStream(filename, FileMode.Open);
-
                 SoapFormatter sf1 = new SoapFormatter();
-
-
                 SMTPSettings.Instance = (SMTPSettings)sf1.Deserialize(fs);
-
                 String myPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MySEQ");
-
                 SMTPSettings.Instance.prefsDir = myPath;
-
+                return true;
             }
-
-            catch (Exception ex) { LogLib.WriteLine("Error in SMTPSettings.Load(): ", ex); }
-
-            if (fs != null) fs.Close();
-
+            catch (Exception ex) { LogLib.WriteLine("Error in SMTPSettings.Load(): ", ex); return false; }
+            finally { if (fs != null) fs.Close(); }
         }
 
         public static string DecryptString(string Message, string _Pass)
@@ -1173,13 +1163,7 @@ namespace Structures
 
             }
 
-            FileStream fs = new FileStream(filename, FileMode.Create);
-
-            SoapFormatter sf1 = new SoapFormatter();
-
-            sf1.Serialize(fs, Settings.Instance);
-
-            fs.Close();
+            myseq.SettingsFile.Write(filename, delegate(Stream stream) { new SoapFormatter().Serialize(stream, Settings.Instance); });
 
             String oldconfigFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "prefs.xml");
             if (File.Exists(oldconfigFile))
@@ -1189,6 +1173,20 @@ namespace Structures
 
 
         public void Load(string filename) {
+
+            // If the file is missing or damaged, use the copy kept by the last save.
+            if (!LoadFile(filename) && File.Exists(myseq.SettingsFile.BackupPath(filename)))
+            {
+                // Start from the defaults so nothing the damaged file applied before it failed carries over.
+                Settings fresh = new Settings();
+                Settings.Instance = fresh;
+                if (fresh.LoadFile(myseq.SettingsFile.BackupPath(filename)))
+                    myseq.SettingsFile.RestoreFromBackup(filename);
+            }
+        }
+
+        // Returns false when the file could not be read at all.
+        private bool LoadFile(string filename) {
 
             FileStream fs = null;
             bool otherLoad = false;
@@ -1216,12 +1214,22 @@ namespace Structures
             if (otherLoad)
             {
                 // Try manually loading directly
+                XmlTextReader reader = null;
                 try {
-                    XmlTextReader reader = new XmlTextReader(filename);
+                    reader = new XmlTextReader(filename);
+                    bool sawSettings = false;
+                    int settingsDepth = -1;
                     while (reader.Read())
                     {
                         if (reader.NodeType == XmlNodeType.Element)
                         {
+                            // A real settings file has a Settings element with at least one setting inside it that this
+                            // loader applies. An empty one, one with only elements it does not read, or any other XML
+                            // is not a usable file.
+                            if (reader.LocalName == "Settings") settingsDepth = reader.Depth;
+                            bool directChild = settingsDepth >= 0 && reader.Depth == settingsDepth + 1;
+                            bool applied = true;
+
                             switch (reader.Name)
                             {
                                 case "ipAddress1":
@@ -1428,20 +1436,37 @@ namespace Structures
                                 case "filterPlayerCorpses":
                                     FilterPlayerCorpses = reader.ReadElementContentAsBoolean();
                                     break;
+                                default:
+                                    applied = false;
+                                    break;
                             }
+
+                            if (directChild && applied) sawSettings = true;
                         }
                     }
                     reader.Close();
+
+                    if (!sawSettings)
+                    {
+                        LogLib.WriteLine("Settings.Load(): " + filename + " has no settings in it.");
+                        return false;
+                    }
                 }
 
                 catch (Exception ex)
                 {
                     LogLib.WriteLine("Error in Settings.Load(): ", ex);
-                    otherLoad = true;
+                    return false;
+                }
+                finally
+                {
+                    // Close it on every path, or a later save to this file can fail on the open handle.
+                    if (reader != null) reader.Close();
                 }
 
             }
 
+            return true;
         }
 
     }
