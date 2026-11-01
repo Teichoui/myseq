@@ -5,6 +5,7 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
@@ -61,6 +62,21 @@ jobs:
         with:
           name: myseq-installer
           path: myseq.msi
+          retention-days: 14
+
+      # The same files as the installer, as a zip to unpack and run without installing.
+      - name: Build the portable zip
+        shell: pwsh
+        run: ./Make-Portable.ps1 "$env:OUT\client" "$env:OUT\server32" "$env:OUT\server64"
+
+      - name: Check the portable zip holds what the installer installs
+        shell: pwsh
+        run: ./tests/portable/check-portable.ps1 myseq-portable.zip
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: myseq-portable
+          path: myseq-portable.zip
           retention-days: 14
 
       # Installs the MSI on this throwaway machine, installs a newer one over it, then uninstalls it, and
