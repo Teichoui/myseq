@@ -1658,13 +1658,204 @@ namespace myseq {
 
         
 
+        // Where the names of this frame were drawn, so a later name can be placed clear of them.
+        // The boxes are kept in a grid of cells, so a name only has to be compared with the few boxes near it.
+        // A box outside the map is put in the nearest edge cell, which only makes the search look a bit wider.
+        private const int LabelCell = 48;
+
+        private System.Collections.Generic.List<RectangleF>[] labelGrid = new System.Collections.Generic.List<RectangleF>[0];
+        private int labelCols = 0, labelRows = 0;
+
+        private void ClearLabelBoxes()
+        {
+            int cols = Width / LabelCell + 1, rows = Height / LabelCell + 1;
+
+            if (cols != labelCols || rows != labelRows)
+            {
+                labelCols = cols;
+                labelRows = rows;
+                labelGrid = new System.Collections.Generic.List<RectangleF>[cols * rows];
+            }
+
+            foreach (System.Collections.Generic.List<RectangleF> cell in labelGrid)
+                if (cell != null) cell.Clear();
+        }
+
+        private int LabelCellIndex(float coord, int count)
+        {
+            int index = (int)Math.Floor(coord / LabelCell);
+            return index < 0 ? 0 : (index >= count ? count - 1 : index);
+        }
+
+        private void AddLabelBox(RectangleF box)
+        {
+            if (labelGrid.Length == 0) return;
+
+            int x0 = LabelCellIndex(box.Left, labelCols), x1 = LabelCellIndex(box.Right, labelCols);
+            int y0 = LabelCellIndex(box.Top, labelRows), y1 = LabelCellIndex(box.Bottom, labelRows);
+
+            for (int cy = y0; cy <= y1; cy++)
+                for (int cx = x0; cx <= x1; cx++)
+                {
+                    int i = cy * labelCols + cx;
+                    if (labelGrid[i] == null) labelGrid[i] = new System.Collections.Generic.List<RectangleF>();
+                    labelGrid[i].Add(box);
+                }
+        }
+
+        private bool LabelBoxTaken(RectangleF box)
+        {
+            if (labelGrid.Length == 0) return false;
+
+            int x0 = LabelCellIndex(box.Left, labelCols), x1 = LabelCellIndex(box.Right, labelCols);
+            int y0 = LabelCellIndex(box.Top, labelRows), y1 = LabelCellIndex(box.Bottom, labelRows);
+
+            for (int cy = y0; cy <= y1; cy++)
+                for (int cx = x0; cx <= x1; cx++)
+                {
+                    System.Collections.Generic.List<RectangleF> cell = labelGrid[cy * labelCols + cx];
+                    if (cell == null) continue;
+                    for (int k = 0; k < cell.Count; k++)
+                        if (cell[k].IntersectsWith(box)) return true;
+                }
+
+            return false;
+        }
+        // Thin line from a mob to its name when the name had to be moved.
+        private readonly Pen labelLinkPen = new Pen(Color.FromArgb(110, Color.LightGray));
+
+        // Spots to try for a name, in steps of (a third of a name's width, one line) from its usual
+        // spot above the mob, nearest first. Built once per font height.
+        private int[][] labelSteps = null;
+        private float labelStepsHeight = 0;
+
+        private int[][] GetLabelSteps(float lineHeight)
+        {
+            if (labelSteps == null || labelStepsHeight != lineHeight)
+            {
+                System.Collections.Generic.List<int[]> steps = new System.Collections.Generic.List<int[]>();
+
+                for (int ix = -3; ix <= 3; ix++)
+
+                    for (int iy = -14; iy <= 14; iy++)
+
+                        steps.Add(new int[] { ix, iy });
+
+                // Cost is the distance in pixels, with sideways steps counting for a bit less.
+                steps.Sort(delegate(int[] a, int[] b)
+                {
+                    double ca = Math.Pow(a[0] * 30.0, 2) + Math.Pow(a[1] * lineHeight, 2);
+                    double cb = Math.Pow(b[0] * 30.0, 2) + Math.Pow(b[1] * lineHeight, 2);
+                    return ca.CompareTo(cb);
+                });
+
+                labelSteps = steps.ToArray();
+                labelStepsHeight = lineHeight;
+            }
+
+            return labelSteps;
+        }
+
         private void DrawSpawnNames(Brush dBrush, String tName, float x1, float y1) {
 
-            float xoffset;
+            try {
 
-            xoffset = bkgBuffer.Graphics.MeasureString(tName, drawFont).Width * 0.5f;
+                SizeF size = bkgBuffer.Graphics.MeasureString(tName, drawFont);
 
-            try { bkgBuffer.Graphics.DrawString(tName, drawFont, dBrush, CalcScreenCoordX(x1) - xoffset, CalcScreenCoordY(y1) - SpawnSize - drawFont.GetHeight()); }
+                float cx = CalcScreenCoordX(x1);
+
+                float cy = CalcScreenCoordY(y1);
+
+                float h = drawFont.GetHeight();
+
+                float left = cx - size.Width * 0.5f;
+
+                float top = cy - SpawnSize - h;
+
+                RectangleF area = new RectangleF(0, 0, Width, Height);
+
+                // A name whose usual spot is off the map stays where it is: it is not seen, so it must not
+                // be moved onto the map or take room from the names that are.
+
+                if (Settings.Instance.AvoidLabelOverlap && area.IntersectsWith(new RectangleF(left + 2, top, size.Width - 4, size.Height)))
+
+                {
+
+                    // Take the first spot where the name touches no other name, stays on the map and
+                    // does not cover its own mob. MeasureString adds a little space on each side, so
+                    // the box is shrunk to the text. If nothing is free, the usual spot is used.
+
+                    float w = size.Width;
+
+                    float dot = SpawnSize + 1;
+
+                    RectangleF ownDot = new RectangleF(cx - dot, cy - dot, dot * 2, dot * 2);
+
+                    // The information window sits on top of the map, so a moved name must not go under it.
+
+                    RectangleF infoPanel = tableLayoutPanel1.Bounds;
+
+                    RectangleF found = RectangleF.Empty;
+
+                    float foundLeft = left, foundTop = top;
+
+                    bool moved = false;
+
+                    bool free = false;
+
+                    foreach (int[] step in GetLabelSteps(h))
+
+                    {
+
+                        float l = left + step[0] * 30, t = top + step[1] * h;
+
+                        RectangleF box = new RectangleF(l + 2, t, w - 4, size.Height);
+
+                        if (step[0] != 0 || step[1] != 0)
+
+                        {
+
+                            if (!area.Contains(box) || box.IntersectsWith(ownDot) || (tableLayoutPanel1.Visible && box.IntersectsWith(infoPanel))) continue;
+
+                        }
+
+                        if (!LabelBoxTaken(box))
+
+                        {
+
+                            found = box; foundLeft = l; foundTop = t; moved = step[0] != 0 || step[1] != 0; free = true;
+
+                            break;
+
+                        }
+
+                    }
+
+                    if (!free) found = new RectangleF(left + 2, top, w - 4, size.Height);
+
+                    AddLabelBox(found);
+
+                    left = foundLeft;
+
+                    top = foundTop;
+
+                    if (moved)
+
+                    {
+
+                        float px = Math.Max(found.Left, Math.Min(cx, found.Right));
+
+                        float py = Math.Max(found.Top, Math.Min(cy, found.Bottom));
+
+                        bkgBuffer.Graphics.DrawLine(labelLinkPen, cx, cy, px, py);
+
+                    }
+
+                }
+
+                bkgBuffer.Graphics.DrawString(tName, drawFont, dBrush, left, top);
+
+            }
 
             catch (Exception ex) {LogLib.WriteLine(String.Format("Error with DrawSpawnNames({0}, {1}, {2}): ", tName, x1, y1 ), ex);}
 
@@ -2431,6 +2622,7 @@ namespace myseq {
                     // Clear Map
 
                     bkgBuffer.Graphics.Clear(Settings.Instance.BackColor);
+                    ClearLabelBoxes();
 
 
 

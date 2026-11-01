@@ -754,6 +754,17 @@ namespace Structures
         [System.Runtime.Serialization.OptionalField]
         private bool darkMovedListColor = false;
 
+        // Move a spawn name on the map to a free spot when it would be drawn over another one.
+        [System.Runtime.Serialization.OptionalField]
+        private bool avoidLabelOverlap = true;
+
+        // An older settings file has no value for the field above, so start from its default.
+        [System.Runtime.Serialization.OnDeserializing]
+        private void SetNewFieldDefaults(System.Runtime.Serialization.StreamingContext context)
+        {
+            avoidLabelOverlap = true;
+        }
+
         private bool showCorpses = true;
 
         private bool showPCCorpses = true;
@@ -851,6 +862,8 @@ namespace Structures
         public bool DarkMode { get { return darkMode; } set { darkMode = value; } }
 
         public bool DarkMovedListColor { get { return darkMovedListColor; } set { darkMovedListColor = value; } }
+
+        public bool AvoidLabelOverlap { get { return avoidLabelOverlap; } set { avoidLabelOverlap = value; } }
 
 
         public bool ShowCorpses { get { return showCorpses; } set { showCorpses = value; } }
@@ -1276,6 +1289,9 @@ namespace Structures
                                     break;
                                 case "darkMovedListColor":
                                     DarkMovedListColor = reader.ReadElementContentAsBoolean();
+                                    break;
+                                case "avoidLabelOverlap":
+                                    AvoidLabelOverlap = reader.ReadElementContentAsBoolean();
                                     break;
                                  case "drawFoV":
                                     DrawFoV = reader.ReadElementContentAsBoolean();
