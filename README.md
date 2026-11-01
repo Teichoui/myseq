@@ -5,7 +5,7 @@ MySEQ is a live map and spawn tracker for EverQuest. It has two parts:
 - **Server** (`server/`): a C++ Win32 program that runs on the same PC as the EverQuest client, reads the game's memory, and sends what it finds over the network.
 - **Client** (`client/`): a C# WinForms program that connects to the server and shows the zone map, spawn list, and mob alerts.
 
-This is a fork of [RedGuides/myseq](https://github.com/RedGuides/myseq). The current client version is **2.6.0.1**. See [Changelog.md](Changelog.md) for older changes.
+This is a fork of [RedGuides/myseq](https://github.com/RedGuides/myseq). The current client version is **2.6.0.2**. See [Changelog.md](Changelog.md) for older changes.
 
 ## Using it
 
@@ -18,6 +18,17 @@ The server reads game memory, so it only shows real data while EverQuest is runn
 After EverQuest is patched the memory offsets in `myseqserver.ini` often have to be found again. The server remembers the `eqgame.exe` timestamp it last read real data from (`VerifiedExeTime` in the ini file). If `eqgame.exe` has a different timestamp and the server can read no zone or character from it for about 45 seconds, the Patch line in the server window turns red and says `(EQ patched?)`. Use **Offset Finder** to find the new offsets. If the offsets still work after a patch, the line stays normal.
 
 When you start the client, it copies itself to a randomly named `.bin` file and exits, and the copy is the one that keeps running. This is normal. Old copies are cleaned up on the next start.
+
+### The map
+
+- Mob names are placed so they do not overlap each other or sit under the spawn information window. Names that fall off the map are left where they are.
+- When the client is not connected, or a zone has no map file, a short note on the map says so.
+- **Update Delay** in the Options window sets how often the map redraws. The default of 200 ms is about 5 frames per second; a lower value is smoother (Windows timers step in about 15.6 ms, so 31 ms is about 30 frames per second).
+- The Options window can be resized, and dark mode is in the View menu.
+
+### Settings
+
+The client saves its settings to a temporary file first and swaps it in when complete, keeping the previous copy as a `.bak` file next to it. If the main settings file is missing or cannot be read, the client loads the `.bak` copy instead and puts it back as the main file.
 
 ### Alerts
 
@@ -49,6 +60,7 @@ Make.bat <client dir> <32-bit server dir> <64-bit server dir>
 ```
 
 The version comes from `client/AssemblyInfo.cs`. The installer needs .NET Framework 4.8 and administrator rights. It installs to `Program Files (x86)\MySEQ`, adds Start Menu shortcuts for the client and each server, and keeps edited `myseqserver.ini` and `config.ini` files when upgrading. The 64-bit server is not offered on 32-bit Windows.
+
 ### Tests
 
 The client's non-UI logic (packet framing, launcher copy cleanup, Discord webhook, and so on) has a small test program:
@@ -57,6 +69,16 @@ The client's non-UI logic (packet framing, launcher copy cleanup, Discord webhoo
 cd tests\client
 dotnet run -c Release
 ```
+
+The server's non-UI code (network helpers, raw buffers, the patch check, and a memory reader handle leak test) has test programs that `tests\server\run-tests.ps1` builds and runs. It finds Visual Studio with `vswhere`; pass `-VsDevCmd <path to VsDevCmd.bat>` to use a specific one.
+
+```
+tests\server\run-tests.ps1
+```
+
+### Continuous build
+
+`.github/workflows/build.yml` runs on every pull request and on pushes to `main`. On a Windows runner it builds the client and both servers, runs the client and server tests, builds the installer, and tests that it installs, upgrades and uninstalls cleanly. The installer and its logs are uploaded as artifacts.
 
 ## Version numbers
 
