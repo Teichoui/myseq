@@ -415,8 +415,7 @@ BOOL DeleteService()
 return true;
 }
 
-// Entry Point for WinMain
-
+// Entry point: reads the command line and the ini files, then runs as a window, a console program or a service.
 int APIENTRY _tWinMain(_In_   HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_     LPTSTR    lpCmdLine,
@@ -1127,6 +1126,7 @@ INT_PTR CALLBACK ServerDialog(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
 	return (INT_PTR)FALSE;
 }
 
+// Message handler for the Offset Finder dialog; a reload of the found offsets also restarts the patch check.
 INT_PTR CALLBACK OffsetDialog(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch(message)

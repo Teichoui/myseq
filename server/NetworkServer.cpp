@@ -266,6 +266,7 @@ bool NetworkServer::requestContains(inc_packet_types pt)
 	return ((clientRequest & pt) != 0);
 }
 
+// Reads the name of the character the player is logged in as; an empty string when it cannot be read.
 string NetworkServer::getCharName(MemReaderInterface* mr_intf)
 {
 	// get current character name
@@ -284,6 +285,8 @@ string NetworkServer::getCharName(MemReaderInterface* mr_intf)
 	return rtn;
 }
 
+// True when the offsets read real data from the game: a zone and character name that look real, and a spawn list
+// that can be followed from the top for a few links without hitting unreadable memory or a loop.
 bool NetworkServer::offsetsReadGame(MemReaderInterface* mr_intf)
 {
 	if (!offsets[OT_zonename] || !offsets[OT_spawnlist])
