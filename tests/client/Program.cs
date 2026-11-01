@@ -173,6 +173,29 @@ namespace myseq.Tests
                 s.Write(bytes, 0, bytes.Length);
             }, keepBackup);
         }
+        private static void SettingsFileRestoreFromBackup()
+        {
+            string dir = SettingsTestDir();
+            try
+            {
+                string path = Path.Combine(dir, "prefs.xml");
+                WriteText(path, "good");
+                WriteText(path, "good again");
+                // the main file gets damaged, the backup still holds the last good copy
+                File.WriteAllText(path, "half");
+                SettingsFile.RestoreFromBackup(path);
+                Check(File.ReadAllText(path) == "good", "after a recovery the main file is the good copy again");
+                WriteText(path, "next save");
+                Check(File.ReadAllText(SettingsFile.BackupPath(path)) == "good", "so the next save keeps the good copy as the backup, not the damaged one");
+
+                // no backup: nothing happens and nothing fails
+                string other = Path.Combine(dir, "other.xml");
+                File.WriteAllText(other, "only copy");
+                SettingsFile.RestoreFromBackup(other);
+                Check(File.ReadAllText(other) == "only copy", "restoring without a backup leaves the file alone");
+            }
+            finally { Directory.Delete(dir, true); }
+        }
         private static int Main()
         {
             Console.WriteLine("PacketFramer");
@@ -212,6 +235,7 @@ namespace myseq.Tests
             SettingsFileFailedFirstWriteLeavesNothing();
             SettingsFileWithoutBackupLeavesNoOldCopy();
             SettingsFileWithoutBackupFailsIfOldCopyStays();
+            SettingsFileRestoreFromBackup();
 
             Console.WriteLine("\n" + (failures == 0 ? "PASSED" : "FAILED") + " (" + failures + " failure" + (failures == 1 ? "" : "s") + ")");
             return failures == 0 ? 0 : 1;

@@ -168,8 +168,8 @@ namespace Structures
         public void Load(string filename)
         {
             // If the file is missing or damaged, use the copy kept by the last save.
-            if (!LoadFile(filename) && File.Exists(myseq.SettingsFile.BackupPath(filename)))
-                LoadFile(myseq.SettingsFile.BackupPath(filename));
+            if (!LoadFile(filename) && File.Exists(myseq.SettingsFile.BackupPath(filename)) && LoadFile(myseq.SettingsFile.BackupPath(filename)))
+                myseq.SettingsFile.RestoreFromBackup(filename);
         }
 
         private bool LoadFile(string filename)
@@ -348,8 +348,8 @@ namespace Structures
         public void Load(string filename)
         {
             // If the file is missing or damaged, use the copy kept by the last save.
-            if (!LoadFile(filename) && File.Exists(myseq.SettingsFile.BackupPath(filename)))
-                LoadFile(myseq.SettingsFile.BackupPath(filename));
+            if (!LoadFile(filename) && File.Exists(myseq.SettingsFile.BackupPath(filename)) && LoadFile(myseq.SettingsFile.BackupPath(filename)))
+                myseq.SettingsFile.RestoreFromBackup(filename);
         }
 
         private bool LoadFile(string filename)
@@ -1176,7 +1176,13 @@ namespace Structures
 
             // If the file is missing or damaged, use the copy kept by the last save.
             if (!LoadFile(filename) && File.Exists(myseq.SettingsFile.BackupPath(filename)))
-                LoadFile(myseq.SettingsFile.BackupPath(filename));
+            {
+                // Start from the defaults so nothing the damaged file applied before it failed carries over.
+                Settings fresh = new Settings();
+                Settings.Instance = fresh;
+                if (fresh.LoadFile(myseq.SettingsFile.BackupPath(filename)))
+                    myseq.SettingsFile.RestoreFromBackup(filename);
+            }
         }
 
         // Returns false when the file could not be read at all.
@@ -1208,8 +1214,9 @@ namespace Structures
             if (otherLoad)
             {
                 // Try manually loading directly
+                XmlTextReader reader = null;
                 try {
-                    XmlTextReader reader = new XmlTextReader(filename);
+                    reader = new XmlTextReader(filename);
                     bool sawSettings = false;
                     int settingsDepth = -1;
                     while (reader.Read())
@@ -1450,6 +1457,11 @@ namespace Structures
                 {
                     LogLib.WriteLine("Error in Settings.Load(): ", ex);
                     return false;
+                }
+                finally
+                {
+                    // Close it on every path, or a later save to this file can fail on the open handle.
+                    if (reader != null) reader.Close();
                 }
 
             }

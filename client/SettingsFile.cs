@@ -13,6 +13,15 @@ namespace myseq
             return path + ".bak";
         }
 
+        // After a file was loaded from its backup, put the good copy back as the main file. Otherwise the next save
+        // would move the damaged main file into the backup's place and the last good copy would be gone.
+        public static void RestoreFromBackup(string path)
+        {
+            try { File.Copy(BackupPath(path), path, true); }
+            catch (IOException) { }
+            catch (UnauthorizedAccessException) { }
+        }
+
         public static void Write(string path, Action<Stream> write)
         {
             Write(path, write, true);
