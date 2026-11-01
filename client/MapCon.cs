@@ -1659,8 +1659,68 @@ namespace myseq {
         
 
         // Where the names of this frame were drawn, so a later name can be placed clear of them.
-        private readonly System.Collections.Generic.List<RectangleF> labelBoxes = new System.Collections.Generic.List<RectangleF>();
+        // The boxes are kept in a grid of cells, so a name only has to be compared with the few boxes near it.
+        // A box outside the map is put in the nearest edge cell, which only makes the search look a bit wider.
+        private const int LabelCell = 48;
 
+        private System.Collections.Generic.List<RectangleF>[] labelGrid = new System.Collections.Generic.List<RectangleF>[0];
+        private int labelCols = 0, labelRows = 0;
+
+        private void ClearLabelBoxes()
+        {
+            int cols = Width / LabelCell + 1, rows = Height / LabelCell + 1;
+
+            if (cols != labelCols || rows != labelRows)
+            {
+                labelCols = cols;
+                labelRows = rows;
+                labelGrid = new System.Collections.Generic.List<RectangleF>[cols * rows];
+            }
+
+            foreach (System.Collections.Generic.List<RectangleF> cell in labelGrid)
+                if (cell != null) cell.Clear();
+        }
+
+        private int LabelCellIndex(float coord, int count)
+        {
+            int index = (int)Math.Floor(coord / LabelCell);
+            return index < 0 ? 0 : (index >= count ? count - 1 : index);
+        }
+
+        private void AddLabelBox(RectangleF box)
+        {
+            if (labelGrid.Length == 0) return;
+
+            int x0 = LabelCellIndex(box.Left, labelCols), x1 = LabelCellIndex(box.Right, labelCols);
+            int y0 = LabelCellIndex(box.Top, labelRows), y1 = LabelCellIndex(box.Bottom, labelRows);
+
+            for (int cy = y0; cy <= y1; cy++)
+                for (int cx = x0; cx <= x1; cx++)
+                {
+                    int i = cy * labelCols + cx;
+                    if (labelGrid[i] == null) labelGrid[i] = new System.Collections.Generic.List<RectangleF>();
+                    labelGrid[i].Add(box);
+                }
+        }
+
+        private bool LabelBoxTaken(RectangleF box)
+        {
+            if (labelGrid.Length == 0) return false;
+
+            int x0 = LabelCellIndex(box.Left, labelCols), x1 = LabelCellIndex(box.Right, labelCols);
+            int y0 = LabelCellIndex(box.Top, labelRows), y1 = LabelCellIndex(box.Bottom, labelRows);
+
+            for (int cy = y0; cy <= y1; cy++)
+                for (int cx = x0; cx <= x1; cx++)
+                {
+                    System.Collections.Generic.List<RectangleF> cell = labelGrid[cy * labelCols + cx];
+                    if (cell == null) continue;
+                    for (int k = 0; k < cell.Count; k++)
+                        if (cell[k].IntersectsWith(box)) return true;
+                }
+
+            return false;
+        }
         // Thin line from a mob to its name when the name had to be moved.
         private readonly Pen labelLinkPen = new Pen(Color.FromArgb(110, Color.LightGray));
 
@@ -1677,7 +1737,7 @@ namespace myseq {
 
                 for (int ix = -3; ix <= 3; ix++)
 
-                    for (int iy = -20; iy <= 20; iy++)
+                    for (int iy = -14; iy <= 14; iy++)
 
                         steps.Add(new int[] { ix, iy });
 
@@ -1752,17 +1812,7 @@ namespace myseq {
 
                         }
 
-                        bool clear = true;
-
-                        foreach (RectangleF taken in labelBoxes)
-
-                        {
-
-                            if (taken.IntersectsWith(box)) { clear = false; break; }
-
-                        }
-
-                        if (clear)
+                        if (!LabelBoxTaken(box))
 
                         {
 
@@ -1776,7 +1826,7 @@ namespace myseq {
 
                     if (!free) found = new RectangleF(left + 2, top, w - 4, size.Height);
 
-                    labelBoxes.Add(found);
+                    AddLabelBox(found);
 
                     left = foundLeft;
 
@@ -2565,7 +2615,7 @@ namespace myseq {
                     // Clear Map
 
                     bkgBuffer.Graphics.Clear(Settings.Instance.BackColor);
-                    labelBoxes.Clear();
+                    ClearLabelBoxes();
 
 
 
