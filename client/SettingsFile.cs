@@ -15,6 +15,13 @@ namespace myseq
 
         public static void Write(string path, Action<Stream> write)
         {
+            Write(path, write, true);
+        }
+
+        // keepBackup false is for a file that must not leave an older copy behind, such as one that held a
+        // password the user has now chosen not to save: any existing backup is removed too.
+        public static void Write(string path, Action<Stream> write, bool keepBackup)
+        {
             string temp = path + ".tmp";
 
             try
@@ -26,9 +33,12 @@ namespace myseq
                 }
 
                 if (File.Exists(path))
-                    File.Replace(temp, path, BackupPath(path));
+                    File.Replace(temp, path, keepBackup ? BackupPath(path) : null);
                 else
                     File.Move(temp, path);
+
+                if (!keepBackup)
+                    File.Delete(BackupPath(path));
             }
             catch
             {

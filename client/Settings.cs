@@ -324,7 +324,8 @@ namespace Structures
 
             try
             {
-                myseq.SettingsFile.Write(filename, delegate(Stream stream) { new SoapFormatter().Serialize(stream, SMTPSettings.Instance); });
+                // With password saving off, keep no backup either: it could hold the password saved earlier.
+                myseq.SettingsFile.Write(filename, delegate(Stream stream) { new SoapFormatter().Serialize(stream, SMTPSettings.Instance); }, SMTPSettings.Instance.SavePassword);
             }
             finally
             {

@@ -113,6 +113,28 @@ namespace myseq.Tests
             }
             finally { Directory.Delete(dir, true); }
         }
+        private static void SettingsFileWithoutBackupLeavesNoOldCopy()
+        {
+            string dir = SettingsTestDir();
+            try
+            {
+                string path = Path.Combine(dir, "myseq.xml");
+                WriteText(path, "password: secret");
+                WriteText(path, "password: secret again");
+                Check(File.Exists(SettingsFile.BackupPath(path)), "a normal save keeps a backup");
+
+                SettingsFile.Write(path, delegate (Stream s)
+                {
+                    byte[] bytes = Encoding.UTF8.GetBytes("password: ");
+                    s.Write(bytes, 0, bytes.Length);
+                }, false);
+
+                Check(File.ReadAllText(path) == "password: ", "a save without backup still replaces the file");
+                Check(!File.Exists(SettingsFile.BackupPath(path)), "a save without backup removes the old backup, so no older copy is left");
+                Check(!File.Exists(path + ".tmp"), "no temporary file is left behind");
+            }
+            finally { Directory.Delete(dir, true); }
+        }
         private static int Main()
         {
             Console.WriteLine("PacketFramer");
@@ -150,6 +172,7 @@ namespace myseq.Tests
             SettingsFileKeepsBackup();
             SettingsFileFailedWriteKeepsOriginal();
             SettingsFileFailedFirstWriteLeavesNothing();
+            SettingsFileWithoutBackupLeavesNoOldCopy();
 
             Console.WriteLine("\n" + (failures == 0 ? "PASSED" : "FAILED") + " (" + failures + " failure" + (failures == 1 ? "" : "s") + ")");
             return failures == 0 ? 0 : 1;
