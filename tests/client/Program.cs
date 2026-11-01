@@ -22,6 +22,97 @@ namespace myseq.Tests
             if (!ok) failures++;
         }
 
+        private static string SettingsTestDir()
+        {
+            string dir = Path.Combine(Path.GetTempPath(), "myseq-settingsfile-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(dir);
+            return dir;
+        }
+
+        private static void WriteText(string path, string text)
+        {
+            SettingsFile.Write(path, delegate (Stream s)
+            {
+                byte[] bytes = Encoding.UTF8.GetBytes(text);
+                s.Write(bytes, 0, bytes.Length);
+            });
+        }
+
+        private static void SettingsFileWritesNewFile()
+        {
+            string dir = SettingsTestDir();
+            try
+            {
+                string path = Path.Combine(dir, "prefs.xml");
+                WriteText(path, "one");
+                Check(File.ReadAllText(path) == "one", "a new file gets its content");
+                Check(!File.Exists(path + ".tmp"), "no temporary file is left behind");
+                Check(!File.Exists(SettingsFile.BackupPath(path)), "there is no backup when nothing was replaced");
+            }
+            finally { Directory.Delete(dir, true); }
+        }
+
+        private static void SettingsFileKeepsBackup()
+        {
+            string dir = SettingsTestDir();
+            try
+            {
+                string path = Path.Combine(dir, "prefs.xml");
+                WriteText(path, "one");
+                WriteText(path, "two");
+                Check(File.ReadAllText(path) == "two", "the file holds the latest save");
+                Check(File.ReadAllText(SettingsFile.BackupPath(path)) == "one", "the previous save is kept as the backup");
+                WriteText(path, "three");
+                Check(File.ReadAllText(SettingsFile.BackupPath(path)) == "two", "the backup moves on with each save");
+                Check(!File.Exists(path + ".tmp"), "no temporary file is left behind after replacing");
+            }
+            finally { Directory.Delete(dir, true); }
+        }
+
+        private static void SettingsFileFailedWriteKeepsOriginal()
+        {
+            string dir = SettingsTestDir();
+            try
+            {
+                string path = Path.Combine(dir, "prefs.xml");
+                WriteText(path, "good");
+                bool threw = false;
+                try
+                {
+                    SettingsFile.Write(path, delegate (Stream s)
+                    {
+                        byte[] bytes = Encoding.UTF8.GetBytes("half of a new file");
+                        s.Write(bytes, 0, bytes.Length);
+                        throw new InvalidOperationException("save failed part way");
+                    });
+                }
+                catch (InvalidOperationException) { threw = true; }
+
+                Check(threw, "the error from a failed save is passed on");
+                Check(File.ReadAllText(path) == "good", "a failed save leaves the old file as it was");
+                Check(!File.Exists(path + ".tmp"), "a failed save removes its temporary file");
+                Check(!File.Exists(SettingsFile.BackupPath(path)), "a failed save does not touch the backup");
+            }
+            finally { Directory.Delete(dir, true); }
+        }
+
+        private static void SettingsFileFailedFirstWriteLeavesNothing()
+        {
+            string dir = SettingsTestDir();
+            try
+            {
+                string path = Path.Combine(dir, "prefs.xml");
+                try
+                {
+                    SettingsFile.Write(path, delegate (Stream s) { throw new InvalidOperationException("save failed"); });
+                }
+                catch (InvalidOperationException) { }
+
+                Check(!File.Exists(path), "a failed first save does not create a file");
+                Check(!File.Exists(path + ".tmp"), "a failed first save removes its temporary file");
+            }
+            finally { Directory.Delete(dir, true); }
+        }
         private static int Main()
         {
             Console.WriteLine("PacketFramer");
@@ -53,6 +144,12 @@ namespace myseq.Tests
             LauncherSelectsOnlyItsOwnCopies();
             LauncherSurvivesRunningCopy();
             LauncherOldBehaviourControl();
+
+            Console.WriteLine("\nSettingsFile");
+            SettingsFileWritesNewFile();
+            SettingsFileKeepsBackup();
+            SettingsFileFailedWriteKeepsOriginal();
+            SettingsFileFailedFirstWriteLeavesNothing();
 
             Console.WriteLine("\n" + (failures == 0 ? "PASSED" : "FAILED") + " (" + failures + " failure" + (failures == 1 ? "" : "s") + ")");
             return failures == 0 ? 0 : 1;

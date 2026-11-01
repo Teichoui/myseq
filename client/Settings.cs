@@ -157,13 +157,7 @@ namespace Structures
 
             }
 
-            FileStream fs = new FileStream(filename, FileMode.Create);
-
-            SoapFormatter sf1 = new SoapFormatter();
-
-            sf1.Serialize(fs, DiscordSettings.Instance);
-
-            fs.Close();
+            myseq.SettingsFile.Write(filename, delegate(Stream stream) { new SoapFormatter().Serialize(stream, DiscordSettings.Instance); });
 
             String oldconfigFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "myseq.xml");
             if (File.Exists(oldconfigFile))
@@ -173,29 +167,25 @@ namespace Structures
 
         public void Load(string filename)
         {
+            // If the file is missing or damaged, use the copy kept by the last save.
+            if (!LoadFile(filename) && File.Exists(myseq.SettingsFile.BackupPath(filename)))
+                LoadFile(myseq.SettingsFile.BackupPath(filename));
+        }
 
+        private bool LoadFile(string filename)
+        {
             FileStream fs = null;
-
             try
             {
-
                 fs = new FileStream(filename, FileMode.Open);
-
                 SoapFormatter sf1 = new SoapFormatter();
-
-
                 DiscordSettings.Instance = (DiscordSettings)sf1.Deserialize(fs);
-
                 String myPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MySEQ");
-
                 DiscordSettings.Instance.prefsDir = myPath;
-
+                return true;
             }
-
-            catch (Exception ex) { LogLib.WriteLine("Error in DiscordSettings.Load(): ", ex); }
-
-            if (fs != null) fs.Close();
-
+            catch (Exception ex) { LogLib.WriteLine("Error in DiscordSettings.Load(): ", ex); return false; }
+            finally { if (fs != null) fs.Close(); }
         }
 
     }
@@ -332,18 +322,19 @@ namespace Structures
                 SMTPSettings.Instance.SmtpPassword = "";
             }
 
-            FileStream fs = new FileStream(filename, FileMode.Create);
-
-            SoapFormatter sf1 = new SoapFormatter();
-
-            sf1.Serialize(fs, SMTPSettings.Instance);
-
-            if (SMTPSettings.Instance.SavePassword == false) {
-                SMTPSettings.Instance.SmtpPassword = curpass;
-                curpass = "";
+            try
+            {
+                myseq.SettingsFile.Write(filename, delegate(Stream stream) { new SoapFormatter().Serialize(stream, SMTPSettings.Instance); });
             }
-
-            fs.Close();
+            finally
+            {
+                // Put the password back even if the save failed.
+                if (SMTPSettings.Instance.SavePassword == false)
+                {
+                    SMTPSettings.Instance.SmtpPassword = curpass;
+                    curpass = "";
+                }
+            }
 
             String oldconfigFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "myseq.xml");
             if (File.Exists(oldconfigFile))
@@ -353,29 +344,27 @@ namespace Structures
 
 
 
-        public void Load(string filename) {
+        public void Load(string filename)
+        {
+            // If the file is missing or damaged, use the copy kept by the last save.
+            if (!LoadFile(filename) && File.Exists(myseq.SettingsFile.BackupPath(filename)))
+                LoadFile(myseq.SettingsFile.BackupPath(filename));
+        }
 
+        private bool LoadFile(string filename)
+        {
             FileStream fs = null;
-
-            try {
-
+            try
+            {
                 fs = new FileStream(filename, FileMode.Open);
-
                 SoapFormatter sf1 = new SoapFormatter();
-
-
                 SMTPSettings.Instance = (SMTPSettings)sf1.Deserialize(fs);
-
                 String myPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MySEQ");
-
                 SMTPSettings.Instance.prefsDir = myPath;
-
+                return true;
             }
-
-            catch (Exception ex) { LogLib.WriteLine("Error in SMTPSettings.Load(): ", ex); }
-
-            if (fs != null) fs.Close();
-
+            catch (Exception ex) { LogLib.WriteLine("Error in SMTPSettings.Load(): ", ex); return false; }
+            finally { if (fs != null) fs.Close(); }
         }
 
         public static string DecryptString(string Message, string _Pass)
@@ -1173,13 +1162,7 @@ namespace Structures
 
             }
 
-            FileStream fs = new FileStream(filename, FileMode.Create);
-
-            SoapFormatter sf1 = new SoapFormatter();
-
-            sf1.Serialize(fs, Settings.Instance);
-
-            fs.Close();
+            myseq.SettingsFile.Write(filename, delegate(Stream stream) { new SoapFormatter().Serialize(stream, Settings.Instance); });
 
             String oldconfigFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "prefs.xml");
             if (File.Exists(oldconfigFile))
@@ -1189,6 +1172,14 @@ namespace Structures
 
 
         public void Load(string filename) {
+
+            // If the file is missing or damaged, use the copy kept by the last save.
+            if (!LoadFile(filename) && File.Exists(myseq.SettingsFile.BackupPath(filename)))
+                LoadFile(myseq.SettingsFile.BackupPath(filename));
+        }
+
+        // Returns false when the file could not be read at all.
+        private bool LoadFile(string filename) {
 
             FileStream fs = null;
             bool otherLoad = false;
@@ -1437,11 +1428,12 @@ namespace Structures
                 catch (Exception ex)
                 {
                     LogLib.WriteLine("Error in Settings.Load(): ", ex);
-                    otherLoad = true;
+                    return false;
                 }
 
             }
 
+            return true;
         }
 
     }
