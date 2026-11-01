@@ -1791,6 +1791,10 @@ namespace myseq {
 
                     RectangleF ownDot = new RectangleF(cx - dot, cy - dot, dot * 2, dot * 2);
 
+                    // The information window sits on top of the map, so a moved name must not go under it.
+
+                    RectangleF infoPanel = tableLayoutPanel1.Bounds;
+
                     RectangleF found = RectangleF.Empty;
 
                     float foundLeft = left, foundTop = top;
@@ -1811,7 +1815,7 @@ namespace myseq {
 
                         {
 
-                            if (!area.Contains(box) || box.IntersectsWith(ownDot)) continue;
+                            if (!area.Contains(box) || box.IntersectsWith(ownDot) || (tableLayoutPanel1.Visible && box.IntersectsWith(infoPanel))) continue;
 
                         }
 
