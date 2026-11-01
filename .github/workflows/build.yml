@@ -116,7 +116,7 @@ jobs:
 
           Write-Host '--- edit the config, build a newer installer'
           Add-Content (Join-Path $dir 'myseqserver.ini') '# edited by the install test'
-          candle.exe -nologo -dVersion=2.6.1.0 "-dClientDir=$env:OUT\client" "-dServer32Dir=$env:OUT\server32" "-dServer64Dir=$env:OUT\server64" -out myseq-newer.wixobj myseq.xml
+          candle.exe -nologo "-dVersion=2.6.1.0" "-dClientDir=$env:OUT\client" "-dServer32Dir=$env:OUT\server32" "-dServer64Dir=$env:OUT\server64" -out myseq-newer.wixobj myseq.xml
           if ($LASTEXITCODE -ne 0) { throw 'candle failed' }
           light.exe -nologo -ext WixUIExtension -cultures:en-us myseq-newer.wixobj -out myseq-newer.msi
           if ($LASTEXITCODE -ne 0) { throw 'light failed' }
