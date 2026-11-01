@@ -466,7 +466,8 @@ namespace myseq
 
             String newFile = Path.Combine(myPath, "prefs.xml");
 
-            if (File.Exists(newFile))
+            // A settings file counts as there when its backup copy is, so the load can recover from it.
+            if (File.Exists(newFile) || File.Exists(SettingsFile.BackupPath(newFile)))
                 LoadPrefs(newFile);
             else
                 LoadPrefs("prefs.xml");
@@ -480,12 +481,12 @@ namespace myseq
             String newSMTPFile = Path.Combine(myPath, "myseq.xml");
             String newDiscordFile = Path.Combine(myPath, "discord.xml");
 
-            if (File.Exists(newSMTPFile))
+            if (File.Exists(newSMTPFile) || File.Exists(SettingsFile.BackupPath(newSMTPFile)))
                 SMTPSettings.Instance.Load(newSMTPFile);
             else
                 SMTPSettings.Instance.Load("myseq.xml");
 
-            if (File.Exists(newDiscordFile))
+            if (File.Exists(newDiscordFile) || File.Exists(SettingsFile.BackupPath(newDiscordFile)))
                 DiscordSettings.Instance.Load(newDiscordFile);
             else
                 DiscordSettings.Instance.Load("discord.xml");
