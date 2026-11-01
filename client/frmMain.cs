@@ -4352,6 +4352,9 @@ namespace myseq
 
                 }
 
+                // Any map that loads, here or from a menu, means the zone has a map after all.
+                MapMissing = false;
+
                 SetTitle();
 
                 return true;
