@@ -1212,14 +1212,19 @@ namespace Structures
                     XmlTextReader reader = new XmlTextReader(filename);
                     bool sawSettings = false;
                     int settingsDepth = -1;
+
+                    // The setting names a real file can hold are the fields of this class.
+                    System.Collections.Generic.HashSet<string> knownSettings = new System.Collections.Generic.HashSet<string>();
+                    foreach (System.Reflection.FieldInfo field in typeof(Settings).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic))
+                        knownSettings.Add(field.Name);
                     while (reader.Read())
                     {
                         if (reader.NodeType == XmlNodeType.Element)
                         {
-                            // A real settings file has a Settings element with settings inside it; an empty one,
-                            // or any other XML, is not a usable file.
+                            // A real settings file has a Settings element with at least one known setting inside it.
+                            // An empty one, one with only unknown elements, or any other XML is not a usable file.
                             if (reader.LocalName == "Settings") settingsDepth = reader.Depth;
-                            else if (settingsDepth >= 0 && reader.Depth == settingsDepth + 1) sawSettings = true;
+                            else if (settingsDepth >= 0 && reader.Depth == settingsDepth + 1 && knownSettings.Contains(reader.Name)) sawSettings = true;
 
                             switch (reader.Name)
                             {

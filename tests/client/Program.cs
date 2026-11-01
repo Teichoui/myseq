@@ -137,6 +137,9 @@ namespace myseq.Tests
         }
         private static void SettingsFileWithoutBackupFailsIfOldCopyStays()
         {
+            // A read-only file blocks deleting it on Windows only.
+            if (!OperatingSystem.IsWindows()) { Console.WriteLine("  skip  a backup that cannot be removed (Windows only)"); return; }
+
             string dir = SettingsTestDir();
             string path = Path.Combine(dir, "myseq.xml");
             string backup = SettingsFile.BackupPath(path);
