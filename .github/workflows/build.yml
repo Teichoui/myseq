@@ -62,3 +62,80 @@ jobs:
           name: myseq-installer
           path: myseq.msi
           retention-days: 14
+
+      # Installs the MSI on this throwaway machine, installs a newer one over it, then uninstalls it, and
+      # checks the files, shortcuts and the edited config at each step. Nothing here touches a real PC.
+      - name: Test install, upgrade and uninstall
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $logs = Join-Path $env:RUNNER_TEMP 'msi-logs'
+          New-Item -ItemType Directory -Force $logs | Out-Null
+          $dir = Join-Path ${env:ProgramFiles(x86)} 'MySEQ'
+          $menu = Join-Path $env:ProgramData 'Microsoft\Windows\Start Menu\Programs\MySEQ'
+          $desktop = Join-Path ([Environment]::GetFolderPath('CommonDesktopDirectory')) 'MySEQ Client.lnk'
+
+          function Assert([bool]$ok, [string]$what) {
+            if (-not $ok) { throw "FAILED: $what" }
+            Write-Host "ok: $what"
+          }
+
+          function Run-Msi([string]$what, [string[]]$msiArgs) {
+            $p = Start-Process msiexec.exe -ArgumentList $msiArgs -Wait -PassThru
+            Assert ($p.ExitCode -eq 0 -or $p.ExitCode -eq 3010) "$what (exit code $($p.ExitCode))"
+          }
+
+          function Installed-Count {
+            $keys = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*',
+                    'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*',
+                    'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*'
+            @(Get-ItemProperty $keys -ErrorAction SilentlyContinue | Where-Object { $_.DisplayName -eq 'MySEQ Open' }).Count
+          }
+
+          function Check-Installed {
+            $files = 'MySEQ.exe', 'serverx64.exe', 'server.exe', 'myseqserver.ini', 'config.ini',
+                     'LICENSE-MySEQ.txt', 'gpl-3.0.txt', 'license.txt', 'maps\mapconvert.vbs',
+                     'cfg\Classes.txt', 'cfg\Races.txt', 'cfg\BodyTypes.txt', 'cfg\RGB.txt',
+                     'cfg\GroundItems.ini', 'cfg\Zones.ini'
+            foreach ($f in $files) { Assert (Test-Path (Join-Path $dir $f)) "installed $f" }
+            foreach ($d in 'logs', 'timers', 'filters') { Assert (Test-Path (Join-Path $dir $d)) "folder $d" }
+            $shortcuts = 'MySEQ Client', 'MySEQ Server (64-bit)', 'MySEQ Server (64-bit, debug)',
+                         'MySEQ Server (32-bit)', 'MySEQ Server (32-bit, debug)', 'Uninstall MySEQ Open'
+            foreach ($s in $shortcuts) { Assert (Test-Path (Join-Path $menu "$s.lnk")) "Start Menu shortcut: $s" }
+            Assert (Test-Path $desktop) 'desktop shortcut'
+            Assert ((Installed-Count) -eq 1) 'exactly one MySEQ Open is registered as installed'
+          }
+
+          Assert ((Installed-Count) -eq 0) 'MySEQ Open is not installed before the test'
+
+          Write-Host '--- install'
+          Run-Msi 'install' @('/i', "`"$PWD\myseq.msi`"", '/qn', '/l*v', "`"$logs\install.log`"")
+          Check-Installed
+
+          Write-Host '--- edit the config, build a newer installer'
+          Add-Content (Join-Path $dir 'myseqserver.ini') '# edited by the install test'
+          candle.exe -nologo -dVersion=2.6.1.0 "-dClientDir=$env:OUT\client" "-dServer32Dir=$env:OUT\server32" "-dServer64Dir=$env:OUT\server64" -out myseq-newer.wixobj myseq.xml
+          if ($LASTEXITCODE -ne 0) { throw 'candle failed' }
+          light.exe -nologo -ext WixUIExtension -cultures:en-us myseq-newer.wixobj -out myseq-newer.msi
+          if ($LASTEXITCODE -ne 0) { throw 'light failed' }
+
+          Write-Host '--- upgrade'
+          Run-Msi 'upgrade' @('/i', "`"$PWD\myseq-newer.msi`"", '/qn', '/l*v', "`"$logs\upgrade.log`"")
+          Check-Installed
+          Assert ((Get-Content (Join-Path $dir 'myseqserver.ini') -Raw) -match 'edited by the install test') 'the edited myseqserver.ini was kept by the upgrade'
+
+          Write-Host '--- uninstall'
+          Run-Msi 'uninstall' @('/x', "`"$PWD\myseq-newer.msi`"", '/qn', '/l*v', "`"$logs\uninstall.log`"")
+          Assert ((Installed-Count) -eq 0) 'MySEQ Open is no longer registered as installed'
+          foreach ($f in 'MySEQ.exe', 'serverx64.exe', 'server.exe') { Assert (-not (Test-Path (Join-Path $dir $f))) "removed $f" }
+          Assert (-not (Test-Path $menu)) 'Start Menu folder removed'
+          Assert (-not (Test-Path $desktop)) 'desktop shortcut removed'
+
+      - name: Upload the installer logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: installer-test-logs
+          path: ${{ runner.temp }}\msi-logs
+          if-no-files-found: ignore
+          retention-days: 14
