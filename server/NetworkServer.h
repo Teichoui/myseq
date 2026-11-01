@@ -172,6 +172,10 @@ public:
 
 	string getCharName(MemReaderInterface* mr_intf);
 
+	// Reads the zone and the character name straight from the game and says whether both look real, which
+	// means the offsets read this game (see PatchCheck.h).
+	bool offsetsReadGame(MemReaderInterface* mr_intf);
+
 	UINT current_offset(int type);
 
 };

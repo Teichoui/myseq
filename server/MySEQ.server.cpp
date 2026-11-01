@@ -33,6 +33,7 @@
 #include <ShlObj.h>
 
 #include "EQGameScanner.h"
+#include "PatchCheck.h"
 
 using namespace std;
 
@@ -94,6 +95,87 @@ TCHAR szTitle[MAX_LOADSTRING];
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 
 int nClients = 0;
+
+// Whether the offsets still read the running EverQuest (see PatchCheck.h).
+std::string patchExeStamp;       // the modified time of the eqgame.exe the server is attached to
+std::string patchVerifiedStamp;  // the eqgame.exe time the offsets were last seen to work with (from the ini)
+DWORD patchCheckedPid = 0;      // the process patchExeStamp was read from
+DWORD patchAttachedAt = 0;      // when the server attached to it
+bool patchDataSeen = false;     // real data (zone and character) has been read from it
+bool patchStale = false;        // what the Patch line shows
+
+// Fills the Patch line of the server window.
+void ShowPatchStatus()
+{
+	if (h_MySEQServer)
+	{
+		SetDlgItemText(h_MySEQServer, IDC_TEXT_PATCH, PatchLine(iniReader.patchDate, patchStale).c_str());
+		// The color depends on the state (see WM_CTLCOLORSTATIC), so draw the line again.
+		InvalidateRect(GetDlgItem(h_MySEQServer, IDC_TEXT_PATCH), NULL, TRUE);
+	}
+}
+
+// Called whenever the server serves the client. Once real data has been read from the game this does nothing.
+void UpdatePatchStatus()
+{
+	DWORD pid = memReader.getCurrentPID();
+	if (pid == 0)
+		return;
+
+	if (pid != patchCheckedPid)
+	{
+		// A new game process: note its time and start waiting for data from it.
+		patchCheckedPid = pid;
+		patchAttachedAt = GetTickCount();
+		patchDataSeen = false;
+		patchStale = false;
+		patchExeStamp.clear();
+		patchVerifiedStamp = iniReader.readStringEntry("File Info", "VerifiedExeTime");
+		ShowPatchStatus();
+	}
+
+	// The lookup can fail right after attaching, so it is tried again on later calls until it works.
+	if (patchExeStamp.empty())
+	{
+		char path[MAX_PATH];
+		DWORD size = MAX_PATH;
+		if (QueryFullProcessImageNameA(memReader.getCurrentHandle(), 0, path, &size))
+			patchExeStamp = FileModifiedStamp(path);
+		if (patchExeStamp.empty())
+			return;
+	}
+
+	if (patchDataSeen)
+		return;
+
+	// Read the game itself, not the window: the labels may still show the previous game.
+	if (netServer.offsetsReadGame(&memReader))
+	{
+		// The offsets read this EverQuest, so remember which one it was.
+		patchDataSeen = true;
+		if (patchVerifiedStamp != patchExeStamp &&
+			iniReader.writeStringEntry("File Info", "VerifiedExeTime", patchExeStamp))
+			patchVerifiedStamp = patchExeStamp;
+	}
+
+	bool stale = OffsetsLookStale(patchVerifiedStamp, patchExeStamp, patchDataSeen, GetTickCount() - patchAttachedAt);
+	if (stale != patchStale)
+	{
+		patchStale = stale;
+		if (stale)
+			fprintf(stdout, "%s\n", StaleWarning(patchVerifiedStamp, patchExeStamp).c_str());
+		ShowPatchStatus();
+	}
+}
+
+// The offsets file was read again (Reload or Offset Finder), so what was learned about the old offsets no longer
+// counts: start over, which reads the baseline from the new file and checks the game again.
+void OffsetsReloaded()
+{
+	patchCheckedPid = 0;
+	patchStale = false;
+	ShowPatchStatus();
+}
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -460,11 +542,9 @@ int APIENTRY _tWinMain(_In_   HINSTANCE hInstance,
 		netServer.init(&iniReader);
 
 		running = netServer.openListenerSocket(false);
-		LPCSTR patchdate;
-		patchdate = iniReader.patchDate.c_str();
 		server_status = 1;
 		if (h_MySEQServer) {
-			SetDlgItemText(h_MySEQServer, IDC_TEXT_PATCH, patchdate);
+			ShowPatchStatus();
 			SetDlgItemText(h_MySEQServer, IDC_TEXT_STATUS, "Listening");
 			SetDlgItemText(h_MySEQServer, IDC_TEXT_ZONE, "");
 			SetDlgItemText(h_MySEQServer, IDC_TEXT_NAME, "");
@@ -744,6 +824,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						// we have a good eqgame.exe process
 						check_delay = 0;
 						server_status = 2;
+						UpdatePatchStatus();
 					} else {
 						server_status = 1;
 						check_delay = (check_delay + 1) % 10;
@@ -771,6 +852,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						server_status = 1;
 					else
 						server_status = 2;
+					UpdatePatchStatus();
 					if (h_MySEQServer) {
 						SetDlgItemText(h_MySEQServer, IDC_TEXT_STATUS, "Connected");
 						check_delay = 0;
@@ -878,6 +960,13 @@ INT_PTR CALLBACK ServerDialog(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
 						else // connected with EQGame - Green
 							SetTextColor(hdcStatic, RGB(0,255,0));
 						break;
+					case IDC_TEXT_PATCH:
+						// Red when the offsets may be out of date after a game patch.
+						if (patchStale)
+							SetTextColor(hdcStatic, RGB(255,0,0));
+						else
+							SetTextColor(hdcStatic, GetSysColor(COLOR_MENUTEXT));
+						break;
 					default:
 						SetTextColor(hdcStatic, GetSysColor(COLOR_MENUTEXT));
 				}
@@ -941,10 +1030,8 @@ INT_PTR CALLBACK ServerDialog(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
 				netServer.closeListenerSocket();
 				running = netServer.openListenerSocket(false);
 
-				// update patch date in GUI
-				LPCSTR patchdate;
-				patchdate = iniReader.patchDate.c_str();
-				SetDlgItemText(h_MySEQServer, IDC_TEXT_PATCH, patchdate);
+				// the patch line starts over with the new offsets
+				OffsetsReloaded();
 			}
 			if (LOWORD(wParam) == IDC_BUTTON3) 
 			{
@@ -1115,10 +1202,8 @@ INT_PTR CALLBACK OffsetDialog(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
 				netServer.closeListenerSocket();
 				running = netServer.openListenerSocket(false);
 
-				// update patch date in GUI
-				LPCSTR patchdate;
-				patchdate = iniReader.patchDate.c_str();
-				SetDlgItemText(h_MySEQServer, IDC_TEXT_PATCH, patchdate);
+				// the patch line starts over with the new offsets
+				OffsetsReloaded();
 				//EndDialog(hDlg, IDC_BUTTON2);
 			}
 			break;

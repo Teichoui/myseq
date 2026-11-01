@@ -22,6 +22,7 @@
 
 #include "NetworkServer.h"
 #include "NetUtil.h"
+#include "PatchCheck.h"
 #include <stdlib.h>
 #include <IPHlpApi.h>
 
@@ -281,6 +282,57 @@ string NetworkServer::getCharName(MemReaderInterface* mr_intf)
 		rtn = mr_intf->extractString(pTemp + nameOff);
 	}
 	return rtn;
+}
+
+bool NetworkServer::offsetsReadGame(MemReaderInterface* mr_intf)
+{
+	if (!offsets[OT_zonename] || !offsets[OT_spawnlist])
+		return false;
+
+	string zone = mr_intf->extractString2(offsets[OT_zonename] - 0x140000000 + (QWORD)mr_intf->getCurrentBaseAddress());
+	if (!LooksLikeGameData(zone, getCharName(mr_intf)))
+		return false;
+
+	// The spawn list is read through an offset of its own. Do what the server does before it sends the spawns: back
+	// up to the top of the list, then follow the first few links. Wrong offsets lead to memory that cannot be read,
+	// or to a chain that breaks at once.
+	QWORD pSpawn = mr_intf->extractRAWPointer(offsets[OT_spawnlist]);
+	if (!pSpawn)
+		return false;
+
+	bool atTop = false;
+	for (int up = 0; up < 2000; up++)
+	{
+		if (!mr_intf->extractToBuffer(pSpawn, spawnParser.rawBuffer, spawnParser.largestOffset))
+			return false;
+		QWORD pPrev = spawnParser.extractPrevPointer();
+		if (!pPrev)
+		{
+			atTop = true;
+			break;
+		}
+		pSpawn = pPrev;
+	}
+	if (!atTop)
+		return false;	// no end to the chain: not a spawn list
+
+	// Follow the first few links. A chain that loops back on itself, even at the last link, is not a spawn list.
+	QWORD seen[3];
+	int links = 0;
+	while (pSpawn && links < 3)
+	{
+		for (int i = 0; i < links; i++)
+			if (seen[i] == pSpawn)
+				return false;
+		seen[links++] = pSpawn;
+		if (!mr_intf->extractToBuffer(pSpawn, spawnParser.rawBuffer, spawnParser.largestOffset))
+			return false;
+		pSpawn = spawnParser.extractNextPointer();
+	}
+	for (int i = 0; i < links; i++)
+		if (seen[i] == pSpawn)
+			return false;
+	return true;
 }
 
 void NetworkServer::setOffset(offset_types ot, QWORD value)
