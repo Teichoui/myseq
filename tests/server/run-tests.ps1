@@ -62,6 +62,12 @@ if (Test-Path (Join-Path $ServerDir "NetUtil.h")) {
 	Write-Host "`n=== NetUtilTests skipped (no NetUtil.h in $ServerDir) ===" -ForegroundColor Yellow
 }
 
+if (Test-Path (Join-Path $ServerDir "PatchCheck.h")) {
+	$exe = Build-Test "PatchCheckTests" "`"$tests\PatchCheckTests.cpp`"" ""
+	$results["PatchCheckTests"] = Run-Test "PatchCheck: stale offsets after a game patch" $exe
+} else {
+	Write-Host "`n=== PatchCheckTests skipped (no PatchCheck.h in $ServerDir) ===" -ForegroundColor Yellow
+}
 $srcs = "`"$tests\RawBufferTests.cpp`" `"$ServerDir\Spawn.cpp`" `"$ServerDir\Item.cpp`" `"$ServerDir\World.cpp`""
 $exe = Build-Test "RawBufferTests" $srcs "/fsanitize=address /Zi /MD"
 $results["RawBufferTests"] = Run-Test "Spawn raw buffer (AddressSanitizer)" $exe

@@ -15,6 +15,8 @@ This is a fork of [RedGuides/myseq](https://github.com/RedGuides/myseq). The cur
 
 The server reads game memory, so it only shows real data while EverQuest is running. The client can run on the same PC or on another one that can reach the server.
 
+After EverQuest is patched the memory offsets in `myseqserver.ini` often have to be found again. The server remembers the `eqgame.exe` timestamp it last read real data from (`VerifiedExeTime` in the ini file). If `eqgame.exe` has a different timestamp and the server can read no zone or character from it for about 45 seconds, the Patch line in the server window turns red and says `(EQ patched?)`. Use **Offset Finder** to find the new offsets. If the offsets still work after a patch, the line stays normal.
+
 When you start the client, it copies itself to a randomly named `.bin` file and exits, and the copy is the one that keeps running. This is normal. Old copies are cleaned up on the next start.
 
 ### Alerts
