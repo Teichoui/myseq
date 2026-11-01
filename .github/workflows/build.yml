@@ -72,8 +72,10 @@ jobs:
           $logs = Join-Path $env:RUNNER_TEMP 'msi-logs'
           New-Item -ItemType Directory -Force $logs | Out-Null
           $dir = Join-Path ${env:ProgramFiles(x86)} 'MySEQ'
-          $menu = Join-Path $env:ProgramData 'Microsoft\Windows\Start Menu\Programs\MySEQ'
-          $desktop = Join-Path ([Environment]::GetFolderPath('CommonDesktopDirectory')) 'MySEQ Client.lnk'
+          # The installer does not set ALLUSERS, so Windows Installer treats a normal install as per-user:
+          # the shortcuts go to the installing user's own Start Menu and desktop.
+          $menu = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\MySEQ'
+          $desktop = Join-Path ([Environment]::GetFolderPath('DesktopDirectory')) 'MySEQ Client.lnk'
 
           function Assert([bool]$ok, [string]$what) {
             if (-not $ok) { throw "FAILED: $what" }
