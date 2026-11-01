@@ -5,7 +5,7 @@ MySEQ is a live map and spawn tracker for EverQuest. It has two parts:
 - **Server** (`server/`): a C++ Win32 program that runs on the same PC as the EverQuest client, reads the game's memory, and sends what it finds over the network.
 - **Client** (`client/`): a C# WinForms program that connects to the server and shows the zone map, spawn list, and mob alerts.
 
-This is a fork of [RedGuides/myseq](https://github.com/RedGuides/myseq). The current client version is **2.6.0.2**. See [Changelog.md](Changelog.md) for older changes.
+The current client version is **2.6.0.2**. See [Changelog.md](Changelog.md) for older changes.
 
 ## Using it
 
