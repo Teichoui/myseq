@@ -360,7 +360,10 @@ namespace myseq
 			// Required for Windows Form Designer support
 
 			//
-			InitializeComponent();          
+			InitializeComponent();
+
+            // The window can be made bigger, but not smaller than it is now.
+            this.MinimumSize = this.Size;
 
             foreach (string styleName in Enum.GetNames(typeof(HatchStyle)))
 
@@ -649,6 +652,7 @@ namespace myseq
             this.cmdCommand.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.cmdCommand.Location = new System.Drawing.Point(122, 480);
             this.cmdCommand.Name = "cmdCommand";
+            this.cmdCommand.Anchor = ((System.Windows.Forms.AnchorStyles)(System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right));
             this.cmdCommand.Size = new System.Drawing.Size(102, 27);
             this.cmdCommand.TabIndex = 0;
             this.cmdCommand.Text = "&Save";
@@ -833,6 +837,7 @@ namespace myseq
             this.txtLogDir.BackColor = System.Drawing.Color.White;
             this.txtLogDir.Location = new System.Drawing.Point(10, 166);
             this.txtLogDir.Name = "txtLogDir";
+            this.txtLogDir.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right));
             this.txtLogDir.Size = new System.Drawing.Size(259, 22);
             this.txtLogDir.TabIndex = 36;
             // 
@@ -841,6 +846,7 @@ namespace myseq
             this.txtFilterDir.BackColor = System.Drawing.Color.White;
             this.txtFilterDir.Location = new System.Drawing.Point(10, 120);
             this.txtFilterDir.Name = "txtFilterDir";
+            this.txtFilterDir.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right));
             this.txtFilterDir.Size = new System.Drawing.Size(259, 22);
             this.txtFilterDir.TabIndex = 33;
             // 
@@ -849,6 +855,7 @@ namespace myseq
             this.txtCfgDir.BackColor = System.Drawing.Color.White;
             this.txtCfgDir.Location = new System.Drawing.Point(10, 74);
             this.txtCfgDir.Name = "txtCfgDir";
+            this.txtCfgDir.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right));
             this.txtCfgDir.Size = new System.Drawing.Size(259, 22);
             this.txtCfgDir.TabIndex = 30;
             // 
@@ -857,6 +864,7 @@ namespace myseq
             this.txtMapDir.BackColor = System.Drawing.Color.White;
             this.txtMapDir.Location = new System.Drawing.Point(10, 28);
             this.txtMapDir.Name = "txtMapDir";
+            this.txtMapDir.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right));
             this.txtMapDir.Size = new System.Drawing.Size(259, 22);
             this.txtMapDir.TabIndex = 27;
             // 
@@ -872,6 +880,7 @@ namespace myseq
             // 
             this.cmdLogDir.Location = new System.Drawing.Point(278, 166);
             this.cmdLogDir.Name = "cmdLogDir";
+            this.cmdLogDir.Anchor = ((System.Windows.Forms.AnchorStyles)(System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right));
             this.cmdLogDir.Size = new System.Drawing.Size(29, 27);
             this.cmdLogDir.TabIndex = 37;
             this.cmdLogDir.Text = "...";
@@ -889,6 +898,7 @@ namespace myseq
             // 
             this.cmdFilterDirBrowse.Location = new System.Drawing.Point(278, 120);
             this.cmdFilterDirBrowse.Name = "cmdFilterDirBrowse";
+            this.cmdFilterDirBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)(System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right));
             this.cmdFilterDirBrowse.Size = new System.Drawing.Size(29, 27);
             this.cmdFilterDirBrowse.TabIndex = 34;
             this.cmdFilterDirBrowse.Text = "...";
@@ -907,6 +917,7 @@ namespace myseq
             this.cmdCfgDirBrowse.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.cmdCfgDirBrowse.Location = new System.Drawing.Point(278, 74);
             this.cmdCfgDirBrowse.Name = "cmdCfgDirBrowse";
+            this.cmdCfgDirBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)(System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right));
             this.cmdCfgDirBrowse.Size = new System.Drawing.Size(29, 26);
             this.cmdCfgDirBrowse.TabIndex = 31;
             this.cmdCfgDirBrowse.Text = "...";
@@ -924,6 +935,7 @@ namespace myseq
             // 
             this.cmdMapDirBrowse.Location = new System.Drawing.Point(278, 28);
             this.cmdMapDirBrowse.Name = "cmdMapDirBrowse";
+            this.cmdMapDirBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)(System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right));
             this.cmdMapDirBrowse.Size = new System.Drawing.Size(29, 26);
             this.cmdMapDirBrowse.TabIndex = 28;
             this.cmdMapDirBrowse.Text = "...";
@@ -1750,6 +1762,7 @@ namespace myseq
             // 
             this.txtSearchString.Location = new System.Drawing.Point(73, 397);
             this.txtSearchString.Name = "txtSearchString";
+            this.txtSearchString.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right));
             this.txtSearchString.Size = new System.Drawing.Size(234, 22);
             this.txtSearchString.TabIndex = 26;
             // 
@@ -1835,6 +1848,7 @@ namespace myseq
             // 
             this.txtWindowName.Location = new System.Drawing.Point(10, 342);
             this.txtWindowName.Name = "txtWindowName";
+            this.txtWindowName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right));
             this.txtWindowName.Size = new System.Drawing.Size(297, 22);
             this.txtWindowName.TabIndex = 23;
             // 
@@ -1997,6 +2011,7 @@ namespace myseq
             this.tabOptions.Controls.Add(this.tabPage2);
             this.tabOptions.Location = new System.Drawing.Point(10, 9);
             this.tabOptions.Name = "tabOptions";
+            this.tabOptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right));
             this.tabOptions.SelectedIndex = 0;
             this.tabOptions.Size = new System.Drawing.Size(326, 462);
             this.tabOptions.TabIndex = 1;
@@ -2032,6 +2047,7 @@ namespace myseq
             // 
             this.textSMTPCCEmail.Location = new System.Drawing.Point(60, 321);
             this.textSMTPCCEmail.Name = "textSMTPCCEmail";
+            this.textSMTPCCEmail.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right));
             this.textSMTPCCEmail.Size = new System.Drawing.Size(242, 22);
             this.textSMTPCCEmail.TabIndex = 10;
             // 
@@ -2049,6 +2065,7 @@ namespace myseq
             // 
             this.textSMTPToEmail.Location = new System.Drawing.Point(60, 291);
             this.textSMTPToEmail.Name = "textSMTPToEmail";
+            this.textSMTPToEmail.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right));
             this.textSMTPToEmail.Size = new System.Drawing.Size(242, 22);
             this.textSMTPToEmail.TabIndex = 9;
             // 
@@ -2065,6 +2082,7 @@ namespace myseq
             // 
             this.textSMTPFromEmail.Location = new System.Drawing.Point(60, 260);
             this.textSMTPFromEmail.Name = "textSMTPFromEmail";
+            this.textSMTPFromEmail.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right));
             this.textSMTPFromEmail.Size = new System.Drawing.Size(242, 22);
             this.textSMTPFromEmail.TabIndex = 8;
             // 
@@ -2094,6 +2112,7 @@ namespace myseq
             this.groupBox3.Controls.Add(this.lblSMTPPassword);
             this.groupBox3.Location = new System.Drawing.Point(4, 7);
             this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right));
             this.groupBox3.Size = new System.Drawing.Size(306, 246);
             this.groupBox3.TabIndex = 1;
             this.groupBox3.TabStop = false;
@@ -2112,6 +2131,7 @@ namespace myseq
             // 
             this.textBoxSMTPDomain.Location = new System.Drawing.Point(120, 65);
             this.textBoxSMTPDomain.Name = "textBoxSMTPDomain";
+            this.textBoxSMTPDomain.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right));
             this.textBoxSMTPDomain.Size = new System.Drawing.Size(179, 22);
             this.textBoxSMTPDomain.TabIndex = 2;
             // 
@@ -2152,6 +2172,7 @@ namespace myseq
             // 
             this.textSMTPPassword.Location = new System.Drawing.Point(102, 181);
             this.textSMTPPassword.Name = "textSMTPPassword";
+            this.textSMTPPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right));
             this.textSMTPPassword.PasswordChar = '*';
             this.textSMTPPassword.Size = new System.Drawing.Size(164, 22);
             this.textSMTPPassword.TabIndex = 6;
@@ -2196,6 +2217,7 @@ namespace myseq
             // 
             this.textSMTPAddress.Location = new System.Drawing.Point(10, 37);
             this.textSMTPAddress.Name = "textSMTPAddress";
+            this.textSMTPAddress.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right));
             this.textSMTPAddress.Size = new System.Drawing.Size(231, 22);
             this.textSMTPAddress.TabIndex = 0;
             // 
@@ -2203,6 +2225,7 @@ namespace myseq
             // 
             this.textSMTPUsername.Location = new System.Drawing.Point(102, 148);
             this.textSMTPUsername.Name = "textSMTPUsername";
+            this.textSMTPUsername.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right));
             this.textSMTPUsername.Size = new System.Drawing.Size(164, 22);
             this.textSMTPUsername.TabIndex = 5;
             // 
@@ -2232,6 +2255,7 @@ namespace myseq
             this.groupBox4.Controls.Add(this.textDiscordWebhookUrl);
             this.groupBox4.Location = new System.Drawing.Point(5, 6);
             this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right));
             this.groupBox4.Size = new System.Drawing.Size(255, 362);
             this.groupBox4.TabIndex = 2;
             this.groupBox4.TabStop = false;
@@ -2260,6 +2284,7 @@ namespace myseq
             // 
             this.textDiscordWebhookUrl.Location = new System.Drawing.Point(8, 32);
             this.textDiscordWebhookUrl.Name = "textDiscordWebhookUrl";
+            this.textDiscordWebhookUrl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right));
             this.textDiscordWebhookUrl.Size = new System.Drawing.Size(241, 22);
             this.textDiscordWebhookUrl.TabIndex = 0;
             this.textDiscordWebhookUrl.TextChanged += new System.EventHandler(this.textDiscordWebhookUrl_TextChanged);
@@ -2269,6 +2294,7 @@ namespace myseq
             this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.cmdCancel.Location = new System.Drawing.Point(230, 480);
             this.cmdCancel.Name = "cmdCancel";
+            this.cmdCancel.Anchor = ((System.Windows.Forms.AnchorStyles)(System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right));
             this.cmdCancel.Size = new System.Drawing.Size(102, 27);
             this.cmdCancel.TabIndex = 2;
             this.cmdCancel.Text = "Cancel";
@@ -2277,15 +2303,13 @@ namespace myseq
             // 
             this.AcceptButton = this.cmdCommand;
             this.AutoScaleBaseSize = new System.Drawing.Size(6, 15);
-            this.AutoSize = true;
-            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.CancelButton = this.cmdCommand;
             this.ClientSize = new System.Drawing.Size(347, 519);
             this.Controls.Add(this.cmdCancel);
             this.Controls.Add(this.tabOptions);
             this.Controls.Add(this.cmdCommand);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MaximizeBox = false;
+            this.MaximizeBox = true;
             this.MinimizeBox = false;
             this.Name = "frmOptions";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
