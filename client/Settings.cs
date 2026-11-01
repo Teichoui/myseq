@@ -1210,10 +1210,14 @@ namespace Structures
                 // Try manually loading directly
                 try {
                     XmlTextReader reader = new XmlTextReader(filename);
+                    bool sawSettings = false;
                     while (reader.Read())
                     {
                         if (reader.NodeType == XmlNodeType.Element)
                         {
+                            // A real settings file has a Settings element; any other XML is not one.
+                            if (reader.LocalName == "Settings") sawSettings = true;
+
                             switch (reader.Name)
                             {
                                 case "ipAddress1":
@@ -1424,6 +1428,12 @@ namespace Structures
                         }
                     }
                     reader.Close();
+
+                    if (!sawSettings)
+                    {
+                        LogLib.WriteLine("Settings.Load(): " + filename + " has no settings in it.");
+                        return false;
+                    }
                 }
 
                 catch (Exception ex)

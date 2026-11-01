@@ -22,7 +22,8 @@ namespace myseq
         // password the user has now chosen not to save: any existing backup is removed too.
         public static void Write(string path, Action<Stream> write, bool keepBackup)
         {
-            string temp = path + ".tmp";
+            // Its own name for each save, so two running copies saving the same file cannot mix their files up.
+            string temp = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
 
             try
             {

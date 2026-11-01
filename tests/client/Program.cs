@@ -46,7 +46,7 @@ namespace myseq.Tests
                 string path = Path.Combine(dir, "prefs.xml");
                 WriteText(path, "one");
                 Check(File.ReadAllText(path) == "one", "a new file gets its content");
-                Check(!File.Exists(path + ".tmp"), "no temporary file is left behind");
+                Check(Directory.GetFiles(dir, "*.tmp").Length == 0, "no temporary file is left behind");
                 Check(!File.Exists(SettingsFile.BackupPath(path)), "there is no backup when nothing was replaced");
             }
             finally { Directory.Delete(dir, true); }
@@ -64,7 +64,7 @@ namespace myseq.Tests
                 Check(File.ReadAllText(SettingsFile.BackupPath(path)) == "one", "the previous save is kept as the backup");
                 WriteText(path, "three");
                 Check(File.ReadAllText(SettingsFile.BackupPath(path)) == "two", "the backup moves on with each save");
-                Check(!File.Exists(path + ".tmp"), "no temporary file is left behind after replacing");
+                Check(Directory.GetFiles(dir, "*.tmp").Length == 0, "no temporary file is left behind after replacing");
             }
             finally { Directory.Delete(dir, true); }
         }
@@ -90,7 +90,7 @@ namespace myseq.Tests
 
                 Check(threw, "the error from a failed save is passed on");
                 Check(File.ReadAllText(path) == "good", "a failed save leaves the old file as it was");
-                Check(!File.Exists(path + ".tmp"), "a failed save removes its temporary file");
+                Check(Directory.GetFiles(dir, "*.tmp").Length == 0, "a failed save removes its temporary file");
                 Check(!File.Exists(SettingsFile.BackupPath(path)), "a failed save does not touch the backup");
             }
             finally { Directory.Delete(dir, true); }
@@ -109,7 +109,7 @@ namespace myseq.Tests
                 catch (InvalidOperationException) { }
 
                 Check(!File.Exists(path), "a failed first save does not create a file");
-                Check(!File.Exists(path + ".tmp"), "a failed first save removes its temporary file");
+                Check(Directory.GetFiles(dir, "*.tmp").Length == 0, "a failed first save removes its temporary file");
             }
             finally { Directory.Delete(dir, true); }
         }
@@ -131,7 +131,7 @@ namespace myseq.Tests
 
                 Check(File.ReadAllText(path) == "password: ", "a save without backup still replaces the file");
                 Check(!File.Exists(SettingsFile.BackupPath(path)), "a save without backup removes the old backup, so no older copy is left");
-                Check(!File.Exists(path + ".tmp"), "no temporary file is left behind");
+                Check(Directory.GetFiles(dir, "*.tmp").Length == 0, "no temporary file is left behind");
             }
             finally { Directory.Delete(dir, true); }
         }
